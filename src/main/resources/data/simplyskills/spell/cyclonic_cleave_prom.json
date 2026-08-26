@@ -1,0 +1,70 @@
+{
+  "school": "spell_power:physical_melee",
+  "range": 42,
+  "tier": 1,
+  "learn": {},
+  "active": {
+    "cast": {
+      "duration": 0.75
+    }
+  },
+  "release": {
+    "animation": {
+      "id": "simplyskills:two_handed_whirlwind"
+    },
+    "sound": {
+      "id": "simplyskills:soundeffect_32",
+      "volume": 0.2
+    },
+    "visuals": {
+      "particles": [
+        {
+          "id": "minecraft:portal",
+          "appearance": {},
+          "batch": {
+            "count": 90,
+            "shape": "PILLAR",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.1,
+            "min_speed": 0.1,
+            "max_speed": 0.35
+          }
+        },
+        {
+          "id": "minecraft:portal",
+          "appearance": {},
+          "batch": {
+            "count": 50,
+            "shape": "PIPE",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.1,
+            "min_speed": 0.1,
+            "max_speed": 0.3
+          }
+        }
+      ]
+    }
+  },
+  "target": {
+    "type": "CASTER"
+  },
+  "deliver": {
+    "type": "DIRECT"
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "STATUS_EFFECT",
+        "status_effect": {
+          "effect_id": "simplyskills:cyclonic_cleave",
+          "duration": 2,
+          "apply_mode": "SET",
+          "show_particles": false
+        }
+      }
+    }
+  ],
+  "cost": {
+    "durability": 0
+  }
+}

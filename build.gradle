@@ -1,0 +1,127 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.144'
+    id 'idea'
+}
+
+version = mod_version
+group = mod_group_id
+
+repositories {
+    maven {
+        url 'https://www.cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+    maven { url 'https://maven.shedaniel.me/' }
+}
+
+base {
+    archivesName = mod_id
+}
+
+sourceSets.main.java.exclude 'net/sweenus/simplyskills/events/AmethystImbuementEvent.java'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    implementation "curse.maven:puffish-skills-835091:${puffish_skills_file}"
+    implementation "curse.maven:puffish-attributes-991341:${puffish_attributes_file}"
+
+    implementation "maven.modrinth:spell-engine:${spell_engine_version}"
+    implementation "maven.modrinth:spell-power:${spell_power_version}"
+    implementation "maven.modrinth:paladins-and-priests:${paladins_version}"
+    implementation "maven.modrinth:archers:${archers_version}"
+    implementation "maven.modrinth:simply-swords:${simply_swords_version}"
+    implementation "maven.modrinth:immersive-melodies:${immersive_melodies_version}"
+    implementation "maven.modrinth:open-parties-and-claims:${openpac_version}"
+
+    implementation "maven.modrinth:curios:${curios_version}"
+    implementation "maven.modrinth:playeranimator:${player_animator_version}"
+    implementation "maven.modrinth:structure-pool-api:${structure_pool_api_version}"
+    implementation "maven.modrinth:shield-api:${shield_api_version}"
+    implementation "maven.modrinth:runes:${runes_version}"
+    implementation "maven.modrinth:armor-model-api:${armor_model_api_version}"
+    implementation "maven.modrinth:ranged-weapon-api:${ranged_weapon_api_version}"
+    implementation "maven.modrinth:fzzy-config:${fzzy_config_version}"
+    implementation "maven.modrinth:kotlin-for-forge:${kotlin_for_forge_version}"
+    implementation "maven.modrinth:architectury-api:${architectury_version}"
+    implementation "maven.modrinth:simply-tooltips:${simply_tooltips_version}"
+
+    implementation "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
+}
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version       : minecraft_version,
+            minecraft_version_range : minecraft_version_range,
+            neo_version             : neo_version,
+            loader_version_range    : loader_version_range,
+            mod_id                  : mod_id,
+            mod_name                : mod_name,
+            mod_license             : mod_license,
+            mod_version             : mod_version,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

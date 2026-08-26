@@ -1,0 +1,119 @@
+{
+  "school": "spell_power:physical_melee",
+  "range": 42,
+  "tier": 1,
+  "learn": {},
+  "active": {
+    "cast": {
+      "duration": 0.75,
+      "animation": {
+        "id": "spell_engine:one_handed_projectile_charge"
+      },
+      "sound": {
+        "id": "spell_engine:generic_arcane_casting",
+        "randomness": 0
+      },
+      "particles": [
+        {
+          "id": "minecraft:mycelium",
+          "appearance": {},
+          "batch": {
+            "count": 1,
+            "shape": "PIPE",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.1,
+            "min_speed": 0.05,
+            "max_speed": 0.1
+          }
+        }
+      ]
+    }
+  },
+  "release": {
+    "animation": {
+      "id": "simplyskills:fan_of_blades"
+    },
+    "sound": {
+      "id": "simplyskills:soundeffect_32",
+      "volume": 0.2
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {}
+  },
+  "deliver": {
+    "type": "PROJECTILE",
+    "projectile": {
+      "launch_properties": {
+        "velocity": 1.8
+      },
+      "projectile": {
+        "homing_angle": 20,
+        "client_data": {
+          "travel_particles": [
+            {
+              "id": "minecraft:mycelium",
+              "appearance": {},
+              "batch": {
+                "count": 2,
+                "shape": "CIRCLE",
+                "anchor": "ENTITY",
+                "vertical_origin": 0.5,
+                "alignment": "LOOK",
+                "min_speed": 0.05,
+                "max_speed": 0.1
+              }
+            }
+          ],
+          "composite_model": {
+            "models": [
+              {
+                "orientation": "ALONG_MOTION",
+                "fx": {
+                  "model_id": "simplyskills:spell_projectile/sword",
+                  "light_emission": "NONE",
+                  "scale": 0.3
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "knockback": 0,
+          "spell_power_coefficient": 1
+        }
+      },
+      "sound": {
+        "id": "simplyskills:soundeffect_32",
+        "volume": 0.2
+      },
+      "visuals": {
+        "particles": [
+          {
+            "id": "minecraft:mycelium",
+            "appearance": {},
+            "batch": {
+              "count": 10,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.5,
+              "min_speed": 0.2,
+              "max_speed": 0.7
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "cost": {
+    "durability": 0
+  }
+}

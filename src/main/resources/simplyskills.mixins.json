@@ -1,0 +1,30 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.sweenus.simplyskills.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BowItemMixin",
+    "CrossbowItemMixin",
+    "FollowOwnerGoalMixin",
+    "LivingEntityMixin",
+    "PlayerEntityMixin",
+    "ServerGamePacketListenerImplMixin",
+    "ServerPlayerEntityMixin",
+    "SkillsModMixin",
+    "SpellHelperMixin",
+    "SpellProjectileMixin",
+    "ExternalSpellSchoolsMixin"
+  ],
+  "client": [
+    "client.ArmorFeatureRendererMixin",
+    "client.EntityRenderDispatcherMixin",
+    "client.PlayerEntityRendererMixin",
+    "client.SkillsScreenAccessor",
+    "client.SkillsScreenMixin",
+    "client.SpellProjectileRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

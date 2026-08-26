@@ -1,0 +1,202 @@
+{
+  "school": "spell_power:fire",
+  "range": 32,
+  "tier": 3,
+  "learn": {},
+  "active": {
+    "cast": {
+      "duration": 1,
+      "animation": {
+        "id": "spell_engine:one_handed_projectile_charge"
+      },
+      "sound": {
+        "id": "simplyskills:spell_misc_01",
+        "randomness": 0
+      },
+      "particles": [
+        {
+          "id": "spell_engine:flame",
+          "appearance": {},
+          "batch": {
+            "count": 1,
+            "shape": "PIPE",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.1,
+            "min_speed": 0.05,
+            "max_speed": 0.1
+          }
+        }
+      ]
+    }
+  },
+  "release": {
+    "animation": {
+      "id": "spell_engine:one_handed_area_release"
+    },
+    "sound": {
+      "id": "simplyskills:spell_misc_01",
+      "volume": 1.5
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {}
+  },
+  "deliver": {
+    "type": "METEOR",
+    "meteor": {
+      "launch_height": 30,
+      "launch_properties": {
+        "velocity": 1.5,
+        "extra_launch_count": 8,
+        "extra_launch_delay": 14
+      },
+      "projectile": {
+        "divergence": 15,
+        "homing_angle": 1,
+        "client_data": {
+          "travel_particles": [
+            {
+              "id": "spell_engine:flame",
+              "appearance": {},
+              "batch": {
+                "count": 3,
+                "shape": "CIRCLE",
+                "anchor": "ENTITY",
+                "vertical_origin": 0.5,
+                "alignment": "LOOK",
+                "min_speed": 0,
+                "max_speed": 0.1
+              }
+            },
+            {
+              "id": "minecraft:smoke",
+              "appearance": {},
+              "batch": {
+                "count": 5,
+                "shape": "CIRCLE",
+                "anchor": "ENTITY",
+                "vertical_origin": 0.5,
+                "alignment": "LOOK",
+                "min_speed": 0.1,
+                "max_speed": 0.3
+              }
+            },
+            {
+              "id": "minecraft:campfire_cosy_smoke",
+              "appearance": {},
+              "batch": {
+                "count": 6,
+                "shape": "CIRCLE",
+                "anchor": "ENTITY",
+                "vertical_origin": 0.5,
+                "alignment": "LOOK",
+                "min_speed": 0,
+                "max_speed": 0.05
+              }
+            }
+          ],
+          "composite_model": {
+            "models": [
+              {
+                "orientation": "ALONG_MOTION",
+                "fx": {
+                  "model_id": "simplyskills:spell_projectile/meteor_projectile",
+                  "light_emission": "NONE",
+                  "scale": 1
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "spell_power_coefficient": 1,
+          "knockback": 2
+        }
+      },
+      "sound": {
+        "id": "simplyskills:soundeffect_15",
+        "volume": 0.1,
+        "pitch": 1.5
+      },
+      "visuals": {
+        "particles": [
+          {
+            "id": "minecraft:lava",
+            "appearance": {},
+            "batch": {
+              "count": 3,
+              "shape": "CIRCLE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.5,
+              "min_speed": 0.5,
+              "max_speed": 3
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "area_impact": {
+    "radius": 5,
+    "area": {
+      "distance_dropoff": "SQUARED"
+    },
+    "sound": {
+      "id": "simplyskills:spell_earth_punch",
+      "volume": 0.5,
+      "pitch": 1.8
+    },
+    "visuals": {
+      "particles": [
+        {
+          "id": "minecraft:lava",
+          "appearance": {},
+          "batch": {
+            "count": 90,
+            "shape": "CIRCLE",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.5,
+            "min_speed": 1.5,
+            "max_speed": 6
+          }
+        },
+        {
+          "id": "minecraft:flame",
+          "appearance": {},
+          "batch": {
+            "count": 100,
+            "shape": "SPHERE",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.5,
+            "min_speed": 0.2,
+            "max_speed": 0.4
+          }
+        },
+        {
+          "id": "minecraft:smoke",
+          "appearance": {},
+          "batch": {
+            "count": 90,
+            "shape": "SPHERE",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.5,
+            "min_speed": 0.1,
+            "max_speed": 0.3
+          }
+        }
+      ]
+    }
+  },
+  "cost": {
+    "exhaust": 0.3,
+    "durability": 0
+  }
+}

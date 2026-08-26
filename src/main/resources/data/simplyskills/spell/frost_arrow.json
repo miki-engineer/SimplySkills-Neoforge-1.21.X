@@ -1,0 +1,120 @@
+{
+  "school": "spell_power:frost",
+  "range": 96,
+  "tier": 1,
+  "learn": {},
+  "active": {
+    "cast": {
+      "duration": 0.75,
+      "animation": {
+        "id": "spell_engine:one_handed_projectile_charge"
+      },
+      "sound": {
+        "id": "spell_engine:generic_frost_casting",
+        "randomness": 0
+      },
+      "particles": [
+        {
+          "id": "spell_engine:frost_shard",
+          "appearance": {},
+          "batch": {
+            "count": 1,
+            "shape": "PIPE",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.1,
+            "min_speed": 0.05,
+            "max_speed": 0.1
+          }
+        }
+      ]
+    }
+  },
+  "release": {
+    "animation": {
+      "id": "spell_engine:one_handed_projectile_release"
+    },
+    "sound": {
+      "id": "simplyskills:soundeffect_16",
+      "volume": 0.2,
+      "pitch": 1.6
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {}
+  },
+  "deliver": {
+    "type": "PROJECTILE",
+    "projectile": {
+      "launch_properties": {
+        "velocity": 1.6
+      },
+      "projectile": {
+        "homing_angle": 1.8,
+        "client_data": {
+          "travel_particles": [
+            {
+              "id": "spell_engine:frost_shard",
+              "appearance": {},
+              "batch": {
+                "count": 2,
+                "shape": "CIRCLE",
+                "anchor": "ENTITY",
+                "vertical_origin": 0.5,
+                "alignment": "LOOK",
+                "min_speed": 0.05,
+                "max_speed": 0.1
+              }
+            }
+          ],
+          "composite_model": {
+            "models": [
+              {
+                "orientation": "ALONG_MOTION",
+                "fx": {
+                  "model_id": "simplyskills:spell_projectile/ice_projectile",
+                  "light_emission": "NONE",
+                  "scale": 1
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "knockback": 0.5,
+          "spell_power_coefficient": 2
+        }
+      },
+      "sound": {
+        "id": "simplyskills:soundeffect_32",
+        "volume": 0.2
+      },
+      "visuals": {
+        "particles": [
+          {
+            "id": "spell_engine:magic_frost",
+            "appearance": {},
+            "batch": {
+              "count": 40,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.5,
+              "min_speed": 0.2,
+              "max_speed": 0.7
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "cost": {
+    "durability": 0
+  }
+}
