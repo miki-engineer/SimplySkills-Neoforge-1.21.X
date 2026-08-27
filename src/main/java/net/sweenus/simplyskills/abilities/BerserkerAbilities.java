@@ -146,11 +146,16 @@ public class BerserkerAbilities {
     public static boolean signatureBerserkerRampage(String berserkerSkillTree, Player player) {
 
         int rampageDuration = SimplySkills.berserkerConfig.signatureBerserkerRampageDuration;
+        int rampageSubEffectDuration = SimplySkills.berserkerConfig.signatureBerserkerRampageSubEffectDuration;
         int bullrushDuration = SimplySkills.berserkerConfig.signatureBerserkerBullrushDuration;
         player.addEffect(new MobEffectInstance(EffectRegistry.RAMPAGE, rampageDuration, 0, false, false, true));
         if (HelperMethods.isUnlocked(berserkerSkillTree,
                 SkillReferencePosition.berserkerSpecialisationRampageCharge, player)) {
             player.addEffect(new MobEffectInstance(EffectRegistry.BULLRUSH, bullrushDuration, 0 , false, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION,
+                    rampageSubEffectDuration, 0, false, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,
+                    rampageSubEffectDuration, 0, false, false, true));
             player.level().playSound(null, player, SoundRegistry.SOUNDEFFECT15,
                     SoundSource.PLAYERS, 0.5f, 1.1f);
         }
