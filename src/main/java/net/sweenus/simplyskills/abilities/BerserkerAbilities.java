@@ -125,7 +125,7 @@ public class BerserkerAbilities {
             }
             if (count > countMax)
                 count = countMax;
-            if (count > 1)
+            if (count > 0)
                 player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, frequency + 5, count -1, false, false, true));
         }
     }
