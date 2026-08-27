@@ -16,6 +16,9 @@ run/
 logs/
 crash-reports/
 
+### Local testing notes ###
+PASSIVE_TEST_NOTES.md
+
 ### Eclipse ###
 .apt_generated
 .classpath
