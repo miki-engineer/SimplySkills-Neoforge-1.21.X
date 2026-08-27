@@ -16,7 +16,7 @@ run/
 logs/
 crash-reports/
 
-### Local testing notes ###
+### Local development files ###
 PASSIVE_TEST_NOTES.md
 
 ### Eclipse ###
