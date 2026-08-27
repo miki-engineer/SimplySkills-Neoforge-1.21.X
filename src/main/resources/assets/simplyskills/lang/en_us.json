@@ -606,6 +606,8 @@
   "text.autoconfig.simplyskills.option.spellblade.signatureSpellbladeElementalSurgeFrequency" :               "§6[Signature]§7 Elemental Surge frequency",
   "text.autoconfig.simplyskills.option.spellblade.signatureSpellbladeElementalSurgeRadius" :                  "§6[Signature]§7 Elemental Surge radius",
   "text.autoconfig.simplyskills.option.spellblade.signatureSpellbladeElementalSurgeChance" :                  "§6[Signature]§7 Elemental Surge chance",
+  "text.autoconfig.simplyskills.option.spellblade.signatureSpellbladeElementalSurgeRenewalChance" :           "§6[Signature]§7 Elemental Surge Renewal chance",
+  "text.autoconfig.simplyskills.option.spellblade.signatureSpellbladeElementalSurgeRenewalDuration" :         "§6[Signature]§7 Elemental Surge Renewal duration",
   "text.autoconfig.simplyskills.option.spellblade.signatureSpellbladeElementalImpactDuration" :               "§6[Signature]§7 Elemental Impact duration",
   "text.autoconfig.simplyskills.option.spellblade.signatureSpellbladeElementalImpactCooldown" :               "§6[Signature]§7 Elemental Impact base cooldown (in seconds)",
   "text.autoconfig.simplyskills.option.spellblade.signatureSpellbladeElementalImpactResistanceAmplifier" :    "§6[Signature]§7 Elemental Impact Resistance amplifier",

@@ -315,10 +315,14 @@ public class AbilityLogic {
         //Signature Passive Elemental Surge Renewal
         if (HelperMethods.isUnlocked("simplyskills:spellblade",
                 SkillReferencePosition.spellbladeSpecialisationElementalSurgeRenewal, player)) {
-            if (player.hasEffect(EffectRegistry.ELEMENTALSURGE)) {
+            int renewalChance = SimplySkills.spellbladeConfig.signatureSpellbladeElementalSurgeRenewalChance;
+            int renewalDuration = SimplySkills.spellbladeConfig.signatureSpellbladeElementalSurgeRenewalDuration;
+            if (player.hasEffect(EffectRegistry.ELEMENTALSURGE) &&
+                    player.getRandom().nextInt(100) < renewalChance) {
                 int surgeDuration = player.getEffect(EffectRegistry.ELEMENTALSURGE).getDuration();
                 player.removeEffect(EffectRegistry.ELEMENTALSURGE);
-                player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALSURGE, surgeDuration+3, 0, false, false, true));
+                player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALSURGE,
+                        surgeDuration + renewalDuration, 0, false, false, true));
             }
         }
 

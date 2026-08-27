@@ -18,6 +18,9 @@ public class SpellbladeConfig implements ConfigData {
     public int signatureSpellbladeElementalSurgeRadius = 3;
     @ConfigEntry.BoundedDiscrete(max = 100)
     public int signatureSpellbladeElementalSurgeChance = 100;
+    @ConfigEntry.BoundedDiscrete(max = 100)
+    public int signatureSpellbladeElementalSurgeRenewalChance = 15;
+    public int signatureSpellbladeElementalSurgeRenewalDuration = 60;
     public int signatureSpellbladeElementalSurgeCooldown = 30;
     public int signatureSpellbladeElementalImpactDuration = 20;
     public int signatureSpellbladeElementalImpactResistanceAmplifier = 2;
