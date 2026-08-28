@@ -15,6 +15,8 @@ import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.puffish.skillsmod.api.Category;
 import net.puffish.skillsmod.api.SkillsAPI;
 import net.sweenus.simplyskills.config.*;
@@ -121,10 +123,21 @@ public class SimplySkills {
 
     private void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            removeLegacyAttributeModifiers(player);
             if (generalConfig.disableDefaultPuffishTrees || ModList.get().isLoaded("prominent")) {
                 processPlayer(player);
             }
             ModPacketHandler.sendSignatureAbility(player);
+        }
+    }
+
+    private void removeLegacyAttributeModifiers(ServerPlayer player) {
+        for (AttributeInstance attribute : player.getAttributes().getSyncableAttributes()) {
+            attribute.getModifiers().stream()
+                    .map(AttributeModifier::id)
+                    .filter(id -> id.getNamespace().equals(MOD_ID) && id.getPath().startsWith("modifier_"))
+                    .toList()
+                    .forEach(attribute::removeModifier);
         }
     }
 
