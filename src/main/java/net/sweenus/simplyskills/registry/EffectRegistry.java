@@ -53,115 +53,115 @@ public class EffectRegistry {
     public static Holder<MobEffect> EARTHSHAKER = Holder.direct(new EarthshakerEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> ARCANEATTUNEMENT = Holder.direct(new ArcaneAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.ARCANE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_8b724548dbd94dbf8ad59c0b7757dec5"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "arcane_attunement_spell_power"),
                     0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> FIREATTUNEMENT = Holder.direct(new FireAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.FIRE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_5835e9c241824098b9ef23670c46cb4d"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "fire_attunement_spell_power"),
                     0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> FROSTATTUNEMENT = Holder.direct(new FrostAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.FROST.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_caa82c9798744f5e84e437380bf756ec"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "frost_attunement_spell_power"),
                     0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> LIGHTNINGATTUNEMENT = Holder.direct(new LightningAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.LIGHTNING.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_7edc1ac1c6c54a4692e1baf28abea256"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "lightning_attunement_spell_power"),
                     0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> SOULATTUNEMENT = Holder.direct(new SoulAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.SOUL.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_45da701ee40a4041bd54f06e283ad7cb"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "soul_attunement_spell_power"),
                     0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> HOLYATTUNEMENT = Holder.direct(new HolyAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.HEALING.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_60125c3e49804cc8b54e037b47185e2b"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "holy_attunement_spell_power"),
                     0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> PRECISION = Holder.direct(new PrecisionEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellPowerMechanics.CRITICAL_CHANCE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_32a5a12951a64a38b78ee7afb69f9e17"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "precision_critical_chance"),
                     0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellPowerMechanics.CRITICAL_DAMAGE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_bb6233b1475947d09044d509b4bc6695"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "precision_critical_damage"),
                     0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> DEATHMARK = Holder.direct(new DeathMarkEffect(MobEffectCategory.HARMFUL, 3124687)
             .addAttributeModifier(AttributesMod.RESISTANCE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_325dbaa984c54ceaaca188b8dc585c3e"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "death_mark_resistance"),
                     -0.25,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(AttributesMod.HEALING,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_5e2ff54c96984ba083209ba6e9f2b394"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "death_mark_healing"),
                     -0.25,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> MARKSMAN = Holder.direct(new MarksmanEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> STEALTH = Holder.direct(new StealthEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_0e7a848f46db4e129d4a40a5f24683c3"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "stealth_movement_speed"),
                     -0.40,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> MIGHT = Holder.direct(new MightEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.ATTACK_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_4a4233a03299475582139f10cfb7e795"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "might_attack_damage"),
                     mightIncrease,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> MARKSMANSHIP = Holder.direct(new MarksmanshipEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(AttributesMod.RANGED_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_d6702be12e6e44bab32541a7da2ca6b3"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "marksmanship_ranged_damage"),
                     marksmanshipIncrease,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> EXHAUSTION = Holder.direct(new ExhaustionEffect(MobEffectCategory.HARMFUL, 3124687)
             .addAttributeModifier(Attributes.ATTACK_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_1ce35aec6a4144ffa537f03b76f01664"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "exhaustion_attack_damage"),
                     -0.01,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
                 .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_9410035d58384f51a48ec896e7a7570f"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "exhaustion_attack_speed"),
                             -0.01,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_1d71599697d041d7ab3c96c5302c9d98"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "exhaustion_movement_speed"),
                     -0.01,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> REVEALED = Holder.direct(new RevealedEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> BARRIER = Holder.direct(new BarrierEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> SOULSHOCK = Holder.direct(new SoulshockEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.SOUL.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_f4f57190f82f4283a4b9a898382bcea7"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "soulshock_soul_spell_power"),
                     soulshockIncrease,
                     AttributeModifier.Operation.ADD_VALUE)
             .addAttributeModifier(SpellSchools.LIGHTNING.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_f811acad25424e5a837fa869251162ee"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "soulshock_lightning_spell_power"),
                     soulshockIncrease,
                     AttributeModifier.Operation.ADD_VALUE));
     public static Holder<MobEffect> SPELLFORGED = Holder.direct(new SoulshockEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.SOUL.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_5d6e7b01e11b46ac8a970ec497616982"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_soul_spell_power"),
                     spellforgedIncrease,
                     AttributeModifier.Operation.ADD_VALUE)
             .addAttributeModifier(SpellSchools.LIGHTNING.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_dc0cea79ffa64209b851952f60147b2c"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_lightning_spell_power"),
                     spellforgedIncrease,
                     AttributeModifier.Operation.ADD_VALUE)
             .addAttributeModifier(SpellSchools.HEALING.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_fa5f66cdca9b4da6a4a83444a77156b7"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_healing_spell_power"),
                     spellforgedIncrease,
                     AttributeModifier.Operation.ADD_VALUE)
             .addAttributeModifier(SpellSchools.ARCANE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_d7b58e45df8540d9a78b943dc8765f2a"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_arcane_spell_power"),
                     spellforgedIncrease,
                     AttributeModifier.Operation.ADD_VALUE)
             .addAttributeModifier(SpellSchools.FIRE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_3d183b4b9bfb4d4eb7f0bd8cf65a34fc"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_fire_spell_power"),
                     spellforgedIncrease,
                     AttributeModifier.Operation.ADD_VALUE)
             .addAttributeModifier(SpellSchools.FROST.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_5951bed4b0584320851275c1be44bc33"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_frost_spell_power"),
                     spellforgedIncrease,
                     AttributeModifier.Operation.ADD_VALUE));
     public static Holder<MobEffect> DIVINEADJUDICATION = Holder.direct(new DivineAdjudicationEffect(MobEffectCategory.BENEFICIAL, 3124687));
@@ -171,21 +171,21 @@ public class EffectRegistry {
     public static Holder<MobEffect> UNDYING = Holder.direct(new UndyingEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> RAGE = Holder.direct(new RageEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.ATTACK_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_2489075cb5ce40b58a1d3787ad4f4d8b"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "rage_attack_damage"),
                     +0.005,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_29d236f5e3e14612898b39b916fd771c"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "rage_attack_speed"),
                     +0.005,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
     public static Holder<MobEffect> OVERLOAD = Holder.direct(new OverloadEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellPowerMechanics.CRITICAL_DAMAGE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_c937f985c57146e58339b4ccf4c15442"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "overload_critical_damage"),
                     0.45,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellPowerMechanics.CRITICAL_CHANCE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_ad26be8bdb354d0498dbd8943e4ac8be"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "overload_critical_chance"),
                     0.10,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> BLADESTORM = Holder.direct(new BladestormEffect(MobEffectCategory.BENEFICIAL, 3124687));
@@ -193,61 +193,61 @@ public class EffectRegistry {
     public static Holder<MobEffect> ANOINTED = Holder.direct(new AnointedEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> AGILE = Holder.direct(new AgileEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(AttributesMod.RANGED_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_6fa231ce882a4163b941452ec1e80f39"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "agile_ranged_damage"),
                     0.05,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_24e81380108e488b9d48995f852d8fba"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "agile_attack_speed"),
                     0.05,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellPowerMechanics.HASTE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_812e38a796084a82a8d76f6c8db2f4d8"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "agile_spell_haste"),
                     0.05,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_af3a4ed4331b4a51b9a78bad6f6015f0"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "agile_movement_speed"),
                     0.05,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
     public static Holder<MobEffect> RIGHTEOUSHAMMERS = Holder.direct(new RighteousHammersEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.ATTACK_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_36c6315a1c2548a798f6f1cfc15b9851"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "righteous_hammers_attack_damage"),
                     +0.02,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
     public static Holder<MobEffect> BONEARMOR = Holder.direct(new BoneArmorEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(getPromBloodMagic(),
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_30ac8be8c2cc46a59311334b0cd88b7d"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "bone_armor_blood_spell_power"),
                     +1,
                     AttributeModifier.Operation.ADD_VALUE)
             .addAttributeModifier(Attributes.ARMOR_TOUGHNESS,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_a8c16e8b9d824fe5a0f22b9fe688b4da"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "bone_armor_toughness"),
                     +0.1,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
     public static Holder<MobEffect> MAGICCIRCLE = Holder.direct(new MagicCircleEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(SpellSchools.SOUL.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_962352c08bbb4e09b9b2ce2570558368"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_soul_spell_power"),
                     0.3,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellSchools.LIGHTNING.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_c136624581fd4848988e83f7903f80aa"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_lightning_spell_power"),
                     0.3,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellSchools.HEALING.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_c9efc31650de470f8d111800066e106e"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_healing_spell_power"),
                     0.3,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellSchools.ARCANE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_525f0dd65d1f49619a8257ecd7fc4682"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_arcane_spell_power"),
                     0.3,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellSchools.FIRE.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_4de16daae56c441483a59f957ce0566d"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_fire_spell_power"),
                     0.3,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellSchools.FROST.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_ba74d1cf3d6f49049d515e070ae0bd7c"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_frost_spell_power"),
                     0.3,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
@@ -263,52 +263,52 @@ public class EffectRegistry {
     public static Holder<MobEffect> SHADOWAURA = Holder.direct(new ShadowAuraEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> GOLDENAEGIS = Holder.direct(new GoldenAegisEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.ARMOR,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_c3bf99d1ee9c430792b0660581bfa28a"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "golden_aegis_armor"),
                     0.01,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(Attributes.ARMOR_TOUGHNESS,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_9836b739fb7b404e99279bdf74de1dae"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "golden_aegis_armor_toughness"),
                     0.01,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(SpellSchools.HEALING.attributeEntry,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_1ebefacf9a1e4a81938756dd4207a47f"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "golden_aegis_healing_spell_power"),
                     0.01,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> FOCUS = Holder.direct(new FocusEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(AttributesMod.RANGED_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_127a23085cd74b28b52d71cde1d2a9da"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "focus_ranged_damage"),
                     0.2,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> TITANSGRIP = Holder.direct(new TitansGripEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.ATTACK_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_53044215cfb04a01a33e3bda11fab913"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "titans_grip_attack_damage"),
                     SimplySkills.miscConfig.promWarriorsDevotionAttackMulti,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_10d428423eb544c7ba5fa663ba984e66"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "titans_grip_attack_speed"),
                     -SimplySkills.miscConfig.promWarriorsDevotionAttackSpeedMulti,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
     public static Holder<MobEffect> MELODYOFWAR = Holder.direct(new MelodyOfWarEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> MELODYOFSWIFTNESS = Holder.direct(new MelodyOfSwiftnessEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_606c3744d1f4431f860b0092f1d9c32e"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "melody_of_swiftness_movement_speed"),
                     0.30,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> MELODYOFPROTECTION = Holder.direct(new MelodyOfProtectionEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> MELODYOFSAFETY = Holder.direct(new MelodyOfSafetyEffect(MobEffectCategory.BENEFICIAL, 3124687));
     public static Holder<MobEffect> MELODYOFCONCENTRATION = Holder.direct(new MelodyOfConcentrationEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_bddd1a507de34e21bb321b562c138927"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "melody_of_concentration_attack_speed"),
                     0.20,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_6b9d312d3451485295be3f7d8c6ec188"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "melody_of_concentration_movement_speed"),
                     0.10,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> MELODYOFBLOODLUST = Holder.direct(new MelodyOfBloodlustEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "modifier_c717c9f23b184cebaf35455063b25e2a"),
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "melody_of_bloodlust_attack_speed"),
                     0.20,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> RAGINGJAVELIN = Holder.direct(new RagingJavelinEffect(MobEffectCategory.BENEFICIAL, 3124687));
