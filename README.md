@@ -32,6 +32,7 @@ Still in progress:
 - Wizard
 - Necromancer
 - Ascendancy tree
+- Final direct test of every registered effect after all trees are complete
 - Final regression testing and performance cleanup
 
 ## Main porting work
@@ -109,6 +110,7 @@ Review and testing support:
 ## Known review notes
 
 - Rogue, Wizard, Necromancer, and Ascendancy testing still remain.
+- After every tree is complete, each registered effect will be tested directly to confirm that its actual mechanics work, not only that the effect icon or activation appears.
 - Final regression testing and performance cleanup will happen after the skill trees are complete.
 - The development client can report missing Spell Engine conventional tags and Simply Swords recipes for optional mods that are not installed. These warnings do not stop the client and are not produced by Simply Skills logic.
 
