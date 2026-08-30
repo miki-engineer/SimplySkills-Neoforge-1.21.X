@@ -68,6 +68,12 @@ Deliberate balance change:
 
 - Raging Javelin now throws every 20 ticks by default instead of every 8 ticks. The interval can be changed in the config.
 
+Performance adjustment:
+
+- Arrow Rain keeps the same radius, density, volley count, and elemental chances, but releases each volley four ticks apart instead of creating the complete rain in one tick.
+- An elemental Arrow Rain roll now replaces its normal arrow instead of adding a spell projectile beside an invisible normal arrow. This lowers the entity count and avoids circling around the temporary arrow target.
+- Elemental Artillery only creates a homing projectile after finding a valid enemy. Invalid homing projectiles are removed instead of remaining until their range expires.
+
 Confirmed original code corrections:
 
 - Challenge: the original checks for more than one enemy, while its text grants Haste for each nearby enemy. The port allows one enemy to grant the first stack.

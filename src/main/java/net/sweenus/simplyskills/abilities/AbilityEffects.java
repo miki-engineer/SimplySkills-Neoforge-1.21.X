@@ -2,7 +2,9 @@ package net.sweenus.simplyskills.abilities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -17,6 +19,12 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.spell_engine.api.spell.Spell;
+import net.spell_engine.api.spell.registry.SpellRegistry;
+import net.spell_engine.entity.SpellProjectile;
+import net.spell_engine.internals.SpellExecution;
+import net.spell_engine.internals.target.SpellIntents;
+import net.spell_power.api.SpellPower;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.entities.SimplySkillsArrowEntity;
 import net.sweenus.simplyskills.registry.EffectRegistry;
@@ -25,11 +33,40 @@ import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 
 public class AbilityEffects {
+
+    private static final Map<UUID, ArrowRainVolley> pendingArrowRainVolleys = new HashMap<>();
+
+    private static class ArrowRainVolley {
+        private final Vec3 position;
+        private final int radius;
+        private final int density;
+        private final int volleys;
+        private final boolean elemental;
+        private final int projectileLimit;
+        private int remainingVolleys;
+        private int elementalProjectiles;
+        private int nextVolleyTick;
+
+        private ArrowRainVolley(Vec3 position, int radius, int density, int volleys,
+                                boolean elemental, int projectileLimit, int nextVolleyTick) {
+            this.position = position;
+            this.radius = radius;
+            this.density = density;
+            this.volleys = volleys;
+            this.elemental = elemental;
+            this.projectileLimit = projectileLimit;
+            this.remainingVolleys = volleys;
+            this.nextVolleyTick = nextVolleyTick;
+        }
+    }
 
 
     public static void effectBerserkerBerserking(Entity target, Player player) {
@@ -298,9 +335,7 @@ public class AbilityEffects {
             int arrowRainVolleys = SimplySkills.rangerConfig.effectRangerArrowRainVolleys;
             int arrowRainVolleyIncrease = SimplySkills.rangerConfig.effectRangerArrowRainVolleyIncreasePerTier;
             int arrowRainRange = SimplySkills.rangerConfig.effectRangerArrowRainRange;
-            boolean preventShotgun = false;
-            int projectileLimiter = 0;
-            int projectileLimiterCap = 30;
+            int projectileLimiterCap = Integer.MAX_VALUE;
 
             if (HelperMethods.isUnlocked("simplyskills:ranger",
                     SkillReferencePosition.rangerSpecialisationArrowRainRadiusThree, player))
@@ -338,74 +373,110 @@ public class AbilityEffects {
             }
 
             if (blockpos != null) {
-                int xpos = (int) blockpos.x() - arrowRainRadius;
-                int ypos = (int) blockpos.y();
-                int zpos = (int) blockpos.z() - arrowRainRadius;
-
-
-                for (int x = arrowRainRadius * 2; x > 0; x--) {
-                    for (int z = arrowRainRadius * 2; z > 0; z--) {
-                        for (int i = arrowRainVolleys; i > 0; i--) {
-                            BlockPos spawnPosition = new BlockPos(xpos + x,
-                                    ypos + 25 + (player.getRandom().nextInt(15) * arrowRainVolleys + 1),
-                                    zpos + z);
-
-                            if (player.getRandom().nextInt(100) < arrowRainChance
-                                    && player.level().getBlockState(spawnPosition).isAir()) {
-                                SimplySkillsArrowEntity arrowEntity = new SimplySkillsArrowEntity(EntityType.ARROW,
-                                        player.level());
-                                arrowEntity.absMoveTo(spawnPosition.getX(),
-                                        spawnPosition.getY(),
-                                        spawnPosition.getZ());
-                                arrowEntity.setOwner(player);
-                                arrowEntity.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-                                arrowEntity.setDeltaMovement(0, -0.5, 0);
-                                player.level().addFreshEntity(arrowEntity);
-
-                                if (HelperMethods.isUnlocked("simplyskills:ranger",
-                                        SkillReferencePosition.rangerSpecialisationArrowRainElemental, player)) {
-
-                                    BlockPos blockPos = player.blockPosition().relative(player.getMotionDirection(), 3);
-                                    AABB box = HelperMethods.createBoxBetween(player.blockPosition(), blockPos, 3);
-                                    for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
-
-                                        if (entities != null) {
-                                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
-                                                preventShotgun = true;
-                                                projectileLimiterCap = 4;
-                                            }
-                                        }
-                                    }
-
-                                    arrowEntity.addEffect(new MobEffectInstance((MobEffects.MOVEMENT_SLOWDOWN)));
-                                    if (!preventShotgun || projectileLimiter < projectileLimiterCap) {
-                                        if (player.getRandom().nextInt(100) < 5) {
-                                            SignatureAbilities.castSpellEngineIndirectTarget(player,
-                                                    "simplyskills:fire_arrow_rain", 512, arrowEntity, null);
-                                            arrowEntity.setInvisible(true);
-                                            projectileLimiter++;
-                                        } else if (player.getRandom().nextInt(100) < 15) {
-                                            SignatureAbilities.castSpellEngineIndirectTarget(player,
-                                                    "simplyskills:frost_arrow_rain", 512, arrowEntity, null);
-                                            arrowEntity.setInvisible(true);
-                                            projectileLimiter++;
-                                        } else if (player.getRandom().nextInt(100) < 25) {
-                                            SignatureAbilities.castSpellEngineIndirectTarget(player,
-                                                    "simplyskills:lightning_arrow_rain", 512, arrowEntity, null);
-                                            arrowEntity.setInvisible(true);
-                                            projectileLimiter++;
-                                        }
-                                    }
-                                }
-                            }
+                boolean elemental = HelperMethods.isUnlocked("simplyskills:ranger",
+                        SkillReferencePosition.rangerSpecialisationArrowRainElemental, player);
+                if (elemental) {
+                    BlockPos blockPos = player.blockPosition().relative(player.getMotionDirection(), 3);
+                    AABB box = HelperMethods.createBoxBetween(player.blockPosition(), blockPos, 3);
+                    for (Entity entity : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
+                        if (entity instanceof LivingEntity livingEntity && HelperMethods.checkFriendlyFire(livingEntity, player)) {
+                            projectileLimiterCap = 4;
+                            break;
                         }
                     }
                 }
+
+                ArrowRainVolley volley = new ArrowRainVolley(blockpos, arrowRainRadius, arrowRainChance,
+                        arrowRainVolleys, elemental, projectileLimiterCap, player.tickCount);
+                pendingArrowRainVolleys.put(player.getUUID(), volley);
+                spawnArrowRainVolley((ServerPlayer) player, volley);
                 HelperMethods.decrementStatusEffect(player, EffectRegistry.ARROWRAIN);
             }
             return true;
         }
         return false;
+    }
+
+    public static void tickRangerArrowRain(ServerPlayer player) {
+        ArrowRainVolley volley = pendingArrowRainVolleys.get(player.getUUID());
+        if (volley == null || player.tickCount < volley.nextVolleyTick)
+            return;
+
+        spawnArrowRainVolley(player, volley);
+    }
+
+    public static void clearRangerArrowRain(ServerPlayer player) {
+        pendingArrowRainVolleys.remove(player.getUUID());
+    }
+
+    private static void spawnArrowRainVolley(ServerPlayer player, ArrowRainVolley volley) {
+        int xpos = (int) volley.position.x() - volley.radius;
+        int ypos = (int) volley.position.y();
+        int zpos = (int) volley.position.z() - volley.radius;
+
+        for (int x = volley.radius * 2; x > 0; x--) {
+            for (int z = volley.radius * 2; z > 0; z--) {
+                BlockPos spawnPosition = new BlockPos(xpos + x,
+                        ypos + 25 + (player.getRandom().nextInt(15) * volley.volleys + 1),
+                        zpos + z);
+
+                if (player.getRandom().nextInt(100) < volley.density
+                        && player.level().getBlockState(spawnPosition).isAir()) {
+                    ResourceLocation elementalSpell = null;
+                    if (volley.elemental && volley.elementalProjectiles < volley.projectileLimit)
+                        elementalSpell = getArrowRainElement(player);
+
+                    if (elementalSpell != null) {
+                        spawnArrowRainElement(player, spawnPosition, elementalSpell);
+                        volley.elementalProjectiles++;
+                    } else {
+                        SimplySkillsArrowEntity arrowEntity = new SimplySkillsArrowEntity(EntityType.ARROW,
+                                player.level());
+                        arrowEntity.absMoveTo(spawnPosition.getX(), spawnPosition.getY(), spawnPosition.getZ());
+                        arrowEntity.setOwner(player);
+                        arrowEntity.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+                        arrowEntity.setDeltaMovement(0, -0.5, 0);
+                        player.level().addFreshEntity(arrowEntity);
+                    }
+                }
+            }
+        }
+
+        volley.remainingVolleys--;
+        if (volley.remainingVolleys > 0)
+            volley.nextVolleyTick = player.tickCount + 4;
+        else pendingArrowRainVolleys.remove(player.getUUID());
+    }
+
+    private static ResourceLocation getArrowRainElement(Player player) {
+        if (player.getRandom().nextInt(100) < 5)
+            return ResourceLocation.parse("simplyskills:fire_arrow_rain");
+        else if (player.getRandom().nextInt(100) < 15)
+            return ResourceLocation.parse("simplyskills:frost_arrow_rain");
+        else if (player.getRandom().nextInt(100) < 25)
+            return ResourceLocation.parse("simplyskills:lightning_arrow_rain");
+        return null;
+    }
+
+    private static void spawnArrowRainElement(ServerPlayer player, BlockPos position, ResourceLocation spellId) {
+        SpellRegistry.from(player.level()).getHolder(spellId).ifPresent(spell -> {
+            Spell.ProjectileData projectileData = spell.value().deliver.projectile.projectile;
+            Spell.ProjectileData.Perks perks = projectileData.perks == null
+                    ? Spell.ProjectileData.Perks.EMPTY()
+                    : projectileData.perks.copy();
+            SpellExecution.ImpactContext context = new SpellExecution.ImpactContext(
+                    1, 1, null,
+                    SpellPower.getSpellPower(spell.value().school, player),
+                    SpellIntents.focusMode(spell.value()), 0);
+            SpellProjectile projectile = new SpellProjectile(player.level(), player,
+                    position.getX(), position.getY(), position.getZ(),
+                    SpellProjectile.Behaviour.FLY, spell, context, perks);
+            projectile.setVelocity(0, -1, 0,
+                    spell.value().deliver.projectile.launch_properties.velocity, 0, 0);
+            projectile.range = spell.value().range;
+            player.level().addFreshEntity(projectile);
+            AbilityLogic.onSpellCastEffects(player, List.of(), spellId, null);
+        });
     }
 
     public static void effectWizardFrostVolley(Player player) {

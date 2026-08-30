@@ -22,12 +22,16 @@ import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
 public class RangerAbilities {
+
+    private static final List<ResourceLocation> arrowRainElements = List.of(
+            ResourceLocation.parse("simplyskills:frost_arrow_homing"),
+            ResourceLocation.parse("simplyskills:fire_arrow_homing"),
+            ResourceLocation.parse("simplyskills:lightning_arrow_homing"));
 
     public static void passiveRangerReveal(Player player) {
         int frequency = SimplySkills.rangerConfig.passiveRangerRevealFrequency;
@@ -280,37 +284,32 @@ public class RangerAbilities {
             if (HelperMethods.isUnlocked("simplyskills:ranger", SkillReferencePosition.rangerSpecialisationArrowRainElementalArtillery, player)
                     && spellId.toString().contains("arrow_rain")) {
 
-                Vec3 position = spellProjectile.position();
-                List<String> list = new ArrayList<>();
-                list.add("simplyskills:frost_arrow_homing");
-                list.add("simplyskills:fire_arrow_homing");
-                list.add("simplyskills:lightning_arrow_homing");
-
-                Random rand = new Random();
-                ResourceLocation randomSpell = ResourceLocation.parse(list.get(rand.nextInt(list.size())));
-
-                SpellProjectile projectile = new SpellProjectile(spellProjectile.level(),
-                        (LivingEntity) spellProjectile.getOwner(), position.x(), position.y(), position.z(),
-                        spellProjectile.getBehaviour(), SpellRegistry.from(player.level()).getHolder(randomSpell).orElseThrow(),
-                        context, perks.copy());
-
-                projectile.setDeltaMovement(spellProjectile.getDeltaMovement());
-                projectile.range = spellProjectile.range;
-                ProjectileUtil.rotateTowardsMovement(projectile, 0.2F);
-
                 int radius = 20;
-                AABB box = new AABB(spellProjectile.getX() + radius, spellProjectile.getY() + (float) radius * 3, spellProjectile.getZ() + radius,
-                        spellProjectile.getX() - radius, spellProjectile.getY() - (float) radius * 3, spellProjectile.getZ() - radius);
-                for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
-                    if (entities != null && player.getRandom().nextInt(100) < 35) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
-                            projectile.setFollowedTarget(le);
+                LivingEntity target = null;
+                AABB box = spellProjectile.getBoundingBox().inflate(radius, radius * 3, radius);
+                for (Entity entity : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
+                    if (player.getRandom().nextInt(100) < 35) {
+                        if (entity instanceof LivingEntity livingEntity && HelperMethods.checkFriendlyFire(livingEntity, player)) {
+                            target = livingEntity;
                             break;
                         }
                     }
                 }
 
-                spellProjectile.level().addFreshEntity(projectile);
+                if (target != null) {
+                    Vec3 position = spellProjectile.position();
+                    ResourceLocation randomSpell = arrowRainElements.get(player.getRandom().nextInt(arrowRainElements.size()));
+                    SpellProjectile projectile = new SpellProjectile(spellProjectile.level(),
+                            (LivingEntity) spellProjectile.getOwner(), position.x(), position.y(), position.z(),
+                            spellProjectile.getBehaviour(), SpellRegistry.from(player.level()).getHolder(randomSpell).orElseThrow(),
+                            context, perks.copy());
+
+                    projectile.setDeltaMovement(spellProjectile.getDeltaMovement());
+                    projectile.range = spellProjectile.range;
+                    projectile.setFollowedTarget(target);
+                    ProjectileUtil.rotateTowardsMovement(projectile, 0.2F);
+                    spellProjectile.level().addFreshEntity(projectile);
+                }
             }
         }
     }

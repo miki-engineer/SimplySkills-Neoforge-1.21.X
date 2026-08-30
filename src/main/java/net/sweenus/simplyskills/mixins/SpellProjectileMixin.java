@@ -51,13 +51,21 @@ public abstract class SpellProjectileMixin extends Projectile {
         super(entityType, world);
     }
 
-    @Inject(at = @At("HEAD"), method = "tick")
+    @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
     public void simplyskills$tick(CallbackInfo ci) {
 
         if (!this.level().isClientSide) {
             if ( this.getSpellEntry() != null && this.getOwner() instanceof ServerPlayer player) {
                 SpellProjectile spellProjectile = (SpellProjectile) (Object)this;
                 ResourceLocation spellId = simplyskills$getSpellId();
+
+                if ((spellId.toString().endsWith("_arrow_rain") || spellId.toString().endsWith("_arrow_homing"))
+                        && this.followedTarget != null
+                        && (!this.followedTarget.isAlive() || this.followedTarget.isRemoved())) {
+                    spellProjectile.discard();
+                    ci.cancel();
+                    return;
+                }
 
                 // Ranger Elemental Artillery
                 RangerAbilities.signatureRangerElementalArtillery(player, spellProjectile, spellId, this.context, this.perks);

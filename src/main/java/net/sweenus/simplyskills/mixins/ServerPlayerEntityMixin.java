@@ -172,6 +172,8 @@ public abstract class ServerPlayerEntityMixin {
         Player player = (Player)(Object)this;
         if (player instanceof ServerPlayer serverPlayer && serverPlayer.isAlive()) {
 
+            AbilityEffects.tickRangerArrowRain(serverPlayer);
+
             if (player.onGround())
                 simplyskills$fallPassivesTriggered = false;
 
@@ -385,6 +387,7 @@ public abstract class ServerPlayerEntityMixin {
     @Inject(at = @At("HEAD"), method = "die")
     public void simplyskills$onDeath(DamageSource damageSource, CallbackInfo ci) {
         ServerPlayer player = (ServerPlayer)(Object)this;
+        AbilityEffects.clearRangerArrowRain(player);
         HelperMethods.treeResetOnDeath(player);
     }
 
