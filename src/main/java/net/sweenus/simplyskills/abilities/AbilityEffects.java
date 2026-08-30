@@ -2,7 +2,6 @@ package net.sweenus.simplyskills.abilities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
@@ -19,12 +18,6 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.spell_engine.api.spell.Spell;
-import net.spell_engine.api.spell.registry.SpellRegistry;
-import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellExecution;
-import net.spell_engine.internals.target.SpellIntents;
-import net.spell_power.api.SpellPower;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.entities.SimplySkillsArrowEntity;
 import net.sweenus.simplyskills.registry.EffectRegistry;
@@ -422,21 +415,24 @@ public class AbilityEffects {
 
                 if (player.getRandom().nextInt(100) < volley.density
                         && player.level().getBlockState(spawnPosition).isAir()) {
-                    ResourceLocation elementalSpell = null;
+                    SimplySkillsArrowEntity arrowEntity = new SimplySkillsArrowEntity(EntityType.ARROW,
+                            player.level());
+                    arrowEntity.absMoveTo(spawnPosition.getX(), spawnPosition.getY(), spawnPosition.getZ());
+                    arrowEntity.setOwner(player);
+                    arrowEntity.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+                    arrowEntity.setDeltaMovement(0, -0.5, 0);
+                    player.level().addFreshEntity(arrowEntity);
+
+                    String elementalSpell = null;
                     if (volley.elemental && volley.elementalProjectiles < volley.projectileLimit)
                         elementalSpell = getArrowRainElement(player);
 
                     if (elementalSpell != null) {
-                        spawnArrowRainElement(player, spawnPosition, elementalSpell);
+                        arrowEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN));
+                        SignatureAbilities.castSpellEngineIndirectTarget(player,
+                                elementalSpell, 512, arrowEntity, null);
+                        arrowEntity.setInvisible(true);
                         volley.elementalProjectiles++;
-                    } else {
-                        SimplySkillsArrowEntity arrowEntity = new SimplySkillsArrowEntity(EntityType.ARROW,
-                                player.level());
-                        arrowEntity.absMoveTo(spawnPosition.getX(), spawnPosition.getY(), spawnPosition.getZ());
-                        arrowEntity.setOwner(player);
-                        arrowEntity.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-                        arrowEntity.setDeltaMovement(0, -0.5, 0);
-                        player.level().addFreshEntity(arrowEntity);
                     }
                 }
             }
@@ -448,35 +444,14 @@ public class AbilityEffects {
         else pendingArrowRainVolleys.remove(player.getUUID());
     }
 
-    private static ResourceLocation getArrowRainElement(Player player) {
+    private static String getArrowRainElement(Player player) {
         if (player.getRandom().nextInt(100) < 5)
-            return ResourceLocation.parse("simplyskills:fire_arrow_rain");
+            return "simplyskills:fire_arrow_rain";
         else if (player.getRandom().nextInt(100) < 15)
-            return ResourceLocation.parse("simplyskills:frost_arrow_rain");
+            return "simplyskills:frost_arrow_rain";
         else if (player.getRandom().nextInt(100) < 25)
-            return ResourceLocation.parse("simplyskills:lightning_arrow_rain");
+            return "simplyskills:lightning_arrow_rain";
         return null;
-    }
-
-    private static void spawnArrowRainElement(ServerPlayer player, BlockPos position, ResourceLocation spellId) {
-        SpellRegistry.from(player.level()).getHolder(spellId).ifPresent(spell -> {
-            Spell.ProjectileData projectileData = spell.value().deliver.projectile.projectile;
-            Spell.ProjectileData.Perks perks = projectileData.perks == null
-                    ? Spell.ProjectileData.Perks.EMPTY()
-                    : projectileData.perks.copy();
-            SpellExecution.ImpactContext context = new SpellExecution.ImpactContext(
-                    1, 1, null,
-                    SpellPower.getSpellPower(spell.value().school, player),
-                    SpellIntents.focusMode(spell.value()), 0);
-            SpellProjectile projectile = new SpellProjectile(player.level(), player,
-                    position.getX(), position.getY(), position.getZ(),
-                    SpellProjectile.Behaviour.FLY, spell, context, perks);
-            projectile.setVelocity(0, -1, 0,
-                    spell.value().deliver.projectile.launch_properties.velocity, 0, 0);
-            projectile.range = spell.value().range;
-            player.level().addFreshEntity(projectile);
-            AbilityLogic.onSpellCastEffects(player, List.of(), spellId, null);
-        });
     }
 
     public static void effectWizardFrostVolley(Player player) {
