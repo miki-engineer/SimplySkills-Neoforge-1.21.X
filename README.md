@@ -1,8 +1,17 @@
 # Simply Skills - NeoForge 1.21.1 Port
 
-This repository contains an in-progress NeoForge 1.21.1 port of [Simply Skills](https://www.curseforge.com/minecraft/mc-mods/simply-skills) by Sweenus and Timefall Development.
+This repository contains an in-progress NeoForge 1.21.1 port of [Simply Skills](https://github.com/Sweenus/SimplySkills/tree/1.20.1) by Sweenus and Timefall Development.
 
 The goal is to preserve the original mod's behavior and style while updating its loader integrations, dependencies, data files, effects, rendering, and skill logic for Minecraft 1.21.1.
+
+## Reviewer overview
+
+- Original baseline: Simply Skills 1.7.2 for Fabric 1.20.1.
+- Port target: Minecraft 1.21.1, NeoForge 21.1.248, and Java 21.
+- Scope: loader migration, dependency updates, API replacements, data-schema updates, and fixes needed to restore original behavior.
+- Current state: the port builds and runs, but class-tree testing is still in progress.
+
+Most of the source difference comes from replacing Fabric and 1.20.1 APIs. These changes are not intended to redesign the mod. Actual gameplay differences are listed separately below so they can be reviewed without being mixed with compatibility work.
 
 ## Current status
 
@@ -26,7 +35,7 @@ Still in progress:
 - Ascendancy tree
 - Final regression testing and performance cleanup
 
-## Porting work completed
+## Main porting work
 
 - Migrated the project to NeoForge 1.21.1 and Java 21.
 - Updated the Gradle setup, mod metadata, registries, networking, mixins, events, attributes, effects, entities, and resource data for current APIs.
@@ -36,7 +45,46 @@ Still in progress:
 - Replaced legacy UUID-style attribute modifier names with stable readable resource IDs.
 - Added a login migration that removes obsolete attribute modifiers left in existing test worlds.
 
-## Notable fixes and verification
+## Differences from the original
+
+The items in "Compatibility work" change the implementation but are meant to keep the original result. The other sections clearly separate a deliberate balance change from corrections where the original Java disagrees with its own skill text or values.
+
+Loader and API changes:
+
+- The mod now uses NeoForge 21.1 instead of Fabric.
+- Minecraft was updated from 1.20.1 to 1.21.1, and Java was updated from 17 to 21.
+- Puffish Skills, Spell Engine, item data, attributes, damage, particles, models, networking, and mixins were updated for their new APIs.
+- The dependencies were replaced with their NeoForge 1.21.1 versions.
+- Effect modifiers now have readable IDs instead of UUID-style names. Old `simplyskills:modifier_*` entries are removed when a player logs in.
+
+Compatibility work:
+
+- Skill definitions, spells, effects, projectiles, particles, and models were updated because the old data does not work correctly with the new APIs.
+- Swordfall, Judgment, Havensmith's Call, and Righteous Hammers were adjusted to appear and move like they did originally.
+- Elemental arrows use the new Spell Engine orientation needed to point in their flight direction. This fixes the sideways rendering caused by the API change; it is not a gameplay change.
+- Skill icons, custom effect hooks, targeting, and projectile spawning were updated to restore their original behavior on NeoForge.
+
+Deliberate balance change:
+
+- Raging Javelin now throws every 20 ticks by default instead of every 8 ticks. The interval can be changed in the config.
+
+Confirmed original code corrections:
+
+- Challenge: the original checks for more than one enemy, while its text grants Haste for each nearby enemy. The port allows one enemy to grant the first stack.
+- Rampage Charge: the original starts the charge but does not grant Regeneration or Resistance. Its text explicitly promises both effects, so the port adds them.
+- Weapon Expert: the original sets `chance` to `5` but checks whether a random value is greater than `5`, which succeeds 94% of the time. The port reverses that comparison so the value acts as a 5% chance. The skill text only says "occasionally" and does not give a number.
+- Elemental Surge Renewal: the original Java has no chance roll and adds the literal value `3` to a duration measured in ticks. This is 3 ticks, or 0.15 seconds, and is not caused by the port. The original skill text says 15% and 3 seconds, so the port uses a 15% roll and adds 60 ticks.
+- Arrow Rain tiers: the original checks tier 1 before tiers 2 and 3, so the higher radius and volley values are never selected after their prerequisite is unlocked. The port checks the highest tier first, matching the `+1`, `+2`, and `+3` skill text.
+- Elemental Arrows tiers: the original has the same radius-order problem and adds all three quantity bonuses together. The port uses only the highest unlocked tier, matching the radius and quantity values shown in the skill text.
+
+The original code and text used for this comparison are available in [AbilityLogic](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/AbilityLogic.java), [AbilityEffects](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/AbilityEffects.java), [BerserkerAbilities](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/BerserkerAbilities.java), [SpellbladeAbilities](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/SpellbladeAbilities.java), [RangerAbilities](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/RangerAbilities.java), and [the original English skill text](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/resources/assets/simplyskills/lang/en_us.json).
+
+Review and testing support:
+
+- When `removeUnlockRestrictions` is enabled, class and Ascendancy nodes can be clicked again to turn them off. This option is disabled by default.
+- Test traces are kept in the IntelliJ debugger. They are not included in the mod.
+
+## In-game verification
 
 - Restored skill visibility and icons in the Puffish Skills interface.
 - Fixed Raging Javelin targeting and throwing behavior, then reduced its repeated throw interval.
@@ -44,12 +92,18 @@ Still in progress:
 - Verified the main-tree passive statistics and combat triggers in-game.
 - Corrected Berserker Challenge so one nearby enemy is sufficient.
 - Restored Regeneration and Resistance granted by Rampage's Charge upgrade.
-- Corrected Weapon Expert's Spellforged roll to its intended 5% chance.
-- Corrected Elemental Surge Renewal to use a 15% roll and add 60 ticks per proc.
+- Corrected Weapon Expert's inverted Spellforged roll so its `chance = 5` value acts as 5%.
+- Corrected Elemental Surge Renewal to match its original description: a 15% roll that adds 3 seconds.
 - Verified Cleric healing, sharing, cleansing, resistance, barrier, aura, and Undying interactions.
 - Verified Crusader defensive, taunt, mark, hammer, consecration, and related upgrade behavior.
 - Verified the complete Berserker and Spellblade trees, including their signature upgrades.
 - Verified Ranger Reveal, Tamer, Bonded, Trained, Incognito, and the complete Disengage branch.
+
+## Known review notes
+
+- Ranger Arrow Rain and Elemental Arrows are being tested now. Rogue, Wizard, Necromancer, and Ascendancy testing still remain.
+- Final regression testing and performance cleanup will happen after the skill trees are complete.
+- The development client can report missing Spell Engine conventional tags and Simply Swords recipes for optional mods that are not installed. These warnings do not stop the client and are not produced by Simply Skills logic.
 
 ## Requirements
 
