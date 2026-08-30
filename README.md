@@ -24,11 +24,10 @@ Completed testing:
 - Crusader
 - Berserker
 - Spellblade
-- Ranger base passives and Disengage branch
+- Ranger
 
 Still in progress:
 
-- Ranger Arrow Rain and Elemental Arrows branches
 - Rogue
 - Wizard
 - Necromancer
@@ -103,10 +102,12 @@ Review and testing support:
 - Verified Crusader defensive, taunt, mark, hammer, consecration, and related upgrade behavior.
 - Verified the complete Berserker and Spellblade trees, including their signature upgrades.
 - Verified Ranger Reveal, Tamer, Bonded, Trained, Incognito, and the complete Disengage branch.
+- Verified the complete Ranger tree, including Elemental Arrows, the five-wave Arrow Rain, elemental bow burst, Minefield, and Elemental Artillery.
+- Confirmed the staggered Arrow Rain removes the observed launch lag while keeping the original arrow count, elemental chances, and player-to-rain projectile path.
 
 ## Known review notes
 
-- Ranger Arrow Rain and Elemental Arrows are being tested now. Rogue, Wizard, Necromancer, and Ascendancy testing still remain.
+- Rogue, Wizard, Necromancer, and Ascendancy testing still remain.
 - Final regression testing and performance cleanup will happen after the skill trees are complete.
 - The development client can report missing Spell Engine conventional tags and Simply Swords recipes for optional mods that are not installed. These warnings do not stop the client and are not produced by Simply Skills logic.
 
