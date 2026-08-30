@@ -23,6 +23,7 @@ Still in progress:
 - Rogue
 - Wizard
 - Necromancer
+- Ascendancy tree
 - Final regression testing and performance cleanup
 
 ## Porting work completed
