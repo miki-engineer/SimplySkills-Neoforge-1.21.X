@@ -70,8 +70,7 @@ Deliberate balance change:
 
 Performance adjustment:
 
-- Arrow Rain keeps the same radius, density, volley count, and elemental chances, but releases each volley four ticks apart instead of creating the complete rain in one tick.
-- Elemental Arrow Rain projectiles still launch from the player toward their falling arrows, matching the original behavior.
+- Arrow Rain keeps the same radius, density, volley count, and elemental chances. Elemental projectiles launch together from the player when the skill triggers, while the visible normal rain is released in volleys four ticks apart.
 - Elemental Artillery only creates a homing projectile after finding a valid enemy. Invalid homing projectiles are removed instead of remaining until their range expires.
 
 Confirmed original code corrections:

@@ -44,6 +44,7 @@ public class AbilityEffects {
         private final int volleys;
         private final boolean elemental;
         private final int projectileLimit;
+        private final List<List<BlockPos>> normalArrowVolleys = new ArrayList<>();
         private int remainingVolleys;
         private int elementalProjectiles;
         private int nextVolleyTick;
@@ -382,6 +383,7 @@ public class AbilityEffects {
                 ArrowRainVolley volley = new ArrowRainVolley(blockpos, arrowRainRadius, arrowRainChance,
                         arrowRainVolleys, elemental, projectileLimiterCap, player.tickCount);
                 pendingArrowRainVolleys.put(player.getUUID(), volley);
+                prepareArrowRain((ServerPlayer) player, volley);
                 spawnArrowRainVolley((ServerPlayer) player, volley);
                 HelperMethods.decrementStatusEffect(player, EffectRegistry.ARROWRAIN);
             }
@@ -402,46 +404,59 @@ public class AbilityEffects {
         pendingArrowRainVolleys.remove(player.getUUID());
     }
 
-    private static void spawnArrowRainVolley(ServerPlayer player, ArrowRainVolley volley) {
+    private static void prepareArrowRain(ServerPlayer player, ArrowRainVolley volley) {
         int xpos = (int) volley.position.x() - volley.radius;
         int ypos = (int) volley.position.y();
         int zpos = (int) volley.position.z() - volley.radius;
 
-        for (int x = volley.radius * 2; x > 0; x--) {
-            for (int z = volley.radius * 2; z > 0; z--) {
-                BlockPos spawnPosition = new BlockPos(xpos + x,
-                        ypos + 25 + (player.getRandom().nextInt(15) * volley.volleys + 1),
-                        zpos + z);
+        for (int i = volley.volleys; i > 0; i--) {
+            List<BlockPos> normalArrows = new ArrayList<>();
+            for (int x = volley.radius * 2; x > 0; x--) {
+                for (int z = volley.radius * 2; z > 0; z--) {
+                    BlockPos spawnPosition = new BlockPos(xpos + x,
+                            ypos + 25 + (player.getRandom().nextInt(15) * volley.volleys + 1),
+                            zpos + z);
 
-                if (player.getRandom().nextInt(100) < volley.density
-                        && player.level().getBlockState(spawnPosition).isAir()) {
-                    SimplySkillsArrowEntity arrowEntity = new SimplySkillsArrowEntity(EntityType.ARROW,
-                            player.level());
-                    arrowEntity.absMoveTo(spawnPosition.getX(), spawnPosition.getY(), spawnPosition.getZ());
-                    arrowEntity.setOwner(player);
-                    arrowEntity.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-                    arrowEntity.setDeltaMovement(0, -0.5, 0);
-                    player.level().addFreshEntity(arrowEntity);
+                    if (player.getRandom().nextInt(100) < volley.density
+                            && player.level().getBlockState(spawnPosition).isAir()) {
+                        String elementalSpell = null;
+                        if (volley.elemental && volley.elementalProjectiles < volley.projectileLimit)
+                            elementalSpell = getArrowRainElement(player);
 
-                    String elementalSpell = null;
-                    if (volley.elemental && volley.elementalProjectiles < volley.projectileLimit)
-                        elementalSpell = getArrowRainElement(player);
-
-                    if (elementalSpell != null) {
-                        arrowEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN));
-                        SignatureAbilities.castSpellEngineIndirectTarget(player,
-                                elementalSpell, 512, arrowEntity, null);
-                        arrowEntity.setInvisible(true);
-                        volley.elementalProjectiles++;
+                        if (elementalSpell != null) {
+                            SimplySkillsArrowEntity arrowEntity = spawnArrowRainArrow(player, spawnPosition);
+                            arrowEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN));
+                            SignatureAbilities.castSpellEngineIndirectTarget(player,
+                                    elementalSpell, 512, arrowEntity, null);
+                            arrowEntity.setInvisible(true);
+                            volley.elementalProjectiles++;
+                        } else normalArrows.add(spawnPosition);
                     }
                 }
             }
+            volley.normalArrowVolleys.add(normalArrows);
         }
+    }
+
+    private static void spawnArrowRainVolley(ServerPlayer player, ArrowRainVolley volley) {
+        int volleyNumber = volley.volleys - volley.remainingVolleys;
+        for (BlockPos spawnPosition : volley.normalArrowVolleys.get(volleyNumber))
+            spawnArrowRainArrow(player, spawnPosition);
 
         volley.remainingVolleys--;
         if (volley.remainingVolleys > 0)
             volley.nextVolleyTick = player.tickCount + 4;
         else pendingArrowRainVolleys.remove(player.getUUID());
+    }
+
+    private static SimplySkillsArrowEntity spawnArrowRainArrow(ServerPlayer player, BlockPos position) {
+        SimplySkillsArrowEntity arrowEntity = new SimplySkillsArrowEntity(EntityType.ARROW, player.level());
+        arrowEntity.absMoveTo(position.getX(), position.getY(), position.getZ());
+        arrowEntity.setOwner(player);
+        arrowEntity.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+        arrowEntity.setDeltaMovement(0, -0.5, 0);
+        player.level().addFreshEntity(arrowEntity);
+        return arrowEntity;
     }
 
     private static String getArrowRainElement(Player player) {
