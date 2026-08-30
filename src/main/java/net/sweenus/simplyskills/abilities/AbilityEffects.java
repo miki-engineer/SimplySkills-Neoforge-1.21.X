@@ -192,14 +192,14 @@ public class AbilityEffects {
             int arrowCount = 1;
             int increasedArrowCount = 6;
             if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusOne, player))
-                radius = radius + increase;
+                    SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusThree, player))
+                radius = radius + (increase * 3);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
                     SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusTwo, player))
                 radius = radius + (increase * 2);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusThree, player))
-                radius = radius + (increase * 3);
+                    SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusOne, player))
+                radius = radius + increase;
 
             List<String> list = new ArrayList<>();
             list.add("simplyskills:frost_arrow_rain");
@@ -303,24 +303,24 @@ public class AbilityEffects {
             int projectileLimiterCap = 30;
 
             if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationArrowRainRadiusOne, player))
-                arrowRainRadius = arrowRainRadius + arrowRainRadiusIncrease;
+                    SkillReferencePosition.rangerSpecialisationArrowRainRadiusThree, player))
+                arrowRainRadius = arrowRainRadius + (arrowRainRadiusIncrease * 3);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
                     SkillReferencePosition.rangerSpecialisationArrowRainRadiusTwo, player))
                 arrowRainRadius = arrowRainRadius + (arrowRainRadiusIncrease * 2);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationArrowRainRadiusThree, player))
-                arrowRainRadius = arrowRainRadius + (arrowRainRadiusIncrease * 3);
+                    SkillReferencePosition.rangerSpecialisationArrowRainRadiusOne, player))
+                arrowRainRadius = arrowRainRadius + arrowRainRadiusIncrease;
 
             if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationArrowRainVolleyOne, player))
-                arrowRainVolleys = arrowRainVolleys + arrowRainVolleyIncrease;
+                    SkillReferencePosition.rangerSpecialisationArrowRainVolleyThree, player))
+                arrowRainVolleys = arrowRainVolleys + (arrowRainVolleyIncrease * 3);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
                     SkillReferencePosition.rangerSpecialisationArrowRainVolleyTwo, player))
                 arrowRainVolleys = arrowRainVolleys + (arrowRainVolleyIncrease * 2);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationArrowRainVolleyThree, player))
-                arrowRainVolleys = arrowRainVolleys + (arrowRainVolleyIncrease * 3);
+                    SkillReferencePosition.rangerSpecialisationArrowRainVolleyOne, player))
+                arrowRainVolleys = arrowRainVolleys + arrowRainVolleyIncrease;
 
 
             BlockPos blockpos2;

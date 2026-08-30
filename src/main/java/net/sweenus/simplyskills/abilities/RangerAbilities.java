@@ -252,14 +252,14 @@ public class RangerAbilities {
         int amplifier =elementalArrowsStacks;
 
         if (HelperMethods.isUnlocked(rangerSkillTree,
-                SkillReferencePosition.rangerSpecialisationElementalArrowsStacksOne, player))
-            amplifier = amplifier + elementalArrowsStacksIncreasePerTier;
-        if (HelperMethods.isUnlocked(rangerSkillTree,
-                SkillReferencePosition.rangerSpecialisationElementalArrowsStacksTwo, player))
-            amplifier = amplifier + (elementalArrowsStacksIncreasePerTier * 2);
-        if (HelperMethods.isUnlocked(rangerSkillTree,
                 SkillReferencePosition.rangerSpecialisationElementalArrowsStacksThree, player))
             amplifier = amplifier + (elementalArrowsStacksIncreasePerTier * 3);
+        else if (HelperMethods.isUnlocked(rangerSkillTree,
+                SkillReferencePosition.rangerSpecialisationElementalArrowsStacksTwo, player))
+            amplifier = amplifier + (elementalArrowsStacksIncreasePerTier * 2);
+        else if (HelperMethods.isUnlocked(rangerSkillTree,
+                SkillReferencePosition.rangerSpecialisationElementalArrowsStacksOne, player))
+            amplifier = amplifier + elementalArrowsStacksIncreasePerTier;
 
         player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALARROWS,
                 elementalArrowsDuration, amplifier, false, false, true));
