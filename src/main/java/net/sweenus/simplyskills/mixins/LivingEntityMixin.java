@@ -1,7 +1,6 @@
 package net.sweenus.simplyskills.mixins;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +16,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -46,17 +44,6 @@ public abstract class LivingEntityMixin {
                     SoundSource.PLAYERS, 1, 1);
             cir.setReturnValue(false);
         }
-    }
-
-    @ModifyVariable(method = "actuallyHurt", at = @At("HEAD"), argsOnly = true)
-    private float simplyskills$rageDamage(float amount) {
-        LivingEntity livingEntity = (LivingEntity) (Object) this;
-        if (livingEntity instanceof ServerPlayer && livingEntity.hasEffect(EffectRegistry.RAGE)) {
-            float damageModifier = (float) 1 + ((float) livingEntity.getEffect(EffectRegistry.RAGE).getAmplifier() / 200);
-            float modifiedAmount = amount * damageModifier;
-            return Float.isFinite(modifiedAmount) ? modifiedAmount : amount;
-        }
-        return amount;
     }
 
     //Prevent detection when stealthed

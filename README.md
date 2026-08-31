@@ -66,7 +66,7 @@ Compatibility work:
 - Skill icons, custom effect hooks, targeting, and projectile spawning were updated to restore their original behavior on NeoForge.
 - Player-kill callbacks now use NeoForge's living-death event, restoring Bloodthirsty healing and the Ranger and Rogue Renewal upgrades after the original callback target was removed in 1.21.1.
 - Evasion now uses NeoForge's incoming-damage event and respects Minecraft's normal hurt immunity before rolling again.
-- Rage damage is applied after Minecraft accepts a hit, preventing repeated contact from bypassing normal hurt immunity and causing continuous knockback.
+- Rage damage and receive-hit stack gain are applied after Minecraft accepts a hit, preventing repeated contact from bypassing normal hurt immunity, adding extra stacks, or causing continuous knockback.
 
 Deliberate balance change:
 

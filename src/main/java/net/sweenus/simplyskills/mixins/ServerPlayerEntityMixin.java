@@ -88,13 +88,6 @@ public abstract class ServerPlayerEntityMixin {
                 WayfarerAbilities.passiveWayfarerBreakStealth(null, player, true, false);
             }
 
-            //Passive Rage
-            if (HelperMethods.isUnlocked("simplyskills:tree",
-                    SkillReferencePosition.berserkerPath, serverPlayer)) {
-                if (!player.isInvulnerableTo(source))
-                    HelperMethods.incrementStatusEffect(player, EffectRegistry.RAGE, 300, 1, 99);
-            }
-
             //Cleric Signature Anoint Weapon Undying
             if (HelperMethods.isUnlocked("simplyskills:cleric",
                     SkillReferencePosition.clericSpecialisationAnointWeaponUndying, player)
