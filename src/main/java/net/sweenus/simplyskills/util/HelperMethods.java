@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -101,8 +102,8 @@ public class HelperMethods {
 
     // Check for back attack
     public static boolean isBehindTarget(LivingEntity attacker, LivingEntity target) {
-        return target.getVisualRotationYInDegrees() < (attacker.getVisualRotationYInDegrees() + 32)
-                && target.getVisualRotationYInDegrees() > (attacker.getVisualRotationYInDegrees() - 32);
+        return Math.abs(Mth.wrapDegrees(target.getVisualRotationYInDegrees()
+                - attacker.getVisualRotationYInDegrees())) < 32;
     }
 
     //Checks if skill is unlocked with presence checks.

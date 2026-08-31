@@ -294,7 +294,8 @@ public class AbilityLogic {
 
         //Passive Rogue Opportunistic Mastery
         if (HelperMethods.isUnlocked("simplyskills:rogue",
-                SkillReferencePosition.rogueOpportunisticMastery, player)) {
+                SkillReferencePosition.rogueOpportunisticMastery, player)
+                && player.hasEffect(EffectRegistry.STEALTH)) {
             RogueAbilities.passiveRogueOpportunisticMastery(target, player);
         }
 

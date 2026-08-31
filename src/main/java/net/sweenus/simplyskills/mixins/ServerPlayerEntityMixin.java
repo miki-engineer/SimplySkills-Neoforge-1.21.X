@@ -70,12 +70,6 @@ public abstract class ServerPlayerEntityMixin {
                 RogueAbilities.passiveRogueSmokeBomb(player);
             }
 
-            if (HelperMethods.isUnlocked("simplyskills:rogue",
-                    SkillReferencePosition.rogueEvasionMastery, serverPlayer)) {
-                if (!RogueAbilities.passiveRogueEvasionMastery(player))
-                    cir.setReturnValue(false);
-            }
-
             //Passive Initiate Hasty
             if (HelperMethods.isUnlocked("simplyskills:tree",
                     SkillReferencePosition.initiateHasty, player)) {

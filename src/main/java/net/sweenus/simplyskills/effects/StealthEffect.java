@@ -49,7 +49,7 @@ public class StealthEffect extends MobEffect {
 
                 if (HelperMethods.isUnlocked("simplyskills:rogue",
                         SkillReferencePosition.rogueShadowVeil, serverPlayer)
-                        && serverPlayer.tickCount % regenerationFrequency == 0)
+                        && serverPlayer.tickCount % resistanceFrequency == 0)
                     HelperMethods.incrementStatusEffect(serverPlayer, MobEffects.DAMAGE_RESISTANCE,
                             resistanceFrequency + 5, resistanceStacks, resistanceMaxStacks);
 

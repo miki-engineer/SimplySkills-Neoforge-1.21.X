@@ -203,7 +203,7 @@ public class RogueAbilities {
     public static boolean signatureRogueEvasion(String rogueSkillTree, Player player) {
         int evasionDuration = SimplySkills.rogueConfig.signatureRogueEvasionDuration;
         int fanOfBladesDuration = SimplySkills.rogueConfig.signatureRogueFanOfBladesDuration;
-        int fanOfBladesStacks = SimplySkills.rogueConfig.signatureRogueFanOfBladesStacks - 1;
+        int fanOfBladesStacks = SimplySkills.rogueConfig.signatureRogueFanOfBladesStacks;
 
         player.addEffect(new MobEffectInstance(EffectRegistry.EVASION, evasionDuration, 0, false, false, true));
 
@@ -214,7 +214,7 @@ public class RogueAbilities {
         if (HelperMethods.isUnlocked(rogueSkillTree,
                 SkillReferencePosition.rogueSpecialisationEvasionFanOfBlades, player))
             player.addEffect(new MobEffectInstance(EffectRegistry.FANOFBLADES,
-                    fanOfBladesDuration, fanOfBladesStacks, false, false, true));
+                    fanOfBladesDuration, fanOfBladesStacks - 1, false, false, true));
 
         return true;
     }
@@ -257,7 +257,7 @@ public class RogueAbilities {
         int siphoningStrikesMightyStacks = SimplySkills.rogueConfig.signatureRogueSiphoningStrikesMightyStacks;
 
         player.addEffect(new MobEffectInstance(EffectRegistry.SIPHONINGSTRIKES,
-                siphoningStrikesduration, siphoningStrikesStacks, false, false, true));
+                siphoningStrikesduration, siphoningStrikesStacks - 1, false, false, true));
 
         if (HelperMethods.isUnlocked(rogueSkillTree,
                 SkillReferencePosition.rogueSpecialisationSiphoningStrikesMighty, player))

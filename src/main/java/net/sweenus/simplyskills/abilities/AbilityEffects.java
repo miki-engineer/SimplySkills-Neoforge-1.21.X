@@ -191,12 +191,13 @@ public class AbilityEffects {
                                 SkillReferencePosition.rogueSpecialisationEvasionFanOfBladesDisenchantment, player))
                             le.addEffect(new MobEffectInstance(EffectRegistry.DISENCHANTMENT, disenchantDuration, 0, false ,false));
 
+                        if (HelperMethods.isUnlocked("simplyskills:rogue",
+                                SkillReferencePosition.rogueBladestorm, player))
+                            HelperMethods.incrementStatusEffect(player, EffectRegistry.BLADESTORM, 400, 1, 20);
+
                     }
                 }
             }
-            if (HelperMethods.isUnlocked("simplyskills:rogue",
-                    SkillReferencePosition.rogueBladestorm, player) && player.getRandom().nextInt(100) < 35 + fobFrequency)
-                HelperMethods.incrementStatusEffect(player, EffectRegistry.BLADESTORM, 400, 1, 20);
             HelperMethods.decrementStatusEffect(player, EffectRegistry.FANOFBLADES);
         }
     }
