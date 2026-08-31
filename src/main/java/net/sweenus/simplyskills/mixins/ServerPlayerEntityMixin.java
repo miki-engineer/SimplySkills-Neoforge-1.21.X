@@ -123,11 +123,8 @@ public abstract class ServerPlayerEntityMixin {
     @ModifyVariable(method = "hurt", at = @At("HEAD"), argsOnly = true)
     private float simplyskills$damageResult(float amount){
         Player player = (Player) (Object) this;
-        if (player.hasEffect(EffectRegistry.RAGE)) {
-            float damageModifier = (float) 1 + ((float) player.getEffect(EffectRegistry.RAGE).getAmplifier() / 200);
-            float modifiedAmount = amount * damageModifier;
-            return Float.isFinite(modifiedAmount) ? modifiedAmount : amount;
-        }
+        if (player.hasEffect(EffectRegistry.RAGE))
+            return amount;
         //Prom Melody of Safety Protection
         if (player.hasEffect(EffectRegistry.MELODYOFPROTECTION)) {
             return ProminenceAbilities.melodyOfProtection(amount);
