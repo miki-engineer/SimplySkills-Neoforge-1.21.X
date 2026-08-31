@@ -18,6 +18,7 @@ import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.puffish.skillsmod.api.Category;
@@ -188,6 +189,7 @@ public class SimplySkills {
     private void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof ServerPlayer player
                 && player.invulnerableTime <= 10
+                && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)
                 && HelperMethods.isUnlocked("simplyskills:rogue",
                 SkillReferencePosition.rogueEvasionMastery, player)
                 && !RogueAbilities.passiveRogueEvasionMastery(player)) {

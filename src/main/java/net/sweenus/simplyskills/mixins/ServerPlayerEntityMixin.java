@@ -125,7 +125,8 @@ public abstract class ServerPlayerEntityMixin {
         Player player = (Player) (Object) this;
         if (player.hasEffect(EffectRegistry.RAGE)) {
             float damageModifier = (float) 1 + ((float) player.getEffect(EffectRegistry.RAGE).getAmplifier() / 200);
-            return amount * damageModifier;
+            float modifiedAmount = amount * damageModifier;
+            return Float.isFinite(modifiedAmount) ? modifiedAmount : amount;
         }
         //Prom Melody of Safety Protection
         if (player.hasEffect(EffectRegistry.MELODYOFPROTECTION)) {
