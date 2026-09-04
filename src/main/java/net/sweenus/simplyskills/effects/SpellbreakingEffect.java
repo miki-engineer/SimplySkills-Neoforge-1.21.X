@@ -36,7 +36,15 @@ public class SpellbreakingEffect extends MobEffect {
                                         continue;
                                 }
                             }
-                            pe.level().explode(pe, pe.getX(), pe.getY(), pe.getZ(), 0.2f, false, Level.ExplosionInteraction.NONE);
+                            if (livingEntity instanceof Player player) {
+                                pe.level().explode(
+                                        pe,
+                                        pe.level().damageSources().explosion(pe, player),
+                                        HelperMethods.getFriendlyFireExplosionDamageCalculator(player),
+                                        pe.getX(), pe.getY(), pe.getZ(),
+                                        0.2f, false, Level.ExplosionInteraction.NONE);
+                            }
+                            else pe.level().explode(pe, pe.getX(), pe.getY(), pe.getZ(), 0.2f, false, Level.ExplosionInteraction.NONE);
                             pe.discard();
                         }
                     }

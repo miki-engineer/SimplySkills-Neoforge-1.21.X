@@ -38,7 +38,11 @@ public class SimplySkillsArrowEntity extends Arrow {
                     if (entities != null && (this.getOwner() instanceof Player player)) {
                         if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
-                            Explosion explosion = this.level().explode(this, this.getX(), this.getY(), this.getZ(),
+                            Explosion explosion = this.level().explode(
+                                    this,
+                                    this.level().damageSources().explosion(this, player),
+                                    HelperMethods.getFriendlyFireExplosionDamageCalculator(player),
+                                    this.getX(), this.getY(), this.getZ(),
                                     1.0f, false, Level.ExplosionInteraction.NONE);
                             this.doPostHurtEffects(le);
 

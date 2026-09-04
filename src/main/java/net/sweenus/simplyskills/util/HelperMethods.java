@@ -30,6 +30,8 @@ import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -127,6 +129,16 @@ public class HelperMethods {
                 SpellTarget.Intent.HARMFUL,
                 player,
                 livingEntity);
+    }
+
+    public static ExplosionDamageCalculator getFriendlyFireExplosionDamageCalculator(Player player) {
+        return new ExplosionDamageCalculator() {
+            @Override
+            public boolean shouldDamageEntity(Explosion explosion, Entity entity) {
+                return !(entity instanceof LivingEntity livingEntity)
+                        || checkFriendlyFireAOE(livingEntity, player);
+            }
+        };
     }
 
     // Check for back attack
