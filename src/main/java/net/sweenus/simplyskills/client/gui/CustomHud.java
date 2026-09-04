@@ -43,8 +43,7 @@ public class CustomHud {
     }
 
     private void renderAbility(GuiGraphics context, Minecraft client, int guiAnchorX, int guiAnchorY, int cooldown, long lastUseTime, ResourceLocation iconTexture, KeyMapping keybind) {
-        long currentTime = System.currentTimeMillis();
-        long timeSinceLastUse = currentTime - lastUseTime;
+        long currentTime = SimplySkillsClient.getCooldownTime();
         long remainingCooldownMillis = Math.max(0, (lastUseTime + cooldown) - currentTime);
         int remainingCooldownSecs = (int) (remainingCooldownMillis / 1000);
         Component remainingCooldownText = Component.nullToEmpty(String.valueOf(remainingCooldownSecs));

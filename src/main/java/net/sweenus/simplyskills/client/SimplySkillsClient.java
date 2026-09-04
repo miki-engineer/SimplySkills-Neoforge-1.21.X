@@ -39,6 +39,7 @@ public class SimplySkillsClient {
     public static int abilityCooldown2 = 500;
     public static long lastUseTime;
     public static long lastUseTime2;
+    private static long cooldownTime = System.currentTimeMillis();
     public static int unspentPoints = 0;
     public static KeyMapping bindingAbility1 = new KeyMapping("key.simplyskills.ability1", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, "key.category.simplyskills");
     public static KeyMapping bindingAbility2 = new KeyMapping("key.simplyskills.ability2", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "key.category.simplyskills");
@@ -112,33 +113,35 @@ public class SimplySkillsClient {
 
     private static void clientTick(ClientTickEvent.Post event) {
         var client = net.minecraft.client.Minecraft.getInstance();
-        if (client.player == null)
+        if (client.player == null || client.isPaused())
             return;
 
+            cooldownTime += 50;
+
             while (bindingAbility1.consumeClick()) {
-                if (System.currentTimeMillis() > (lastUseTime + abilityCooldown)) {
+                if (cooldownTime >= (lastUseTime + abilityCooldown)) {
 
                     SignatureAbilities.sendKeybindPacket("signature");
 
-                    lastUseTime = System.currentTimeMillis();
+                    lastUseTime = cooldownTime;
                     client.player.level().playSound(client.player, client.player.blockPosition(), SoundRegistry.SOUNDEFFECT7, SoundSource.PLAYERS, 0.4f, 1.5f);
 
                 } else {
-                    client.player.displayClientMessage(Component.literal("Ability can be used again in " + (((lastUseTime + abilityCooldown) - System.currentTimeMillis()) / 1000) + "s"), true);
+                    client.player.displayClientMessage(Component.literal("Ability can be used again in " + (((lastUseTime + abilityCooldown) - cooldownTime) / 1000) + "s"), true);
                     client.player.level().playSound(client.player, client.player.blockPosition(), SoundRegistry.GONG_WARBLY, SoundSource.PLAYERS, 0.1f, 1.5f);
                 }
             }
 
             while (bindingAbility2.consumeClick()) {
-                if (System.currentTimeMillis() > (lastUseTime2 + abilityCooldown2)) {
+                if (cooldownTime >= (lastUseTime2 + abilityCooldown2)) {
 
                     SignatureAbilities.sendKeybindPacket("ascendancy");
 
-                    lastUseTime2 = System.currentTimeMillis();
+                    lastUseTime2 = cooldownTime;
                     client.player.level().playSound(client.player, client.player.blockPosition(), SoundRegistry.SOUNDEFFECT7, SoundSource.PLAYERS, 0.4f, 1.5f);
 
                 } else {
-                    client.player.displayClientMessage(Component.literal("Ability can be used again in " + (((lastUseTime2 + abilityCooldown2) - System.currentTimeMillis()) / 1000) + "s"), true);
+                    client.player.displayClientMessage(Component.literal("Ability can be used again in " + (((lastUseTime2 + abilityCooldown2) - cooldownTime) / 1000) + "s"), true);
                     client.player.level().playSound(client.player, client.player.blockPosition(), SoundRegistry.GONG_WARBLY, SoundSource.PLAYERS, 0.1f, 1.5f);
                 }
             }
@@ -150,6 +153,10 @@ public class SimplySkillsClient {
             }
             */
 
+    }
+
+    public static long getCooldownTime() {
+        return cooldownTime;
     }
 
     private static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {

@@ -90,6 +90,7 @@ Confirmed original code corrections:
 - Wizard upgrade tiers: the original checks the lower Ice Comet, Leap, Speed, and Meteoric Wrath Renewal upgrades first, preventing higher unlocked tiers from taking effect. The port checks the highest tier first.
 - Frost Volley and Static Discharge Leap: the original passes their configured counts directly as effect amplifiers, producing one extra volley or leap. The port converts the count to the correct zero-based amplifier.
 - Meteoric Wrath Renewal: the original comparison makes each configured chance one percent higher. The port uses the exact configured chance. Its separate text and config value mismatch remains unchanged pending review.
+- Ability cooldowns: the original uses wall-clock time, so cooldowns expire while a single-player world is paused. The port advances cooldowns with active client ticks instead.
 - Bladestorm: the original uses a separate random roll after each Fan of Blades pulse. Its text grants one stack for each enemy hit, so the port increments once for each valid target hit and keeps the 20-stack cap.
 - Shadow Veil: the original schedules Resistance using the Regeneration frequency. The port uses the Resistance frequency from its config.
 - Exploitation: the original raw yaw comparison fails when rotations cross the `-180/180` boundary. The port uses the wrapped angular difference while keeping the original 32-degree rear arc.
