@@ -124,10 +124,14 @@ Review and testing support:
 - Confirmed successful Evasion rolls cancel damage without starting the hurt animation, while failed rolls still behave as normal hits.
 - Verified Fan of Blades and Siphoning Strikes start with the displayed stack counts, Bladestorm gains one stack per enemy hit, and Fan of Blades Renewal adds two stacks per kill.
 - Rechecked the repaired kill callbacks: Bloodthirsty restores 25% maximum health, Elemental Arrows Renewal follows its 35% roll and adds one stack, and Fan of Blades Renewal adds two stacks up to 20.
+- Verified the complete Wizard tree with Wizards RPG Series installed, including spell-power scaling, every signature branch, isolated and combined upgrades, projectile behavior, effect counts, renewal chances, and ability cooldown pausing.
+- Confirmed the corrected combined Wizard tiers select Greater ++, 52 Static Discharge leaps, a 15% Speed chance, and exactly six Frost Volley shots.
 
 ## Known review notes
 
-- Wizard, Necromancer, and Ascendancy testing still remain.
+- Necromancer and Ascendancy testing still remain.
+- Meteoric Wrath Renewal++ says 50% in the original text, while its original default config calculates 40%. The port currently keeps the configured 40% value.
+- Lightning Ball rolls a 5% discharge chance per nearby entity every five ticks. Its original text only describes this as periodic.
 - After every tree is complete, each registered effect will be tested directly to confirm that its actual mechanics work, not only that the effect icon or activation appears.
 - Final regression testing and performance cleanup will happen after the skill trees are complete.
 - The development client can report missing Spell Engine conventional tags and Simply Swords recipes for optional mods that are not installed. These warnings do not stop the client and are not produced by Simply Skills logic.
