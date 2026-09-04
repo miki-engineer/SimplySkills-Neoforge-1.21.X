@@ -26,11 +26,11 @@ Completed testing:
 - Spellblade
 - Ranger
 - Rogue
+- Wizard
+- Necromancer
 
 Still in progress:
 
-- Wizard
-- Necromancer
 - Ascendancy tree
 - Final direct test of every registered effect after all trees are complete
 - Final regression testing and performance cleanup
@@ -96,6 +96,11 @@ Confirmed original code corrections:
 - Shadow Veil: the original schedules Resistance using the Regeneration frequency. The port uses the Resistance frequency from its config.
 - Exploitation: the original raw yaw comparison fails when rotations cross the `-180/180` boundary. The port uses the wrapped angular difference while keeping the original 32-degree rear arc.
 - Evasion no longer blocks `/kill` or void damage, and Rage no longer allows very large damage values to overflow into invalid player health.
+- Winterborn now converts Frost spell power into the displayed number of Soulshock stacks without adding an extra level.
+- Necrotic Fortification now grants exactly half of the player's Armor and Armor Toughness, or the full values to a Greater Dreadglare, without hidden base points.
+- Shadow Aura now deals its stated normal damage. It also stops ticking after its minion dies, preventing Shadow Combust from triggering twice.
+- Endless Servitude now starts at the stated 20% chance and still gains 5% for each harmful effect, up to 60%.
+- Greater Dreadglare only gains Might when it has harmful effects, with one Might level for each harmful effect.
 
 The original code and text used for this comparison are available in [AbilityLogic](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/AbilityLogic.java), [AbilityEffects](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/AbilityEffects.java), [BerserkerAbilities](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/BerserkerAbilities.java), [SpellbladeAbilities](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/SpellbladeAbilities.java), [RangerAbilities](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/RangerAbilities.java), [RogueAbilities](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/RogueAbilities.java), [WizardAbilities](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/WizardAbilities.java), [StaticChargeEffect](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/effects/StaticChargeEffect.java), [StealthEffect](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/effects/StealthEffect.java), and [the original English skill text](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/resources/assets/simplyskills/lang/en_us.json).
 
@@ -127,10 +132,11 @@ Review and testing support:
 - Rechecked the repaired kill callbacks: Bloodthirsty restores 25% maximum health, Elemental Arrows Renewal follows its 35% roll and adds one stack, and Fan of Blades Renewal adds two stacks up to 20.
 - Verified the complete Wizard tree with Wizards RPG Series installed, including spell-power scaling, every signature branch, isolated and combined upgrades, projectile behavior, effect counts, renewal chances, and ability cooldown pausing.
 - Confirmed the corrected combined Wizard tiers select Greater ++, 52 Static Discharge leaps, a 15% Speed chance, and exactly six Frost Volley shots.
+- Verified the complete Necromancer tree, including minion attributes and limits, Wraith effects, harmful-effect transfers, defensive effects, death triggers, auras, life siphoning, resurrection chances, and Greater Dreadglare traits.
 
 ## Known review notes
 
-- Necromancer and Ascendancy testing still remain.
+- Ascendancy testing still remains.
 - Lightning Ball rolls a 5% discharge chance per nearby entity every five ticks. Its original text only describes this as periodic.
 - After every tree is complete, each registered effect will be tested directly to confirm that its actual mechanics work, not only that the effect icon or activation appears.
 - Final regression testing and performance cleanup will happen after the skill trees are complete.

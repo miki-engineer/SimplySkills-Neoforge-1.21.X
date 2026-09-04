@@ -158,8 +158,9 @@ public class GreaterDreadglareEntity extends TamableAnimal implements NeutralMob
         float random = (float) ((float) this.random.nextInt(3) * 0.1);
         this.level().playSound(null, this, SoundRegistry.MAW,
                 SoundSource.PLAYERS, 0.1f, 0.8f + random);
-        int mightAmp = HelperMethods.countHarmfulStatusEffects(this);
-        this.addEffect(new MobEffectInstance(EffectRegistry.MIGHT, 220, mightAmp, false, false, false));
+        int mightStacks = HelperMethods.countHarmfulStatusEffects(this);
+        if (mightStacks > 0)
+            this.addEffect(new MobEffectInstance(EffectRegistry.MIGHT, 220, mightStacks - 1, false, false, false));
 
         target.invulnerableTime = 0;
         return super.doHurtTarget(target);

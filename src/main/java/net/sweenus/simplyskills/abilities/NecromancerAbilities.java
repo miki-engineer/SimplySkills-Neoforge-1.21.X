@@ -39,7 +39,9 @@ public class NecromancerAbilities {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationWinterborn, player)) {
             double frostSpellPower = SpellPower.getSpellPower(SpellSchools.FROST, player).baseValue();
-            player.addEffect(new MobEffectInstance(EffectRegistry.SOULSHOCK, 220, (int) frostSpellPower, false ,false, false));
+            int soulShockStacks = (int) frostSpellPower;
+            if (soulShockStacks > 0)
+                player.addEffect(new MobEffectInstance(EffectRegistry.SOULSHOCK, 220, soulShockStacks - 1, false ,false, false));
         }
     }
 
@@ -142,7 +144,7 @@ public class NecromancerAbilities {
     public static void effectEndlessServitude(Player player, TamableAnimal minion) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationEndlessServitude, player)) {
-            int chanceThreshold = Math.min(21 + HelperMethods.countHarmfulStatusEffects(minion) * 5, 60);
+            int chanceThreshold = Math.min(20 + HelperMethods.countHarmfulStatusEffects(minion) * 5, 60);
 
             int chance = minion.getRandom().nextInt(100);
             if (chance < chanceThreshold) {
@@ -245,7 +247,7 @@ public class NecromancerAbilities {
                 tameableMinion.restrictTo(player.blockPosition().above(3), 32);
                 if (HelperMethods.isUnlocked("simplyskills:necromancer",
                         SkillReferencePosition.necromancerSpecialisationShadowAura, player)) {
-                    int amplifier = 0;
+                    int amplifier = 1;
                     if (tameableMinion instanceof GreaterDreadglareEntity)
                         amplifier = 3;
                     minion.addEffect(new MobEffectInstance(EffectRegistry.SHADOWAURA, 2400, amplifier, false, false, false));
@@ -291,8 +293,8 @@ public class NecromancerAbilities {
             double multiplier = 0.5;
             if (minion instanceof GreaterDreadglareEntity)
                 multiplier = 1.0;
-            double maxArmor = 1 + (multiplier * player.getAttributeValue(Attributes.ARMOR));
-            double maxArmorToughness = 1 + (multiplier * player.getAttributeValue(Attributes.ARMOR_TOUGHNESS));
+            double maxArmor = multiplier * player.getAttributeValue(Attributes.ARMOR);
+            double maxArmorToughness = multiplier * player.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
             AttributeInstance armorAttribute = minion.getAttribute(Attributes.ARMOR);
             AttributeInstance armorToughnessAttribute = minion.getAttribute(Attributes.ARMOR_TOUGHNESS);
             if (armorAttribute != null) {

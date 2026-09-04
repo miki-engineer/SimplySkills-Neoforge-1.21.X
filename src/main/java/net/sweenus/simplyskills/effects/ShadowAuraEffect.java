@@ -28,6 +28,9 @@ public class ShadowAuraEffect extends MobEffect {
 
     @Override
     public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.isAlive())
+            return true;
+
         if (!livingEntity.level().isClientSide()) {
             HelperMethods.spawnOrbitParticles((ServerLevel) livingEntity.level(), livingEntity.position(), ParticleTypes.SMOKE, 0.5, 3);
             if (livingEntity.tickCount % Math.max((22 - (amplifier * 2)), 1) == 0) {
