@@ -99,7 +99,7 @@ public class ProminenceInternalAbilities {
         // Apply buffs or debuffs to the entities
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity le) {
-                boolean isFriendly = !HelperMethods.checkFriendlyFire(le, player);
+                boolean isFriendly = !HelperMethods.checkFriendlyFireAOE(le, player);
 
                 // Apply buffs
                 if (isFriendly) {

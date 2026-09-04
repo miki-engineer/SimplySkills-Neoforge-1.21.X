@@ -42,7 +42,7 @@ public class StaticChargeEffect extends MobEffect {
                 for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null && ownerEntity != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, ownerEntity)
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, ownerEntity)
                         && le.getRandom().nextInt(100) < leapChance) {
                             SignatureAbilities.castSpellEngineIndirectTarget(ownerEntity,
                                     "simplyskills:static_charge",

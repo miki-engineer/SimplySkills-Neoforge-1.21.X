@@ -102,7 +102,7 @@ public class AscendancyAbilities {
 
         if (closestEntity != null) {
             if ((closestEntity instanceof LivingEntity ee)) {
-                if (HelperMethods.checkFriendlyFire(ee, player)) {
+                if (HelperMethods.checkFriendlyFireAOE(ee, player)) {
                     SimplyStatusEffectInstance agonyEffect = new SimplyStatusEffectInstance(
                             EffectRegistry.AGONY, 200 + getAscendancyPoints(player), 0, false,
                             false, true);
@@ -142,7 +142,7 @@ public class AscendancyAbilities {
 
         if (closestEntity != null) {
             if ((closestEntity instanceof LivingEntity ee)) {
-                if (HelperMethods.checkFriendlyFire(ee, player)) {
+                if (HelperMethods.checkFriendlyFireAOE(ee, player)) {
                     SimplyStatusEffectInstance tormentEffect = new SimplyStatusEffectInstance(
                             EffectRegistry.TORMENT, 160 + getAscendancyPoints(player), 0, false,
                             false, true);

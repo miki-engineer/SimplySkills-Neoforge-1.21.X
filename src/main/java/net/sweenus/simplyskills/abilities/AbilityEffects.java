@@ -179,7 +179,7 @@ public class AbilityEffects {
             for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                         if (HelperMethods.isUnlocked("simplyskills:rogue",
                                 SkillReferencePosition.rogueSpecialisationEvasionFanOfBladesAssault, player))
@@ -277,7 +277,7 @@ public class AbilityEffects {
                         if (entities != null) {
                             Random rand = new Random();
                             String randomSpell = list.get(rand.nextInt(list.size()));
-                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                                 SignatureAbilities.castSpellEngineIndirectTarget(player,
                                         randomSpell,
                                         512, le, HelperMethods.getBlockLookingAt(player, 256));
@@ -374,7 +374,7 @@ public class AbilityEffects {
                     BlockPos blockPos = player.blockPosition().relative(player.getMotionDirection(), 3);
                     AABB box = HelperMethods.createBoxBetween(player.blockPosition(), blockPos, 3);
                     for (Entity entity : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
-                        if (entity instanceof LivingEntity livingEntity && HelperMethods.checkFriendlyFire(livingEntity, player)) {
+                        if (entity instanceof LivingEntity livingEntity && HelperMethods.checkFriendlyFireAOE(livingEntity, player)) {
                             projectileLimiterCap = 4;
                             break;
                         }

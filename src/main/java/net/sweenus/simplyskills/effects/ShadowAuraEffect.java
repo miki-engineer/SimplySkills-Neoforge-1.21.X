@@ -41,7 +41,7 @@ public class ShadowAuraEffect extends MobEffect {
                         .forEach(entity -> {
                             LivingEntity le = (LivingEntity) entity;
 
-                            if (effectivePlayer != null && HelperMethods.checkFriendlyFire(le, effectivePlayer)) {
+                            if (effectivePlayer != null && HelperMethods.checkFriendlyFireAOE(le, effectivePlayer)) {
                                 le.invulnerableTime = 0;
                                 le.hurt(effectivePlayer.level().damageSources().indirectMagic(effectivePlayer, effectivePlayer),
                                         (float) SpellPower.getSpellPower(SpellSchools.SOUL, effectivePlayer).randomValue() * ((float) amplifier / 5));

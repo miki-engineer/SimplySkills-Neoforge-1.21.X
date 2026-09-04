@@ -62,7 +62,7 @@ public class CyclonicCleaveEffect extends MobEffect {
                 for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null && cyclonicCleave.getDuration() < 30) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                             if (AscendancyAbilities.getAscendancyPoints(player) > 29)
                                 le.setDeltaMovement((player.getX() - le.getX()) /4,  (player.getY() - le.getY()) /4, (player.getZ() - le.getZ()) /4);
                             if (cyclonicCleave.getDuration() % bullrushHitFrequency == 0) {

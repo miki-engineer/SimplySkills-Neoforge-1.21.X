@@ -41,6 +41,7 @@ Still in progress:
 - Updated the Gradle setup, mod metadata, registries, networking, mixins, events, attributes, effects, entities, and resource data for current APIs.
 - Updated the active dependency set for Puffish Skills, Puffish Attributes, Spell Engine, Spell Power, RPG Series integrations, and supporting APIs.
 - Updated skill definitions and resource schemas used by Puffish Skills and Spell Engine.
+- Custom area spells use Spell Engine's friendly-target rules.
 - Restored custom effect, projectile, HUD, model, and particle rendering affected by the port.
 - Replaced legacy UUID-style attribute modifier names with stable readable resource IDs.
 - Added a login migration that removes obsolete attribute modifiers left in existing test worlds.

@@ -47,7 +47,7 @@ public class ConsecrateEffect extends MobEffect {
                     for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                         if (entities != null) {
-                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                                 if (le.isInvertedHealAndHarm() && HelperMethods.isUnlocked("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationConsecrationWard, player))
                                     le.setDeltaMovement((le.getX() - player.getX()) /4,  (le.getY() - player.getY()) /4, (le.getZ() - player.getZ()) /4);
@@ -67,7 +67,7 @@ public class ConsecrateEffect extends MobEffect {
 
 
                             }
-                            if ((entities instanceof LivingEntity le) && !HelperMethods.checkFriendlyFire(le, player)) {
+                            if ((entities instanceof LivingEntity le) && !HelperMethods.checkFriendlyFireAOE(le, player)) {
                                 le.heal((float) damage / 4);
                                 if (HelperMethods.isUnlocked("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationConsecrationMighty, player))
                                     HelperMethods.incrementStatusEffect(le, EffectRegistry.MIGHT, hitFrequency+1, mightStacks, mightStacksMax);

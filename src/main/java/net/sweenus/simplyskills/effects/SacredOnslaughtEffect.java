@@ -52,7 +52,7 @@ public class SacredOnslaughtEffect extends MobEffect {
                     if (entities != null) {
                         if (entities instanceof LivingEntity le) {
                             if (player.tickCount % hitFrequency == 0) {
-                                boolean hostileTarget = HelperMethods.checkFriendlyFire(le, player);
+                                boolean hostileTarget = HelperMethods.checkFriendlyFireAOE(le, player);
                                 if (hostileTarget && player.isBlocking()) {
                                     le.setDeltaMovement((le.getX() - player.getX()) /4,  (le.getY() - player.getY()) /4, (le.getZ() - player.getZ()) /4);
                                     le.hurt(player.damageSources().playerAttack(player), (float) damage);

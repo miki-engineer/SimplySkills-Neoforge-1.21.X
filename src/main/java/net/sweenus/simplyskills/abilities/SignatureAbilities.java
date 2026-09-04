@@ -638,7 +638,7 @@ public class SignatureAbilities {
             if (entities != null) {
                 if (entities instanceof AgeableMob && ignorePassive)
                     continue; // Skip passive entities if ignorePassive is true
-                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                     if (player.getRandom().nextInt(100) < chance)
                         list.add(le);

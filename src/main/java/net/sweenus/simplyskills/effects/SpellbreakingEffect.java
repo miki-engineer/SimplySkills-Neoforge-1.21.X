@@ -32,7 +32,7 @@ public class SpellbreakingEffect extends MobEffect {
                         if (entities instanceof SpellProjectile pe) {
                             if (pe.getOwner() instanceof LivingEntity livingOwner) {
                                 if (livingEntity instanceof Player player) {
-                                    if (!HelperMethods.checkFriendlyFire(livingOwner, player))
+                                    if (!HelperMethods.checkFriendlyFireAOE(livingOwner, player))
                                         continue;
                                 }
                             }

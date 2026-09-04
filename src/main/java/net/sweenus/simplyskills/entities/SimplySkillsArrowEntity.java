@@ -36,7 +36,7 @@ public class SimplySkillsArrowEntity extends Arrow {
                 AABB box = HelperMethods.createBox(this, 1);
                 for (Entity entities : this.level().getEntities(this, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                     if (entities != null && (this.getOwner() instanceof Player player)) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                             Explosion explosion = this.level().explode(this, this.getX(), this.getY(), this.getZ(),
                                     1.0f, false, Level.ExplosionInteraction.NONE);

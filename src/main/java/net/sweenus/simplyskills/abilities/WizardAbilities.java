@@ -81,7 +81,7 @@ public class WizardAbilities {
             for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                         success = true;
 
                         if (HelperMethods.isUnlocked(wizardSkillTree,
@@ -133,7 +133,7 @@ public class WizardAbilities {
             BlockPos searchArea = new BlockPos(xpos, ypos, zpos);
             AABB box = HelperMethods.createBoxAtBlock(searchArea, 3);
             for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
-                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                     target = le;
                     break;
                 }
@@ -214,7 +214,7 @@ public class WizardAbilities {
                 AABB box = HelperMethods.createBoxAtBlock(searchArea, 3);
                 for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                     if (entities != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                             success = true;
                             SignatureAbilities.castSpellEngineIndirectTarget(player,
                                     "simplyskills:static_discharge",
@@ -266,7 +266,7 @@ public class WizardAbilities {
 
                         for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                             if (entities != null && player.getRandom().nextInt(100) < 5) {
-                                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                                     projectile.setFollowedTarget(le);
                                     spellProjectile.level().addFreshEntity(projectile);

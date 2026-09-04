@@ -52,7 +52,7 @@ public class RogueAbilities {
             AABB box = HelperMethods.createBox(player, radius);
             for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                         le.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,
                                 blindnessDuration, blindnessAmplifier, false, false, true));
@@ -142,7 +142,7 @@ public class RogueAbilities {
                 if (entities != null) {
                     if ((entities instanceof LivingEntity le) &&
                             le.hasEffect(MobEffects.WEAKNESS)
-                            && HelperMethods.checkFriendlyFire(le, player)) {
+                            && HelperMethods.checkFriendlyFireAOE(le, player)) {
                         if (player.getRandom().nextInt(100) < stealthChance) {
                             player.addEffect(new MobEffectInstance(EffectRegistry.STEALTH, stealthDuration, 0, false, false, true));
                             player.level().playSound(
@@ -170,7 +170,7 @@ public class RogueAbilities {
                 for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                             le.hurt(dashSource, dashDamage * dashDamageModifier);
 
                             if (HelperMethods.isUnlocked("simplyskills:rogue",
@@ -286,7 +286,7 @@ public class RogueAbilities {
                 }
 
                 if ((entities instanceof LivingEntity le) && count > 0) {
-                    if (player.getRandom().nextInt(100) < chance && HelperMethods.checkFriendlyFire(le, player)) {
+                    if (player.getRandom().nextInt(100) < chance && HelperMethods.checkFriendlyFireAOE(le, player)) {
                         //SignatureAbilities.castSpellEngineIndirectTarget(player,
                         //"simplyskills:physical_dagger_homing",
                         //9, player);

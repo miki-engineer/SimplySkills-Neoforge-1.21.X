@@ -97,7 +97,7 @@ public class ClericAbilities {
             AABB box = HelperMethods.createBoxAtBlock(searchArea, 3);
             for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && !HelperMethods.checkFriendlyFire(le, player)) {
+                    if ((entities instanceof LivingEntity le) && !HelperMethods.checkFriendlyFireAOE(le, player)) {
                         success = true;
 
                         // Grants recipient Fire Resistance
@@ -131,7 +131,7 @@ public class ClericAbilities {
         if (spellProjectile.getSpellEntry() != null && spellId != null && spellId.toString().equals("simplyskills:sacred_orb") && spellProjectile.tickCount > 20 && spellProjectile.getFollowedTarget() == null) {
             AABB box = HelperMethods.createBox(spellProjectile, 6);
             for (Entity entities : spellProjectile.level().getEntities(spellProjectile, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
-                if (entities instanceof LivingEntity le && spellProjectile.getOwner() instanceof Player playerOwner && !HelperMethods.checkFriendlyFire(le, playerOwner)) {
+                if (entities instanceof LivingEntity le && spellProjectile.getOwner() instanceof Player playerOwner && !HelperMethods.checkFriendlyFireAOE(le, playerOwner)) {
                     spellProjectile.setFollowedTarget(le);
                     break;
                 }
@@ -184,9 +184,9 @@ public class ClericAbilities {
         List<Entity> hostileTargets = new ArrayList<>();
         for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
             if (entities instanceof LivingEntity le) {
-                if (!HelperMethods.checkFriendlyFire(le, player))
+                if (!HelperMethods.checkFriendlyFireAOE(le, player))
                     targets.add(le);
-                else if (HelperMethods.checkFriendlyFire(le, player))
+                else if (HelperMethods.checkFriendlyFireAOE(le, player))
                     hostileTargets.add(le);
             }
         }

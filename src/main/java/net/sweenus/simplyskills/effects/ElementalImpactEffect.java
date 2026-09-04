@@ -59,7 +59,7 @@ public class ElementalImpactEffect extends MobEffect {
                     for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                         if (entities != null) {
-                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player) && !le.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
+                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player) && !le.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
                                 le.setDeltaMovement((player.getX() - le.getX()) /4,  (player.getY() - le.getY()) /4, (player.getZ() - le.getZ()) /4);
                                 le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, slownessDuration, slownessAmplifier, false, false, true));
                             }

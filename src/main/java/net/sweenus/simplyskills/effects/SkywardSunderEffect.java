@@ -93,7 +93,7 @@ public class SkywardSunderEffect extends MobEffect {
                 for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player) && (skywardSunder.getDuration() == 1 || skywardSunder.getDuration() == slash_2 || skywardSunder.getDuration() == slash_1)) {
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player) && (skywardSunder.getDuration() == 1 || skywardSunder.getDuration() == slash_2 || skywardSunder.getDuration() == slash_1)) {
                             le.invulnerableTime = 0;
                             le.hurt(player.damageSources().playerAttack(player), (float) damage);
                             le.invulnerableTime = 0;
@@ -106,7 +106,7 @@ public class SkywardSunderEffect extends MobEffect {
                                     player.blockPosition(),
                                     bullrushRadius - 1, 0, 1, 0);
                         }
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)
                                 && skywardSunder.getDuration() > slash_1 && skywardSunder.getDuration() % 2 == 0) {
 
                             if (AscendancyAbilities.getAscendancyPoints(player) > 30 && le.isAlive())

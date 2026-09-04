@@ -63,7 +63,7 @@ public class GhostwalkEffect extends MobEffect {
                 for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                             if (ghostwalk.getDuration() % bullrushHitFrequency == 0 && ((LivingEntity) entities).getRandom().nextInt(100) < chance) {
                                 le.invulnerableTime = 0;
                                 le.hurt(player.damageSources().playerAttack(player), (float) damage);

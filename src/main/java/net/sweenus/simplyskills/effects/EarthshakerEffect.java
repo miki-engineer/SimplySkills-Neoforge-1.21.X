@@ -49,7 +49,7 @@ public class EarthshakerEffect extends MobEffect {
                                         SkillReferencePosition.warriorHeavyWeight, player);
                                 if (heavyWeight)
                                     damage +=fallDistance;
-                                if (!HelperMethods.checkFriendlyFire(le, player))
+                                if (!HelperMethods.checkFriendlyFireAOE(le, player))
                                     continue;
                             }
 

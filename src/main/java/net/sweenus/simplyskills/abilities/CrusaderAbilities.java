@@ -97,7 +97,7 @@ public class CrusaderAbilities {
         Entity target = targets.get(0);
         AABB box = HelperMethods.createBox(target, 3);
             for (Entity entities : target.level().getEntities(target, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
-                if (entities instanceof LivingEntity le && HelperMethods.checkFriendlyFire(le, player)) {
+                if (entities instanceof LivingEntity le && HelperMethods.checkFriendlyFireAOE(le, player)) {
                     if (HelperMethods.isUnlocked(crusaderSkillTree, SkillReferencePosition.crusaderSpecialisationHeavensmithsCallMark, player)) {
                         le.addEffect(new MobEffectInstance(EffectRegistry.DEATHMARK, tauntDuration));
                     }

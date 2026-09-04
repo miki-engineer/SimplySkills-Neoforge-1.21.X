@@ -107,7 +107,7 @@ public class WraithEntity extends TamableAnimal implements NeutralMob, FlyingAni
 
                 if (closestEntity != null) {
                     if ((closestEntity instanceof LivingEntity ee) && !(closestEntity instanceof AgeableMob)) {
-                        if (HelperMethods.checkFriendlyFire(ee, player)) {
+                        if (HelperMethods.checkFriendlyFireAOE(ee, player)) {
 
                             if (HelperMethods.isUnlocked("simplyskills:necromancer", SkillReferencePosition.necromancerSpecialisationWitherWraiths, player))
                                 SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:minion_soul_spell_wither", 32, ee, null);

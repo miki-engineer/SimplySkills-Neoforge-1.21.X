@@ -42,7 +42,7 @@ public class RangerAbilities {
             for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                         for (MobEffectInstance statusEffect : le.getActiveEffects()) {
                             if (statusEffect != null && statusEffect.getEffect().equals(EffectRegistry.STEALTH)) {
                                 le.removeEffect(statusEffect.getEffect());
@@ -181,7 +181,7 @@ public class RangerAbilities {
         AABB box = HelperMethods.createBox(player, radius);
         for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
             if (entities != null) {
-                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                     le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,
                             slownessDuration, slownessAmplifier, false, false, true));
@@ -289,7 +289,7 @@ public class RangerAbilities {
                 AABB box = spellProjectile.getBoundingBox().inflate(radius, radius * 3, radius);
                 for (Entity entity : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                     if (player.getRandom().nextInt(100) < 35) {
-                        if (entity instanceof LivingEntity livingEntity && HelperMethods.checkFriendlyFire(livingEntity, player)) {
+                        if (entity instanceof LivingEntity livingEntity && HelperMethods.checkFriendlyFireAOE(livingEntity, player)) {
                             target = livingEntity;
                             break;
                         }

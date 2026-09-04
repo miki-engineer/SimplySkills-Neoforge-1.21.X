@@ -35,14 +35,14 @@ public class ImmobilizingAuraEffect extends MobEffect {
                                 if (te.getOwner() == null)
                                     break;
                                 if (te.getOwner() instanceof Player pe) {
-                                    if (HelperMethods.checkFriendlyFire(le, pe)) {
+                                    if (HelperMethods.checkFriendlyFireAOE(le, pe)) {
                                         le.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZE, 25, 0, false, false, true));
                                     }
                                 }
                             }
                             else if (livingEntity instanceof Player playerEntity) {
 
-                                if (HelperMethods.checkFriendlyFire(le, playerEntity)) {
+                                if (HelperMethods.checkFriendlyFireAOE(le, playerEntity)) {
                                     le.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZE, 25, 0, false, false, true));
                                 }
                             }

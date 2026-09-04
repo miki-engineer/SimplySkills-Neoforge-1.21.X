@@ -37,7 +37,7 @@ public class RighteousHammersEffect extends MobEffect {
                     .forEach(entity -> {
                         LivingEntity le = (LivingEntity) entity;
                         ServerPlayer playerEntity = (ServerPlayer) livingEntity;
-                        if (HelperMethods.checkFriendlyFire(le, playerEntity)) {
+                        if (HelperMethods.checkFriendlyFireAOE(le, playerEntity)) {
                             le.invulnerableTime = 0;
                             le.hurt(playerEntity.level().damageSources().playerAttack(playerEntity),
                                     (float) playerEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.8f);
@@ -55,7 +55,7 @@ public class RighteousHammersEffect extends MobEffect {
                     Entity randomEntity = nearbyEntities.get(player.getRandom().nextInt(nearbyEntities.size()));
 
                     if (randomEntity instanceof LivingEntity ee) {
-                        if (HelperMethods.checkFriendlyFire(ee, player)) {
+                        if (HelperMethods.checkFriendlyFireAOE(ee, player)) {
                             BlockPos blockPos = ee.blockPosition().above(1);
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:righteous_hammer_projectile", 20, ee, blockPos);
                         }

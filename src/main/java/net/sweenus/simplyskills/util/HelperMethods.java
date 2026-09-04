@@ -43,6 +43,8 @@ import net.puffish.skillsmod.api.Category;
 import net.puffish.skillsmod.api.Experience;
 import net.puffish.skillsmod.api.Skill;
 import net.puffish.skillsmod.api.SkillsAPI;
+import net.spell_engine.internals.target.EntityRelations;
+import net.spell_engine.internals.target.SpellTarget;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchools;
 import net.sweenus.simplyskills.SimplySkills;
@@ -69,6 +71,8 @@ public class HelperMethods {
         // Check if the player and the living entity are on the same team
         Team playerTeam = player.getTeam();
         Team entityTeam = livingEntity.getTeam();
+        if (livingEntity instanceof Player playerEntity && !player.canHarmPlayer(playerEntity))
+            return false;
         if (HelperMethods.isOpacLoaded() && livingEntity instanceof Player) {
             // Is OpenPAC loaded? And are they team/ally member?
             return OpacCompat.checkOpacFriendlyFire(livingEntity, player);
@@ -87,6 +91,8 @@ public class HelperMethods {
             if (tameable.getOwner() != null) {
                 if (tameable.getOwner() != player
                         && (tameable.getOwner() instanceof Player ownerPlayer)) {
+                    if (!player.canHarmPlayer(ownerPlayer))
+                        return false;
                     if (HelperMethods.isOpacLoaded()) {
                         // Is OpenPAC loaded? And is the pet owner a team/ally member?
                         return OpacCompat.checkOpacFriendlyFire(ownerPlayer, player);
@@ -98,6 +104,29 @@ public class HelperMethods {
             return true;
         }
         return true;
+    }
+
+    public static boolean checkFriendlyFireAOE(LivingEntity livingEntity, Player player) {
+        if (livingEntity == null || player == null)
+            return false;
+        if (!checkEntityBlacklist(livingEntity, player))
+            return false;
+        if (livingEntity == player)
+            return false;
+
+        if (HelperMethods.isOpacLoaded() && livingEntity instanceof Player
+                && !OpacCompat.checkOpacFriendlyFire(livingEntity, player))
+            return false;
+        if (HelperMethods.isOpacLoaded() && livingEntity instanceof OwnableEntity tameable
+                && tameable.getOwner() instanceof Player ownerPlayer
+                && !OpacCompat.checkOpacFriendlyFire(ownerPlayer, player))
+            return false;
+
+        return EntityRelations.actionAllowed(
+                SpellTarget.FocusMode.AREA,
+                SpellTarget.Intent.HARMFUL,
+                player,
+                livingEntity);
     }
 
     // Check for back attack

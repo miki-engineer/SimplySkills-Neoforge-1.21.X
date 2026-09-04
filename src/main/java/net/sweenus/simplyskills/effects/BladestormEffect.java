@@ -31,7 +31,7 @@ public class BladestormEffect extends MobEffect {
                     .forEach(entity -> {
                         LivingEntity le = (LivingEntity) entity;
                         ServerPlayer playerEntity = (ServerPlayer) livingEntity;
-                        if (HelperMethods.checkFriendlyFire(le, playerEntity)) {
+                        if (HelperMethods.checkFriendlyFireAOE(le, playerEntity)) {
                             le.invulnerableTime = 0;
                             le.hurt(playerEntity.level().damageSources().playerAttack(playerEntity),
                                     (float) playerEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.3f);

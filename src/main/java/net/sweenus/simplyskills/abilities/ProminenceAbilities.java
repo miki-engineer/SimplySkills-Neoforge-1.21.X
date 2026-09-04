@@ -68,7 +68,7 @@ public class ProminenceAbilities {
                 .forEach(entity -> {
                     LivingEntity le = (LivingEntity) entity;
                     ServerPlayer playerEntity = (ServerPlayer) player;
-                    if (HelperMethods.checkFriendlyFire(le, playerEntity)) {
+                    if (HelperMethods.checkFriendlyFireAOE(le, playerEntity)) {
                         SimplyStatusEffectInstance tauntedEffect = new SimplyStatusEffectInstance(
                                 EffectRegistry.TAUNTED, 160 + getAscendancyPoints(player), 0, false,
                                 false, true);

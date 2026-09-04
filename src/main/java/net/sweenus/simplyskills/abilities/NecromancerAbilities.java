@@ -168,7 +168,7 @@ public class NecromancerAbilities {
                     .filter(entity -> entity instanceof LivingEntity)
                     .forEach(entity -> {
                         LivingEntity le = (LivingEntity) entity;
-                        if (player != null && HelperMethods.checkFriendlyFire(le, player)) {
+                        if (player != null && HelperMethods.checkFriendlyFireAOE(le, player)) {
                             le.invulnerableTime = 0;
                             float damageMulti = 3.2f;
                             if (minion instanceof GreaterDreadglareEntity)

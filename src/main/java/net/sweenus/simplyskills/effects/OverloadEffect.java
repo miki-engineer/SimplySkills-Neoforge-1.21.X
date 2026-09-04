@@ -40,7 +40,7 @@ public class OverloadEffect extends MobEffect {
                         if (entities instanceof LivingEntity le){
                             if (livingEntity instanceof Player player) {
                                 damageSource = player.damageSources().playerAttack(player);
-                                if (!HelperMethods.checkFriendlyFire(le, player))
+                                if (!HelperMethods.checkFriendlyFireAOE(le, player))
                                     continue;
                             }
 
