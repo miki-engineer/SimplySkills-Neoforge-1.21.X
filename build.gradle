@@ -76,6 +76,7 @@ dependencies {
     implementation "maven.modrinth:spell-power:${spell_power_version}"
     implementation "maven.modrinth:paladins-and-priests:${paladins_version}"
     implementation "maven.modrinth:archers:${archers_version}"
+    localRuntime "maven.modrinth:wizards:${wizards_version}"
     implementation "maven.modrinth:simply-swords:${simply_swords_version}"
     implementation "maven.modrinth:immersive-melodies:${immersive_melodies_version}"
     implementation "maven.modrinth:open-parties-and-claims:${openpac_version}"
