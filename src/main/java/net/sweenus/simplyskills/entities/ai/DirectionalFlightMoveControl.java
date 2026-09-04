@@ -86,10 +86,10 @@ public class DirectionalFlightMoveControl extends MoveControl {
                 this.mob.setYya(e > 0.0 ? i : -i);
             }
         } else {
-            this.mob.setYya(0.0f);
+            this.mob.setYya(0.1f);
             Vec3 velocity = this.mob.getDeltaMovement();
             this.mob.setXRot((float) (-(Mth.atan2(velocity.y, Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z)) * (180.0 / Math.PI))));
-            this.mob.setZza(0.0f);
+            this.mob.setZza(0.1f);
             this.mob.setYRot((float) (Mth.atan2(velocity.z, velocity.x) * (180.0 / Math.PI)) - 90.0F);
         }
     }

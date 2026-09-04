@@ -72,10 +72,6 @@ Deliberate balance change:
 
 - Raging Javelin now throws every 20 ticks by default instead of every 8 ticks. The interval can be changed in the config.
 
-Movement adjustment:
-
-- Dreadglares, Greater Dreadglares, and Wraiths turn vertically faster and no longer apply constant upward movement while idle. This prevents the large rise-and-return loops produced by the original flight controller.
-
 Performance adjustment:
 
 - Arrow Rain keeps the same radius, density, volley count, and elemental chances. Elemental projectiles launch together from the player when the skill triggers, while the visible normal rain is released in volleys four ticks apart.
