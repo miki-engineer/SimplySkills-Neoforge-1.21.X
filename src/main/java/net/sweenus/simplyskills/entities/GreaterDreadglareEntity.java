@@ -52,7 +52,7 @@ public class GreaterDreadglareEntity extends TamableAnimal implements NeutralMob
     public static int lifespan = 2400;
     public GreaterDreadglareEntity(EntityType<? extends TamableAnimal> entityType, Level world) {
         super(entityType, world);
-        this.moveControl = new DirectionalFlightMoveControl(this, 1, true);
+        this.moveControl = new DirectionalFlightMoveControl(this, 20, true);
         this.setNoGravity(true);
     }
 

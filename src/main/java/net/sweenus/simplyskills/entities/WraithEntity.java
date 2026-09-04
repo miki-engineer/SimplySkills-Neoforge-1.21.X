@@ -49,7 +49,7 @@ public class WraithEntity extends TamableAnimal implements NeutralMob, FlyingAni
     public static Entity lookTarget = null;
     public WraithEntity(EntityType<? extends TamableAnimal> entityType, Level world) {
         super(entityType, world);
-        this.moveControl = new DirectionalFlightMoveControl(this, 1, true);
+        this.moveControl = new DirectionalFlightMoveControl(this, 20, true);
         this.setNoGravity(true);
     }
 
