@@ -22,7 +22,7 @@ public class WizardConfig implements ConfigData {
     public int signatureWizardMeteoricWrathRadius = 12;
     @ConfigEntry.BoundedDiscrete(max = 100)
     public int signatureWizardMeteoricWrathRenewalBaseChance = 10;
-    public int signatureWizardMeteoricWrathRenewalChanceIncreasePerTier = 15;
+    public int signatureWizardMeteoricWrathRenewalChanceIncreasePerTier = 20;
     public int signatureWizardMeteorShowerRange = 120;
     public int signatureWizardMeteorShowerCooldown = 40;
     public int signatureWizardIceCometLeapVelocity = 3;

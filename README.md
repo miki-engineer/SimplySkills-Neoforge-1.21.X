@@ -89,7 +89,7 @@ Confirmed original code corrections:
 - Fan of Blades and Siphoning Strikes: the original passes the configured stack count directly as an effect amplifier, displaying one extra stack. The port converts the count to the correct zero-based amplifier.
 - Wizard upgrade tiers: the original checks the lower Ice Comet, Leap, Speed, and Meteoric Wrath Renewal upgrades first, preventing higher unlocked tiers from taking effect. The port checks the highest tier first.
 - Frost Volley and Static Discharge Leap: the original passes their configured counts directly as effect amplifiers, producing one extra volley or leap. The port converts the count to the correct zero-based amplifier.
-- Meteoric Wrath Renewal: the original comparison makes each configured chance one percent higher. The port uses the exact configured chance. Its separate text and config value mismatch remains unchanged pending review.
+- Meteoric Wrath Renewal: the original comparison makes each configured chance one percent higher, and its default config produces 10%, 25%, and 40% despite the text promising 10%, 30%, and 50%. The port uses the exact chances shown in the skill text.
 - Ability cooldowns: the original uses wall-clock time, so cooldowns expire while a single-player world is paused. The port advances cooldowns with active client ticks instead.
 - Bladestorm: the original uses a separate random roll after each Fan of Blades pulse. Its text grants one stack for each enemy hit, so the port increments once for each valid target hit and keeps the 20-stack cap.
 - Shadow Veil: the original schedules Resistance using the Regeneration frequency. The port uses the Resistance frequency from its config.
@@ -130,7 +130,6 @@ Review and testing support:
 ## Known review notes
 
 - Necromancer and Ascendancy testing still remain.
-- Meteoric Wrath Renewal++ says 50% in the original text, while its original default config calculates 40%. The port currently keeps the configured 40% value.
 - Lightning Ball rolls a 5% discharge chance per nearby entity every five ticks. Its original text only describes this as periodic.
 - After every tree is complete, each registered effect will be tested directly to confirm that its actual mechanics work, not only that the effect icon or activation appears.
 - Final regression testing and performance cleanup will happen after the skill trees are complete.
