@@ -107,6 +107,7 @@ The original code and text used for this comparison are available in [AbilityLog
 Review and testing support:
 
 - When `removeUnlockRestrictions` is enabled, class and Ascendancy nodes can be clicked again to turn them off. This option is disabled by default.
+- `removeUnlockRestrictions` is temporary testing support. It must be removed before release so the original path requirements and exclusive branches are fully restored.
 - Test traces are kept in the IntelliJ debugger. They are not included in the mod.
 
 ## In-game verification
