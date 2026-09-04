@@ -117,7 +117,7 @@ public class WizardAbilities {
         double leapHeight = SimplySkills.wizardConfig.signatureWizardIceCometLeapHeight;
         int leapSlowfallDuration = SimplySkills.wizardConfig.signatureWizardIceCometLeapSlowfallDuration;
         int volleyDuration = SimplySkills.wizardConfig.signatureWizardIceCometVolleyDuration;
-        int volleyStacks = SimplySkills.wizardConfig.signatureWizardIceCometVolleyStacks;
+        int volleyStacks = SimplySkills.wizardConfig.signatureWizardIceCometVolleyStacks - 1;
         int iceCometRange = SimplySkills.wizardConfig.signatureWizardIceCometRange;
 
         if (HelperMethods.getTargetedEntity(player, iceCometRange) != null)
@@ -151,9 +151,9 @@ public class WizardAbilities {
                 player.addEffect(new MobEffectInstance(EffectRegistry.FROSTVOLLEY,
                         volleyDuration, volleyStacks, false, false, true));
             if (HelperMethods.isUnlocked(wizardSkillTree,
-                    SkillReferencePosition.wizardSpecialisationIceCometDamageOne, player))
+                    SkillReferencePosition.wizardSpecialisationIceCometDamageThree, player))
                 SignatureAbilities.castSpellEngineIndirectTarget(player,
-                        "simplyskills:ice_comet_large",
+                        "simplyskills:ice_comet_large_three",
                         3, target, searchArea);
             else if (HelperMethods.isUnlocked(wizardSkillTree,
                     SkillReferencePosition.wizardSpecialisationIceCometDamageTwo, player))
@@ -161,9 +161,9 @@ public class WizardAbilities {
                         "simplyskills:ice_comet_large_two",
                         3, target, searchArea);
             else if (HelperMethods.isUnlocked(wizardSkillTree,
-                    SkillReferencePosition.wizardSpecialisationIceCometDamageThree, player))
+                    SkillReferencePosition.wizardSpecialisationIceCometDamageOne, player))
                 SignatureAbilities.castSpellEngineIndirectTarget(player,
-                        "simplyskills:ice_comet_large_three",
+                        "simplyskills:ice_comet_large",
                         3, target, searchArea);
             else {
                 SignatureAbilities.castSpellEngineIndirectTarget(player,
@@ -180,17 +180,17 @@ public class WizardAbilities {
     public static boolean signatureWizardStaticDischarge(String wizardSkillTree, Player player) {
         Vec3 blockpos = null;
         boolean success = false;
-        int amplifier = SimplySkills.wizardConfig.signatureWizardStaticDischargeBaseLeaps;
+        int amplifier = SimplySkills.wizardConfig.signatureWizardStaticDischargeBaseLeaps - 1;
         int leapsPerTier = SimplySkills.wizardConfig.signatureWizardStaticDischargeLeapsPerTier;
         int staticDischargeRange = SimplySkills.wizardConfig.signatureWizardStaticDischargeRange;
         int staticChargeDuration = SimplySkills.wizardConfig.signatureWizardStaticChargeDuration;
 
         if (HelperMethods.isUnlocked(wizardSkillTree,
-                SkillReferencePosition.wizardSpecialisationStaticDischargeLeapTwo, player))
-            amplifier = amplifier + leapsPerTier;
-        else if (HelperMethods.isUnlocked(wizardSkillTree,
                 SkillReferencePosition.wizardSpecialisationStaticDischargeLeapThree, player))
             amplifier = amplifier + (leapsPerTier * 2);
+        else if (HelperMethods.isUnlocked(wizardSkillTree,
+                SkillReferencePosition.wizardSpecialisationStaticDischargeLeapTwo, player))
+            amplifier = amplifier + leapsPerTier;
 
         if (HelperMethods.getTargetedEntity(player, staticDischargeRange) !=null)
             blockpos = HelperMethods.getTargetedEntity(player, staticDischargeRange).position();

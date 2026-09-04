@@ -76,11 +76,11 @@ public class StaticChargeEffect extends MobEffect {
 
         int speedChance = speedBaseChance;
         if (HelperMethods.isUnlocked("simplyskills:wizard",
-                SkillReferencePosition.wizardSpecialisationStaticDischargeSpeedTwo, ownerEntity))
-            speedChance = speedChance + speedChancePerTier;
-        else if (HelperMethods.isUnlocked("simplyskills:wizard",
                 SkillReferencePosition.wizardSpecialisationStaticDischargeSpeedThree, ownerEntity))
             speedChance = speedChance + (speedChancePerTier * 2);
+        else if (HelperMethods.isUnlocked("simplyskills:wizard",
+                SkillReferencePosition.wizardSpecialisationStaticDischargeSpeedTwo, ownerEntity))
+            speedChance = speedChance + speedChancePerTier;
 
         return speedChance;
     }

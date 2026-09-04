@@ -528,15 +528,15 @@ public class AbilityEffects {
             if (SignatureAbilities.castSpellEngineAOE(player, spellIdentifier, radius, chance, true, false)) {
                 int renewalChance = 0;
                 if (HelperMethods.isUnlocked("simplyskills:wizard",
-                        SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrath, player))
-                    renewalChance = baseRenewalChance;
+                        SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrathThree, player))
+                    renewalChance = baseRenewalChance + (renewalChancePerTier * 2);
                 else if (HelperMethods.isUnlocked("simplyskills:wizard",
                         SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrathTwo, player))
                     renewalChance = baseRenewalChance + renewalChancePerTier;
                 else if (HelperMethods.isUnlocked("simplyskills:wizard",
-                        SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrathThree, player))
-                    renewalChance = baseRenewalChance + (renewalChancePerTier * 2);
-                if (player.getRandom().nextInt(100) > renewalChance)
+                        SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrath, player))
+                    renewalChance = baseRenewalChance;
+                if (player.getRandom().nextInt(100) >= renewalChance)
                     HelperMethods.decrementStatusEffect(player, EffectRegistry.METEORICWRATH);
             }
         }
