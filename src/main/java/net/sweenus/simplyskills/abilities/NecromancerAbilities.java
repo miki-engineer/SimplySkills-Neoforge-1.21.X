@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Random;
 
 public class NecromancerAbilities {
+    private static final String SHADOW_COMBUST_IN_PROGRESS = "simplyskills_shadow_combust_in_progress";
 
     public static void effectNecromancerWinterborn(Player player) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
@@ -157,6 +158,9 @@ public class NecromancerAbilities {
     }
 
     public static void effectShadowCombust(Player player, TamableAnimal minion) {
+        if (minion.getPersistentData().getBoolean(SHADOW_COMBUST_IN_PROGRESS))
+            return;
+
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationShadowCombust, player)) {
 
@@ -190,8 +194,15 @@ public class NecromancerAbilities {
             HelperMethods.spawnOrbitParticles((ServerLevel) minion.level(), minion.position(), ParticleTypes.EXPLOSION, 1, 2);
             HelperMethods.spawnOrbitParticles((ServerLevel) minion.level(), minion.position(), ParticleTypes.SOUL, 2, 20);
             HelperMethods.spawnOrbitParticles((ServerLevel) minion.level(), minion.position(), ParticleTypes.SMOKE, radius, 20);
-            if (minion.isAlive())
-                minion.hurt(minion.level().damageSources().indirectMagic(minion, minion), minion.getMaxHealth());
+            if (minion.isAlive()) {
+                // Lethal self-damage calls die(), which invokes this ability again.
+                minion.getPersistentData().putBoolean(SHADOW_COMBUST_IN_PROGRESS, true);
+                try {
+                    minion.hurt(minion.level().damageSources().indirectMagic(minion, minion), minion.getMaxHealth());
+                } finally {
+                    minion.getPersistentData().remove(SHADOW_COMBUST_IN_PROGRESS);
+                }
+            }
         }
     }
 

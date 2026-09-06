@@ -98,7 +98,7 @@ Confirmed original code corrections:
 - Evasion no longer blocks `/kill` or void damage, and Rage no longer allows very large damage values to overflow into invalid player health.
 - Winterborn now converts Frost spell power into the displayed number of Soulshock stacks without adding an extra level.
 - Necrotic Fortification now grants exactly half of the player's Armor and Armor Toughness, or the full values to a Greater Dreadglare, without hidden base points.
-- Shadow Aura now deals its stated normal damage. It also stops ticking after its minion dies, preventing Shadow Combust from triggering twice.
+- Shadow Aura now deals its stated normal damage and stops ticking after its minion dies. Shadow Combust also blocks recursive calls during its lethal self-damage, preventing the death handler from producing a second explosion.
 - Endless Servitude now starts at the stated 20% chance and still gains 5% for each harmful effect, up to 60%.
 - Greater Dreadglare only gains Might when it has harmful effects, with one Might level for each harmful effect.
 
@@ -134,6 +134,7 @@ Review and testing support:
 - Verified the complete Wizard tree with Wizards RPG Series installed, including spell-power scaling, every signature branch, isolated and combined upgrades, projectile behavior, effect counts, renewal chances, and ability cooldown pausing.
 - Confirmed the corrected combined Wizard tiers select Greater ++, 52 Static Discharge leaps, a 15% Speed chance, and exactly six Frost Volley shots.
 - Verified the complete Necromancer tree, including minion attributes and limits, Wraith effects, harmful-effect transfers, defensive effects, death triggers, auras, life siphoning, resurrection chances, and Greater Dreadglare traits.
+- Retested the Necromancer corrections: Winterborn stacks, Fortification armor/toughness, normal Shadow Aura damage, Endless Servitude's 20% base chance, and Greater Dreadglare Might levels. Combustion regression confirmed one explosion for both aura-triggered and direct deaths after fixing recursive death-handler calls.
 
 ## Known review notes
 
