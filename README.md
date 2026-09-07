@@ -35,7 +35,29 @@ Still in progress:
 - Final direct test of every registered effect after all trees are complete
 - Final regression testing and performance cleanup
 
-## Current session handoff (2026-09-07)
+## Resume checkpoint (2026-09-07)
+
+The user paused here to continue on another computer/session. This checkpoint supersedes pending/next-step statements in the chronological notes below.
+
+- Ascendancy: Bone Armor, Righteous Hammers, and Cyclonic Cleave main checks are complete at the recorded scope. Cleave's 30-point damage scaling, whirlwind animation, and pull against an AI-enabled zombie are confirmed. Do not repeat these without a relevant change or failure.
+- **Next gameplay test: Magic Circle.** Instructions were provided, but the user has not confirmed switching to it or testing it. At 30 spent Ascendancy points, expect a visible circle, immobilization, and duration 270 ticks (13.5 seconds); check movement returns after expiration. Its other upgrades/interactions remain to be checked.
+- Animation work: fixed the shared release-animation callback and moved 12 custom animations into `player_animations`; added Spell Engine's two-handed ground-release gesture to Summoning Ritual. User visually confirmed Cyclonic Cleave, Wizard Arcane Bolt, and Necromancer Summoning Ritual. The last code build passed. Other animation references were checked for asset existence, not all visually tested.
+- **Remaining animation work:** audit active abilities across the other classes and assign suitable Spell Engine gestures where absent. Bone Armor, Righteous Hammers, and Magic Circle still lack casting gestures. Earlier class gameplay completion does not mean every animation is verified. Current fixes play gestures alongside immediate effects; no charge-time/delayed-effect system was added.
+- Last confirmed local skill setup: Wizard Arcane Bolt locked, Necromancer Summoning Ritual unlocked, 30-point Cyclonic Cleave tested. Magic Circle selection is unconfirmed. Signature and Ascendancy use separate keys.
+- Git transfers source/assets and this handoff, but not `run` worlds/configs or IDE debugger state. Pull `main`, use Java 21, run `gradlew.bat build`, then launch the IntelliJ `Client` configuration. Use a full client restart for resource changes. Recreate test-world unlocks if needed; do not assume the old world is present.
+- Local debugger preparation: a non-suspending MagicCircleEffect.java line 24 probe logs spent points, initial duration, and immobilization, conditioned on `magicCircle.getDuration() == 240 + AscendancyAbilities.getAscendancyPoints(player)`. Recreate it in a new IDE session if runtime verification is needed. Completed Cleave probes were removed.
+
+To switch the existing Ascendancy test setup to Magic Circle:
+
+```mcfunction
+/puffish_skills category unlock @s simplyskills:ascendancy
+/puffish_skills skills lock @s simplyskills:ascendancy 1sc2rrqwl88s7jvp
+/puffish_skills skills unlock @s simplyskills:ascendancy w57ptbcf9foj6m24
+```
+
+These commands do not recreate the 30-point allocation on a fresh world. Verify spent points before comparing duration/scaling. Continue updating this checkpoint and pushing completed changes with README validation notes, as required by AGENTS.md.
+
+## Session history (2026-09-07, newest first)
 
 - Cyclonic Cleave: user confirmed the AI-enabled, high-health zombie was pulled. Together with the earlier damage-scaling trace and whirlwind visual check, the main 30-point Cleave checks are complete; lower-point comparisons and exact post-mitigation damage were not separately measured. Removed the Cleave probes. Next ability: Magic Circle (`w57ptbcf9foj6m24`), replacing Cleave (`1sc2rrqwl88s7jvp`). A non-suspending first-update probe captures points, duration, and immobilization. At 30 spent points the expected duration is 270 ticks (13.5 seconds). Start with visible circle and immobilization/expiration checks; Magic Circle runtime verification is pending.
 
