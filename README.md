@@ -37,6 +37,8 @@ Still in progress:
 
 ## Current session handoff (2026-09-07)
 
+- Active visual check: the user requested vertically spinning thrown Righteous Hammers. The projectile spell now uses the existing model with a 90-degree local alignment and a centered pivot, plus 20 degrees of spin per tick around the transverse axis (one turn per 18 ticks). Only the seeking projectile's model settings changed; the orbiting model and damage/throw timing were not changed. JSON parsing and `gradlew.bat build` passed. Reload the development spell data with `/reload` (restart if the new visuals do not refresh), cast near a hostile target, and confirm upright end-over-end flight rather than sideways rotation. Visual verification is pending.
+
 - Righteous Hammers periodic rate reviewed: user felt throws were too frequent. At amplifier 4 (five hammers), `max(22 - amplifier * 2, 1)` gives 14 ticks (0.7 seconds); recorded throw attempts were roughly 0.7 seconds apart. This formula and the 30+ point branch match the [original Fabric implementation](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/effects/RighteousHammersEffect.java). No balance change made. The repeated seeking-hammer probe was removed to reduce overhead.
 
 - User-requested first-person Righteous Hammers rendering has been implemented and `gradlew.bat build` passed with recompilation. Spell Engine skips the local player's custom effect models in first person; `FirstPersonHammersRenderer` now reuses its registered Righteous Hammers renderer and synchronized effect data at NeoForge's AFTER_ENTITIES world-render stage. It handles only the local first-person camera, excludes spectators, and leaves third-person rendering to Spell Engine. The dependency is unchanged. After restarting, the user confirmed the first-person result looks good and five hammers are visible. Dedicated world-occlusion, camera-mode comparison, and expiration-disappearance checks have not been separately recorded.
@@ -96,6 +98,7 @@ Deliberate balance change:
 Requested visual addition:
 
 - Righteous Hammers now has a Simply Skills first-person world-render hook, reusing the existing orbiting models. The user verified first-person visibility with five orbiting hammers. This does not change its damage or targeting.
+- Seeking Righteous Hammer projectiles use a centered end-over-end spin in a vertical plane; visual verification is pending. Orbiting hammer orientation is unchanged.
 
 Performance adjustment:
 
