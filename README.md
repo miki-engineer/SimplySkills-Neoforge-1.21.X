@@ -37,6 +37,8 @@ Still in progress:
 
 ## Current session handoff (2026-09-07)
 
+- Latest runtime check: Righteous Hammers at 30 points applied five stacks for 400 ticks (20 seconds); loaded seeking-projectile spin is -20 degrees/tick with offset 90. The user reported both orbit damage and seeking attacks hitting neutral mobs. Both paths call `checkFriendlyFireAOE`, which delegates to Spell Engine AREA/HARMFUL relations. The local Spell Engine config explicitly permits area damage against NEUTRAL and classifies passive animals as NEUTRAL, while FRIENDLY/ALLY are protected. Exact reported mob types and provocation state are awaiting clarification. No targeting change made; distinguish intended current relation rules from any requested change to hostile-only automatic targeting.
+
 - Latest requested balance change: Ascendancy Righteous Hammers duration reduced from 800 ticks (40 seconds) to 400 ticks (20 seconds). Its 60-second base cooldown, damage, hammer count scaling, and periodic throw interval are unchanged. The English skill tooltip now states 20 seconds. JSON parsing and `gradlew.bat build` passed with recompilation. In-game validation is pending; restart the client to test this together with the pending forward-spin adjustment.
 
 - Latest visual adjustment: the user confirmed the thrown hammer's striking-face orientation is correct, but requested forward rather than backward spin. Reversed `rotate_degrees_per_tick` from 20 to -20, preserving the pivot, initial orientation, and rotation speed magnitude. JSON parsing and `gradlew.bat build` passed. Visual confirmation after a full client restart is pending.
