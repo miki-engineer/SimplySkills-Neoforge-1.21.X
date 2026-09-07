@@ -69,7 +69,7 @@
             "models": [
               {
                 "orientation": "ALONG_MOTION",
-                "rotate_degrees_per_tick": 20,
+                "rotate_degrees_per_tick": -20,
                 "rotate_degrees_offset": 90,
                 "fx": {
                   "model_id": "simplyskills:spell_projectile/righteous_hammers",

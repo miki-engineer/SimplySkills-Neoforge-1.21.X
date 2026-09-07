@@ -37,6 +37,8 @@ Still in progress:
 
 ## Current session handoff (2026-09-07)
 
+- Latest visual adjustment: the user confirmed the thrown hammer's striking-face orientation is correct, but requested forward rather than backward spin. Reversed `rotate_degrees_per_tick` from 20 to -20, preserving the pivot, initial orientation, and rotation speed magnitude. JSON parsing and `gradlew.bat build` passed. Visual confirmation after a full client restart is pending.
+
 - Latest thrown-hammer visual feedback: after a full restart the user confirmed the projectile spins, but its side rather than striking face leads the rotation. Added a 90-degree local X rotation before the existing Y alignment, placing the head's striking axis in the vertical spin plane. Spin speed, pivot, orbiting hammers, and combat values remain the same. JSON parsing and `gradlew.bat build` passed; a fresh-client visual recheck is pending. Use a full restart for this resource change because `/reload` previously retained old projectile settings.
 
 - Immediate next step for vertical hammer spin: `/reload` did not pick up the new settings in the running development session. The runtime spell probe reported `rotate_degrees_per_tick=2.0` and `rotate_degrees_offset=0.0`, while source and `build/resources/main` contain 20 and 90. This establishes stale loaded spell data, not a failed visual test of the new settings. Save/close the client and relaunch, then confirm the runtime values and observe the thrown hammer's spin. The existing probe is at `SignatureAbilities.performSpell`, immediately before `SpellDelivery.resolveAndDeliver`, filtered to `simplyskills:righteous_hammer_projectile`. No further animation changes made yet.
