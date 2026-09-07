@@ -37,6 +37,8 @@ Still in progress:
 
 ## Current session handoff (2026-09-07)
 
+- Active next check: user-requested first-person Righteous Hammers rendering has been implemented and `gradlew.bat build` passed with recompilation. Spell Engine skips the local player's custom effect models in first person; `FirstPersonHammersRenderer` now reuses its registered Righteous Hammers renderer and synchronized effect data at NeoForge's AFTER_ENTITIES world-render stage. It handles only the local first-person camera, excludes spectators, and leaves third-person rendering to Spell Engine. The dependency is unchanged. Restart the client to verify visibility, matching orbit/count between first and third person, movement/camera rotation, world occlusion, and disappearance after expiration. Visual verification is pending; do not mark the feature passed from compilation alone.
+
 - Undying regression after the shared expiration-hook change: the first direct 8-second application expired at 17.816/20 HP with no pending-death event; a later 1000-damage command landed after expiration and killed the player. On the second application, the log recorded the 1000-damage command while Undying was active and no immediate death; the expiration probe recorded 4.333333/20 HP, followed by pending-death health 0 with Undying absent and a magic-death message. This verifies observed survival during the active effect, the low-health expiration penalty, and safe expiration above 60% in these runs. The mixin protection probe itself produced no output, so its exact execution was not established by that probe. Prior Cleric coverage remains applicable; exact 60% boundary and healing-back-above-threshold are not newly verified. Righteous Hammers Ascendancy testing is now active again: its cast-result and first seeking-hammer-attempt probes are restored, and the completed Undying probes have been removed. Awaiting the 30-point cast near a hostile target 6–8 blocks away.
 
 - Continued on the new computer; Git was synchronized and the Gradle build succeeded. The development client launched under IntelliJ's debugger using Java 21.0.12.
@@ -88,6 +90,10 @@ Compatibility work:
 Deliberate balance change:
 
 - Raging Javelin now throws every 20 ticks by default instead of every 8 ticks. The interval can be changed in the config.
+
+Requested visual addition:
+
+- Righteous Hammers now has a Simply Skills first-person world-render hook, reusing the existing orbiting models. First-person visual verification is pending. This does not change its damage or targeting.
 
 Performance adjustment:
 
