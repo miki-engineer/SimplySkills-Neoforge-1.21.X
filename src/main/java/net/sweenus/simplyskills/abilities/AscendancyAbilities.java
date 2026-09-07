@@ -16,6 +16,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchools;
+import net.spell_engine.Platform;
+import net.spell_engine.api.spell.fx.PlayerAnimation;
+import net.spell_engine.internals.casting.SpellCast;
+import net.spell_engine.utils.AnimationHelper;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.effects.instance.SimplyStatusEffectInstance;
 import net.sweenus.simplyskills.registry.EffectRegistry;
@@ -71,6 +75,10 @@ public class AscendancyAbilities {
     }
 
     public static boolean magicCircle(Player player) {
+        if (!player.level().isClientSide()) {
+            AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                    PlayerAnimation.of("spell_engine:one_handed_healing_release"), 1.0F);
+        }
         player.addEffect(new MobEffectInstance(EffectRegistry.MAGICCIRCLE,
                 240 + (getAscendancyPoints(player)), 0, false, false, true));
         player.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZE,
