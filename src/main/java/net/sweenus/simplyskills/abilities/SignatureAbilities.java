@@ -19,6 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.spell_engine.api.spell.registry.SpellRegistry;
+import net.spell_engine.Platform;
+import net.spell_engine.utils.AnimationHelper;
 import net.spell_engine.internals.SpellExecution;
 import net.spell_engine.internals.casting.SpellCast;
 import net.spell_engine.internals.casting.SpellCaster;
@@ -50,7 +52,14 @@ public class SignatureAbilities {
                     SpellPower.getSpellPower(spell.value().school, player),
                     SpellIntents.focusMode(spell.value()), 0);
             SpellDelivery.resolveAndDeliver(player.level(), player, spell,
-                    new SpellTarget.SearchResult(targets, null), impactContext, null);
+                    new SpellTarget.SearchResult(targets, null), impactContext, completion -> {
+                        // Direct delivery bypasses SpellExecution's release-animation callback.
+                        if (completion.success() && action == SpellCast.Action.RELEASE
+                                && spell.value().release != null && !player.level().isClientSide()) {
+                            AnimationHelper.sendAnimation(player, Platform.tracking(player),
+                                    SpellCast.Animation.RELEASE, spell.value().release.animation, 1.0F);
+                        }
+                    });
             AbilityLogic.onSpellCastEffects(player, targets, spellId, null);
         });
     }
@@ -551,7 +560,8 @@ public class SignatureAbilities {
 
         // Calculations
         double spellHaste = SpellPower.getHaste(player, SpellSchools.ARCANE);
-        sendCooldown = cooldown - (spellHaste * (2000 * spellHasteCDReduce));
+        // Spell Power returns a multiplier: 1.0 is normal haste, not a bonus.
+        sendCooldown = cooldown - (Math.max(0.0, spellHaste - 1.0) * (2000 * spellHasteCDReduce));
 
         if (sendCooldown < (minimumCD) && useSuccess) sendCooldown = minimumCD;
         if (!useSuccess) sendCooldown = useDelay;

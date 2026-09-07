@@ -35,6 +35,28 @@ Still in progress:
 - Final direct test of every registered effect after all trees are complete
 - Final regression testing and performance cleanup
 
+## Resume checkpoint (2026-09-07)
+
+The user paused here to continue on another computer/session. Keep this checkpoint current by editing it in place.
+
+- Ascendancy: Bone Armor, Righteous Hammers, and Cyclonic Cleave main checks are complete at the recorded scope. Cleave's 30-point damage scaling, whirlwind animation, and pull against an AI-enabled zombie are confirmed. Do not repeat these without a relevant change or failure.
+- **Next gameplay test: Magic Circle.** Instructions were provided, but the user has not confirmed switching to it or testing it. At 30 spent Ascendancy points, expect a visible circle, immobilization, and duration 270 ticks (13.5 seconds); check movement returns after expiration. Its other upgrades/interactions remain to be checked.
+- Animation work: fixed the shared release-animation callback and moved 12 custom animations into `player_animations`; added Spell Engine's two-handed ground-release gesture to Summoning Ritual. User visually confirmed Cyclonic Cleave, Wizard Arcane Bolt, and Necromancer Summoning Ritual. The last code build passed. Other animation references were checked for asset existence, not all visually tested.
+- **Remaining animation work:** audit active abilities across the other classes and assign suitable Spell Engine gestures where absent. Bone Armor, Righteous Hammers, and Magic Circle still lack casting gestures. Earlier class gameplay completion does not mean every animation is verified. Current fixes play gestures alongside immediate effects; no charge-time/delayed-effect system was added.
+- Last confirmed local skill setup: Wizard Arcane Bolt locked, Necromancer Summoning Ritual unlocked, 30-point Cyclonic Cleave tested. Magic Circle selection is unconfirmed. Signature and Ascendancy use separate keys.
+- Git transfers source/assets and this handoff, but not `run` worlds/configs or IDE debugger state. Pull `main`, use Java 21, run `gradlew.bat build`, then launch the IntelliJ `Client` configuration. Use a full client restart for resource changes. Recreate test-world unlocks if needed; do not assume the old world is present.
+- Local debugger preparation: a non-suspending MagicCircleEffect.java line 24 probe logs spent points, initial duration, and immobilization, conditioned on `magicCircle.getDuration() == 240 + AscendancyAbilities.getAscendancyPoints(player)`. Recreate it in a new IDE session if runtime verification is needed. Completed Cleave probes were removed.
+
+To switch the existing Ascendancy test setup to Magic Circle:
+
+```mcfunction
+/puffish_skills category unlock @s simplyskills:ascendancy
+/puffish_skills skills lock @s simplyskills:ascendancy 1sc2rrqwl88s7jvp
+/puffish_skills skills unlock @s simplyskills:ascendancy w57ptbcf9foj6m24
+```
+
+These commands do not recreate the 30-point allocation on a fresh world. Verify spent points before comparing duration/scaling. Continue updating this checkpoint and pushing completed changes with README validation notes, as required by AGENTS.md.
+
 ## Main porting work
 
 - Migrated the project to NeoForge 1.21.1 and Java 21.
@@ -67,11 +89,20 @@ Compatibility work:
 - Skill icons, custom effect hooks, targeting, and projectile spawning were updated to restore their original behavior on NeoForge.
 - Player-kill callbacks now use NeoForge's living-death event, restoring Bloodthirsty healing and the Ranger and Rogue Renewal upgrades after the original callback target was removed in 1.21.1.
 - Evasion now uses NeoForge's incoming-damage event and respects Minecraft's normal hurt immunity before rolling again.
+- Ability cooldown reduction treats Spell Power haste 1.0 as the baseline, applying reduction only to the bonus above it. Bone Armor's normal-haste cooldown is verified at 70 seconds.
+- Expiration follow-up hooks run after the current effect iteration to prevent duplicate callbacks when they add effects. Bone Armor follow-ups and Undying were rechecked; broader lifecycle regression testing remains pending.
 - Rage damage and receive-hit stack gain are applied after Minecraft accepts a hit, preventing repeated contact from bypassing normal hurt immunity, adding extra stacks, or causing continuous knockback.
 
 Deliberate balance change:
 
 - Raging Javelin now throws every 20 ticks by default instead of every 8 ticks. The interval can be changed in the config.
+- Ascendancy Righteous Hammers lasts 20 seconds instead of the original 40 seconds, at the user's request. Its base cooldown remains 60 seconds.
+
+Requested visual addition:
+
+- Righteous Hammers now has a Simply Skills first-person world-render hook, reusing the existing orbiting models. The user verified first-person visibility with five orbiting hammers. This does not change its damage or targeting.
+- Seeking Righteous Hammer projectiles use a centered end-over-end spin in a vertical plane; visual verification is pending. Orbiting hammer orientation is unchanged.
+- Custom player animations load from `player_animations`, and direct spell delivery sends the configured release gesture. Summoning Ritual also plays a Spell Engine two-handed casting gesture. Cleave, Arcane Bolt, and Summoning Ritual were visually confirmed.
 
 Performance adjustment:
 
@@ -139,6 +170,7 @@ Review and testing support:
 ## Known review notes
 
 - Ascendancy testing still remains.
+- Intermittent first-use input/cooldown behavior after world entry remains unresolved; an isolated rejoin test worked. Reproduce before changing input handling.
 - Lightning Ball rolls a 5% discharge chance per nearby entity every five ticks. Its original text only describes this as periodic.
 - After every tree is complete, each registered effect will be tested directly to confirm that its actual mechanics work, not only that the effect icon or activation appears.
 - Final regression testing and performance cleanup will happen after the skill trees are complete.

@@ -164,9 +164,17 @@ public class SimplySkills {
     }
 
     private void onEffectExpired(MobEffectEvent.Expired event) {
-        if (event.getEffectInstance() != null)
-            invokeEffectHook(event.getEffectInstance().getEffect().value(), "onEffectRemovedCustom",
-                    event.getEntity(), event.getEffectInstance().getAmplifier());
+        var instance = event.getEffectInstance();
+        var entity = event.getEntity();
+        var server = entity.getServer();
+        if (instance != null && server != null) {
+            var effect = instance.getEffect().value();
+            int amplifier = instance.getAmplifier();
+            // Expired fires before the active-effects iterator removes the effect.
+            // Hooks may add effects, so queue them until the current tick has finished.
+            server.tell(new net.minecraft.server.TickTask(server.getTickCount(),
+                    () -> invokeEffectHook(effect, "onEffectRemovedCustom", entity, amplifier)));
+        }
     }
 
     private void onLivingDeath(LivingDeathEvent event) {

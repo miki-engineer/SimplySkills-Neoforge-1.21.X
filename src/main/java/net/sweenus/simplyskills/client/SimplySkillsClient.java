@@ -56,6 +56,7 @@ public class SimplySkillsClient {
         modEventBus.addListener(ClientEvents::registerClientEvents);
         modEventBus.addListener(SimplySkillsClient::clientSetup);
         NeoForge.EVENT_BUS.addListener(SimplySkillsClient::clientTick);
+        NeoForge.EVENT_BUS.addListener(FirstPersonHammersRenderer::render);
 
     }
 
