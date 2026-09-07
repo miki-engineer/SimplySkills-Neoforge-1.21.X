@@ -551,7 +551,8 @@ public class SignatureAbilities {
 
         // Calculations
         double spellHaste = SpellPower.getHaste(player, SpellSchools.ARCANE);
-        sendCooldown = cooldown - (spellHaste * (2000 * spellHasteCDReduce));
+        // Spell Power returns a multiplier: 1.0 is normal haste, not a bonus.
+        sendCooldown = cooldown - (Math.max(0.0, spellHaste - 1.0) * (2000 * spellHasteCDReduce));
 
         if (sendCooldown < (minimumCD) && useSuccess) sendCooldown = minimumCD;
         if (!useSuccess) sendCooldown = useDelay;
