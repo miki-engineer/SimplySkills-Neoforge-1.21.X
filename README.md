@@ -37,13 +37,13 @@ Still in progress:
 
 ## Resume checkpoint (2026-09-07)
 
-The user paused here to continue on another computer/session. Keep this checkpoint current by editing it in place.
+The cross-computer progress is merged with the locally verified recursive Shadow Combust fix. The combined source passed IntelliJ compilation and the Java 21 Gradle build; in-game testing of the merged build is pending. Keep this checkpoint current by editing it in place.
 
 - Ascendancy: Bone Armor, Righteous Hammers, and Cyclonic Cleave main checks are complete at the recorded scope. Cleave's 30-point damage scaling, whirlwind animation, and pull against an AI-enabled zombie are confirmed. Do not repeat these without a relevant change or failure.
 - **Next gameplay test: Magic Circle.** Instructions were provided, but the user has not confirmed switching to it or testing it. At 30 spent Ascendancy points, expect a visible circle, immobilization, and duration 270 ticks (13.5 seconds); check movement returns after expiration. Its other upgrades/interactions remain to be checked.
 - Animation work: fixed the shared release-animation callback and moved 12 custom animations into `player_animations`; added Spell Engine's two-handed ground-release gesture to Summoning Ritual. User visually confirmed Cyclonic Cleave, Wizard Arcane Bolt, and Necromancer Summoning Ritual. The last code build passed. Other animation references were checked for asset existence, not all visually tested.
 - **Remaining animation work:** audit active abilities across the other classes and assign suitable Spell Engine gestures where absent. Bone Armor, Righteous Hammers, and Magic Circle still lack casting gestures. Earlier class gameplay completion does not mean every animation is verified. Current fixes play gestures alongside immediate effects; no charge-time/delayed-effect system was added.
-- Last confirmed local skill setup: Wizard Arcane Bolt locked, Necromancer Summoning Ritual unlocked, 30-point Cyclonic Cleave tested. Magic Circle selection is unconfirmed. Signature and Ascendancy use separate keys.
+- Last confirmed setup on the other computer: Wizard Arcane Bolt locked, Necromancer Summoning Ritual unlocked, 30-point Cyclonic Cleave tested. This computer retains its Necromancer test world; verify its allocation before Magic Circle testing. Signature and Ascendancy use separate keys.
 - Git transfers source/assets and this handoff, but not `run` worlds/configs or IDE debugger state. Pull `main`, use Java 21, run `gradlew.bat build`, then launch the IntelliJ `Client` configuration. Use a full client restart for resource changes. Recreate test-world unlocks if needed; do not assume the old world is present.
 - Local debugger preparation: a non-suspending MagicCircleEffect.java line 24 probe logs spent points, initial duration, and immobilization, conditioned on `magicCircle.getDuration() == 240 + AscendancyAbilities.getAscendancyPoints(player)`. Recreate it in a new IDE session if runtime verification is needed. Completed Cleave probes were removed.
 
