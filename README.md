@@ -35,6 +35,14 @@ Still in progress:
 - Final direct test of every registered effect after all trees are complete
 - Final regression testing and performance cleanup
 
+## Current session handoff (2026-09-07)
+
+- Continued on the new computer; Git was synchronized and the Gradle build succeeded. The development client launched under IntelliJ's debugger using Java 21.0.12.
+- The old test world and local configs were not transferred. A fresh test world needs Ascendancy unlocked using `/puffish_skills category unlock @s simplyskills:ascendancy`; testing points can be granted using `/puffish_skills points add @s simplyskills:ascendancy 40`.
+- Ascendancy testing has started with Bone Armor. Runtime traces confirmed 1 spent Ascendancy point, amplifier 3 (4 layers), and 800 ticks (40 seconds). Damage callbacks reached the layer-decrement path with amplifiers 3, 2, 1, and 0. Attribute bonuses and the 30-point final-layer effects still need verification.
+- Investigating Bone Armor's displayed starting cooldown of 66 seconds instead of its stated 70 seconds. The shared cooldown formula subtracts the full Spell Power haste value; capture the runtime haste and outgoing cooldown before changing it. A non-suspending probe is prepared at the cooldown packet send in `SignatureAbilities.signatureAbilityCooldownManager`.
+- User workflow: update this README and commit/push each completed project change so work can continue from another computer or session. See `AGENTS.md`.
+
 ## Main porting work
 
 - Migrated the project to NeoForge 1.21.1 and Java 21.
