@@ -1,5 +1,10 @@
 package net.sweenus.simplyskills.abilities;
 
+import net.spell_engine.Platform;
+import net.spell_engine.api.spell.fx.PlayerAnimation;
+import net.spell_engine.internals.casting.SpellCast;
+import net.spell_engine.utils.AnimationHelper;
+
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.server.level.ServerLevel;
@@ -209,6 +214,11 @@ public class NecromancerAbilities {
 
     // Summoning Ritual
     public static boolean signatureNecromancerSummoningRitual(String necromancerTree, Player player) {
+        if (!player.level().isClientSide()) {
+            // Animate the ritual once, rather than replaying for every summoned minion.
+            AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                    PlayerAnimation.of("spell_engine:dual_handed_ground_release"), 1.0F);
+        }
         for (int i = 0; i < getMinionLimit(necromancerTree, player); i ++) {
 
             if (HelperMethods.isUnlocked(necromancerTree, SkillReferencePosition.necromancerSpecialisationGreaterDreadglare, player)) {
