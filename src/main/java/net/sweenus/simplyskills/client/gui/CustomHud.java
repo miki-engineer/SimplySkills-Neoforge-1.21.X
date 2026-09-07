@@ -60,7 +60,7 @@ public class CustomHud {
 
         if (client.player != null && !iconTexture.toString().contains("cooldown_overlay")) {
             // Draw the frame behind the ability icon
-            context.blitSprite(FRAME_TEXTURE, guiAnchorX + 5, guiAnchorY + 6, 24, 24);
+            context.blitSprite(FRAME_TEXTURE, guiAnchorX + 6, guiAnchorY + 6, 24, 24);
             // Draw the ability icon
             context.blit(iconTexture, guiAnchorX + 10, guiAnchorY + 10, 0, 0, 16, 16, 16, 16);
             // Draw the cooldown overlay if there is a remaining cooldown
