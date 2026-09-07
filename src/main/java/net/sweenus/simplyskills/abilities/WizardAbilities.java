@@ -35,7 +35,8 @@ public class WizardAbilities {
             target = targets.get(player.getRandom().nextInt(targets.size()));
 
         int chance = SimplySkills.wizardConfig.passiveWizardSpellEchoChance;
-        if (AscendancyAbilities.magicCircleEffect(player))
+        if (AscendancyAbilities.magicCircleEffect(player)
+                && HelperMethods.isUnlocked("simplyskills:wizard", SkillReferencePosition.wizardSpellEcho, player))
             chance += 10;
         if (player.getRandom().nextInt(100) < chance) {
 
