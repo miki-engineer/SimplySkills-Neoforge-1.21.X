@@ -78,6 +78,7 @@
                   "initial": [
                     {
                       "operation": "rotate",
+                      "x": 90,
                       "y": 90
                     },
                     {
