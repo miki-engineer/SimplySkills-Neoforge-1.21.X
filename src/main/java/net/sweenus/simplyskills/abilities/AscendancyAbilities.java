@@ -48,7 +48,7 @@ public class AscendancyAbilities {
 
     public static boolean righteousHammers(Player player) {
         player.addEffect(new MobEffectInstance(EffectRegistry.RIGHTEOUSHAMMERS,
-                800, 1 + (getAscendancyPoints(player) / 10), false, false, true));
+                400, 1 + (getAscendancyPoints(player) / 10), false, false, true));
         return true;
     }
 
