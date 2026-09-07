@@ -37,23 +37,23 @@ Still in progress:
 
 ## Resume checkpoint (2026-09-07)
 
-The cross-computer progress is merged with the locally verified recursive Shadow Combust fix. The combined source passed IntelliJ compilation and the Java 21 Gradle build; in-game testing of the merged build is pending. Keep this checkpoint current by editing it in place.
+The cross-computer progress is merged with the locally verified recursive Shadow Combust fix. The combined source passed IntelliJ compilation and the Java 21 Gradle build; Magic Circle gameplay and the subsequent HUD adjustment were verified in the restarted client. Keep this checkpoint current by editing it in place.
 
 - Ascendancy: Bone Armor, Righteous Hammers, and Cyclonic Cleave main checks are complete at the recorded scope. Cleave's 30-point damage scaling, whirlwind animation, and pull against an AI-enabled zombie are confirmed. Do not repeat these without a relevant change or failure.
 - **Magic Circle checks complete:** visible circle, immobilization/recovery, healing gesture, 241 ticks at 1 point and 270 ticks at 30 points, and +30% power in all six schools passed. Corrected the Echo bonus to require owning Wizard Spell Echo. Post-fix runtime checks confirmed 15% with the passive locked inside the circle, and 15% outside / 25% inside with it unlocked. Builds passed; probes removed. Next ability: Arcane Slash (not yet tested).
 - Animation work: fixed the shared release-animation callback and moved 12 custom animations into `player_animations`; added Spell Engine's two-handed ground-release gesture to Summoning Ritual. User visually confirmed Cyclonic Cleave, Wizard Arcane Bolt, and Necromancer Summoning Ritual. The last code build passed. Other animation references were checked for asset existence, not all visually tested.
 - **Remaining animation work:** audit active abilities across the other classes and assign suitable Spell Engine gestures where absent. Magic Circle now uses Spell Engine's one-handed healing release gesture; its animation asset exists and IntelliJ compilation plus the Java 21 Gradle build passed, and the user visually confirmed it after restarting. Bone Armor and Righteous Hammers still lack casting gestures. Earlier class gameplay completion does not mean every animation is verified. Current fixes play gestures alongside immediate effects; no charge-time/delayed-effect system was added.
-- Last confirmed setup on the other computer: Wizard Arcane Bolt locked, Necromancer Summoning Ritual unlocked, 30-point Cyclonic Cleave tested. This computer retains its Necromancer test world; verify its allocation before Magic Circle testing. Signature and Ascendancy use separate keys.
+- Last confirmed setup on this computer: 30 spent Ascendancy points, Magic Circle unlocked, Wizard Spell Echo unlocked for the final comparison. Arcane Slash has not been selected or tested. Local Summoning Ritual cooldown is restored to its default 120; shared removeUnlockRestrictions testing remains enabled. Signature and Ascendancy use separate keys.
 - Git transfers source/assets and this handoff, but not `run` worlds/configs or IDE debugger state. Pull `main`, use Java 21, run `gradlew.bat build`, then launch the IntelliJ `Client` configuration. Use a full client restart for resource changes. Recreate test-world unlocks if needed; do not assume the old world is present.
-- HUD alignment: moved both ability frames one pixel right so their centers match the icons, cooldown overlays, and key labels. IntelliJ compilation passed; visual confirmation after client restart is pending before continuing Arcane Slash.
+- HUD alignment: moved both ability frames one pixel right so their centers match the icons, cooldown overlays, and key labels. IntelliJ compilation passed and the user confirmed the alignment looks good after restarting.
 - Debugger state: completed Magic Circle probes removed. Prepare fresh probes for Arcane Slash before reproduction.
 
-To switch the existing Ascendancy test setup to Magic Circle:
+Next session: prepare Arcane Slash probes, then switch the existing Magic Circle setup using:
 
 ```mcfunction
 /puffish_skills category unlock @s simplyskills:ascendancy
-/puffish_skills skills lock @s simplyskills:ascendancy 1sc2rrqwl88s7jvp
-/puffish_skills skills unlock @s simplyskills:ascendancy w57ptbcf9foj6m24
+/puffish_skills skills lock @s simplyskills:ascendancy w57ptbcf9foj6m24
+/puffish_skills skills unlock @s simplyskills:ascendancy ym0s2o1gn8frrrfm
 ```
 
 These commands do not recreate the 30-point allocation on a fresh world. Verify spent points before comparing duration/scaling. Continue updating this checkpoint and pushing completed changes with README validation notes, as required by AGENTS.md.
