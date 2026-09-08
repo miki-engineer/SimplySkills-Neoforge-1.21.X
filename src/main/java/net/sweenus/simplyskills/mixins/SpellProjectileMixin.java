@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,8 @@ public abstract class SpellProjectileMixin extends Projectile {
 
     @Shadow private Entity followedTarget;
 
+    @Shadow private boolean skipTravel;
+
     @Shadow public abstract void setVelocity(double x, double y, double z, float speed, float spread, float divergence);
 
     @Shadow public abstract Holder<Spell> getSpellEntry();
@@ -49,6 +52,21 @@ public abstract class SpellProjectileMixin extends Projectile {
 
     public SpellProjectileMixin(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
+    }
+
+    @Inject(method = "ricochetFrom", at = @At("RETURN"))
+    private void simplyskills$deferShieldRicochetTravel(Entity target, LivingEntity caster,
+                                                       CallbackInfoReturnable<Boolean> cir) {
+        if (!this.level().isClientSide && cir.getReturnValueZ() && this.getSpellEntry() != null) {
+            ResourceLocation spellId = simplyskills$getSpellId();
+            if (spellId.getNamespace().equals("simplyskills")
+                    && (spellId.getPath().equals("righteous_shield_projectile")
+                    || spellId.getPath().equals("righteous_shield_projectile_2"))) {
+                // Check the redirected path for collisions next tick before moving along it.
+                // Otherwise a full-speed step can skip over a nearby ricochet target.
+                this.skipTravel = true;
+            }
+        }
     }
 
     @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
