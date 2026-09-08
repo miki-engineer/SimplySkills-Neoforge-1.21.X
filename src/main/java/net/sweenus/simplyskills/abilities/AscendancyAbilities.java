@@ -51,12 +51,20 @@ public class AscendancyAbilities {
     //------- ASCENDANCY ABILITIES --------
 
     public static boolean righteousHammers(Player player) {
+        if (!player.level().isClientSide()) {
+            AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                    PlayerAnimation.of("spell_engine:one_handed_healing_release"), 1.0F);
+        }
         player.addEffect(new MobEffectInstance(EffectRegistry.RIGHTEOUSHAMMERS,
                 400, 1 + (getAscendancyPoints(player) / 10), false, false, true));
         return true;
     }
 
     public static boolean boneArmor(Player player) {
+        if (!player.level().isClientSide()) {
+            AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                    PlayerAnimation.of("spell_engine:dual_handed_ground_release"), 1.0F);
+        }
         player.addEffect(new MobEffectInstance(EffectRegistry.BONEARMOR,
                 800, 3 + (getAscendancyPoints(player) / 10), false, false, true));
         return true;
