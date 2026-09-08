@@ -36,7 +36,7 @@ Still in progress:
 - Final direct test of every registered effect after all trees are complete
 - Final regression testing and performance cleanup
 
-## Resume checkpoint (2026-09-08)
+## Resume checkpoint (2026-09-09)
 
 All thirteen Ascendancy abilities have completed their main checks at the recorded scopes. Current phase: final animation audit, starting with Bone Armor and Righteous Hammers; registered-effect audit, regression, and testing-support cleanup follow. Skyward Sunder movement/animations and recovery were user-confirmed at 30 points; runtime showed 45 ticks, a roughly seven-block rise, and return to ground. Upward strike and final slam each dealt 11.232 at multiplier 1.8 (another cast dealt 10.8 as attributes changed). Fixed Death Mark to trigger at >=30 and Might-to-Barrier to use actual stacks. Post-restart probes confirmed Might III -> Barrier III with matching 1128-tick duration, and two charge hits at exactly 30 points each applied Death Mark for 60 ticks. No probe errors; completed probes removed. Midair damage, lower-point comparison, and nine-stack Barrier cap were not separately verified. Latest code passed IntelliJ compilation and Java 21 Gradle build. Final animation/effect audits and regression remain.
 
@@ -59,7 +59,29 @@ All thirteen Ascendancy abilities have completed their main checks at the record
 - Cataclysm main checks complete: user confirmed Fire/Frost visuals, channel animation, and movement recovery. At 30 points: 70 ticks, four dispatches every 17 ticks at distances 5/10/15/20, granting Spellforged I-IV with 60-tick refreshes. At 29 points: three dispatches every 18 ticks at distances 10/15/20 and final Spellforged=null after clearing it beforehand. Frost 7.584 > Fire 1.304 selected comets; Fire 10.432 > Frost 1.264 selected meteors. Falling-impact stacks and sequential Warden health confirmed Frost hits of 17.693604 and 14.423317 and a Fire hit of 39.038227. Later incoming amounts were captured without final health. Exact coefficient/dropoff correlation and frequency cap were not separately verified; no Cataclysm source changes were needed.
 - Debugger handoff: all agent probes removed; user-owned probes retained. Current local setup: Cataclysm selected, 29 spent Ascendancy points, Fire equipment. Worlds/configs are local only.
 
-Next action: restart Client and visually check Bone Armor, then Righteous Hammers in third person. Current local selection is Cataclysm; lock avw95rphcs85w4j9 and unlock Bone Armor 1ftcmq4xhgmz4zmd; afterward lock Bone Armor and unlock Hammers xpfympjreeee2xg3. Continue the remaining casting-gesture audit and direct registered-effect checks, using completed tree evidence where applicable. Resolve pending tooltip discrepancies (including Agony duration), then final regression/performance review. Remove temporary removeUnlockRestrictions support before release as agreed. Continue updating this checkpoint and pushing completed changes with README validation notes, as required by AGENTS.md.
+### Next tests on either computer — pending
+
+The casting-gesture changes are in commit `32be9b1`. IntelliJ compilation and the Java 21 Gradle build passed; neither new gesture has been visually confirmed. This handoff is documentation only; no additional runtime tests were performed.
+
+1. Pull `main`, build with Java 21 (`.\gradlew.bat build`), then fully restart IntelliJ's `Client` configuration. Worlds, local configs, unlocks, and debugger state do not transfer through Git. Use a test world with commands enabled and recreate Ascendancy access if needed.
+2. Select Bone Armor. On the previous test setup, run the commands below to replace Cataclysm. If another Ascendancy ability is selected on this computer, lock that ability instead.
+
+   ```mcfunction
+   /puffish_skills skills lock @s simplyskills:ascendancy avw95rphcs85w4j9
+   /puffish_skills skills unlock @s simplyskills:ascendancy 1ftcmq4xhgmz4zmd
+   ```
+
+3. Switch to third person with F5 and activate Ascendancy with R (or its remapped key). Confirm Bone Armor plays one two-handed ground-release gesture, the armor effect still appears, and the player returns to a normal pose afterward. Check the client console for animation playback errors.
+4. After the cooldown/effect finishes, select Righteous Hammers:
+
+   ```mcfunction
+   /puffish_skills skills lock @s simplyskills:ascendancy 1ftcmq4xhgmz4zmd
+   /puffish_skills skills unlock @s simplyskills:ascendancy xpfympjreeee2xg3
+   ```
+
+5. Activate in third person. Confirm one one-handed healing-release gesture, the usual hammer effect, and return to a normal pose without animation playback errors. Record each visual result separately; reuse completed gameplay checks unless a new failure appears.
+
+Then continue the remaining casting-gesture audit (inspect effect-driven animations before adding gestures), followed by direct registered-effect checks using existing shared-effect evidence. Resolve pending tooltip discrepancies, including Agony duration, then complete regression/performance review and remove temporary `removeUnlockRestrictions` support before release. Update this checkpoint with actual validation and push completed changes as required by AGENTS.md.
 
 ## Main porting work
 
