@@ -31,15 +31,15 @@ public class RighteousShieldEffect extends MobEffect {
                             SoundSource.PLAYERS, 1f, 1.1f);
                     MobEffectInstance effect = player.getEffect(EffectRegistry.GOLDENAEGIS);
                     if (effect != null) {
-                        int aegisStacks = effect.getAmplifier();
+                        int aegisStacks = effect.getAmplifier() + 1;
 
-                        if (aegisStacks > 14) {
+                        if (aegisStacks >= 15) {
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:righteous_shield_projectile_4", 3, player, null);
                             HelperMethods.decrementStatusEffects(player, EffectRegistry.GOLDENAEGIS, 15);
-                        } else if (aegisStacks > 9) {
+                        } else if (aegisStacks >= 10) {
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:righteous_shield_projectile_3", 3, player, null);
                             HelperMethods.decrementStatusEffects(player, EffectRegistry.GOLDENAEGIS, 10);
-                        } else if (aegisStacks > 4) {
+                        } else if (aegisStacks >= 5) {
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:righteous_shield_projectile_2", 3, player, null);
                             HelperMethods.decrementStatusEffects(player, EffectRegistry.GOLDENAEGIS, 5);
                         } else {
