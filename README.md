@@ -53,14 +53,14 @@ The cross-computer progress is merged with the locally verified recursive Shadow
 - Git transfers source/assets and this handoff, but not `run` worlds/configs or IDE debugger state. Pull `main`, use Java 21, run `gradlew.bat build`, then launch the IntelliJ `Client` configuration. Use a full client restart for resource changes. Recreate test-world unlocks if needed; do not assume the old world is present.
 - HUD alignment: moved both ability frames one pixel right so their centers match the icons, cooldown overlays, and key labels. IntelliJ compilation passed and the user confirmed the alignment looks good after restarting.
 - Animation-name repair: IDE console captured repeated null-animation exceptions from Spell Engine playback. Player Animator registers internal JSON names, and Arcane Slash requested arcane_slash_alt while its file declared one_handed_slash_horizontal_right. Corrected five custom internal names to match their resource IDs (arcane_slash, arcane_slash_alt, ground_cleave, shield_throw, upward_slash). All 12 custom files parsed and all 97 spell animation references resolved against internal names; Gradle build passed. After restart, the registry probe confirmed the requested slash name is present and the old name absent. No null-animation playback exceptions were found in the new IDE console; the remaining observed null-pointer messages were startup recipe-category warnings. User confirmed the visuals look good. Removed the completed registry probe; the earlier filename-only validation was insufficient.
-- Debugger state: completed Rapidfire and Warden probes removed. Old Magic Circle probe remains user-owned.
+- Debugger state: completed Rapidfire/Warden probes removed. Righteous Shield probes prepared for Golden Aegis gains, cast stacks, release tier and remaining effects. First test: select at 30 spent points, wait 25 seconds away from combat for passive generation (one stack per 400 ticks), then cast toward grouped enemies with fewer than 5 stacks. Block-trigger generation, stack cap and other projectile tiers remain pending. Old Magic Circle probe remains user-owned.
 
-Next test: Righteous Shield. Rapidfire remains selected; its selection commands are retained below until switching:
+Current test: Righteous Shield. Switch from Rapidfire:
 
 ```mcfunction
 /puffish_skills category unlock @s simplyskills:ascendancy
-/puffish_skills skills lock @s simplyskills:ascendancy n04zw9wy6wtnbcs6
-/puffish_skills skills unlock @s simplyskills:ascendancy yra7lkuanbuhho9c
+/puffish_skills skills lock @s simplyskills:ascendancy yra7lkuanbuhho9c
+/puffish_skills skills unlock @s simplyskills:ascendancy jltm2vtk7wm4krdp
 ```
 
 These commands do not recreate the 30-point allocation on a fresh world. Verify spent points before comparing duration/scaling. Continue updating this checkpoint and pushing completed changes with README validation notes, as required by AGENTS.md.
