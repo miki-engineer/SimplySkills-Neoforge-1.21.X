@@ -228,7 +228,12 @@ public class AscendancyAbilities {
     }
 
     public static boolean chainbreaker(Player player) {
-        HelperMethods.buffSteal(player, player,true, false,true,true);
+        // Cleanse whole effects, including higher levels, without modifying the live collection.
+        for (MobEffectInstance effect : java.util.List.copyOf(player.getActiveEffects())) {
+            if (!effect.getEffect().value().isBeneficial()) {
+                player.removeEffect(effect.getEffect());
+            }
+        }
         player.level().playSound(null, player, SoundRegistry.SPELL_ARCANE_CAST,
                 SoundSource.PLAYERS, 0.3f, 1.1f);
         HelperMethods.incrementStatusEffect(player, EffectRegistry.MIGHT, 120, 1+(getAscendancyPoints(player) / 10), 19);
