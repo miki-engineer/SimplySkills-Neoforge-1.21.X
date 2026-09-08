@@ -35,13 +35,13 @@ public class RighteousShieldEffect extends MobEffect {
 
                         if (aegisStacks >= 15) {
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:righteous_shield_projectile_4", 3, player, null);
-                            HelperMethods.decrementStatusEffects(player, EffectRegistry.GOLDENAEGIS, 15);
+                            consumeAegis(player, 15);
                         } else if (aegisStacks >= 10) {
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:righteous_shield_projectile_3", 3, player, null);
-                            HelperMethods.decrementStatusEffects(player, EffectRegistry.GOLDENAEGIS, 10);
+                            consumeAegis(player, 10);
                         } else if (aegisStacks >= 5) {
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:righteous_shield_projectile_2", 3, player, null);
-                            HelperMethods.decrementStatusEffects(player, EffectRegistry.GOLDENAEGIS, 5);
+                            consumeAegis(player, 5);
                         } else {
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:righteous_shield_projectile", 3, player, null);
                             player.removeEffect(EffectRegistry.GOLDENAEGIS);
@@ -54,6 +54,18 @@ public class RighteousShieldEffect extends MobEffect {
         super.applyEffectTick(livingEntity, amplifier);
         return true;
 }
+
+    private static void consumeAegis(ServerPlayer player, int stacks) {
+        MobEffectInstance aegis = player.getEffect(EffectRegistry.GOLDENAEGIS);
+        if (aegis == null)
+            return;
+        // Zero remaining stacks must remove the effect, not create amplifier -1.
+        if (aegis.getAmplifier() + 1 <= stacks) {
+            player.removeEffect(EffectRegistry.GOLDENAEGIS);
+        } else {
+            HelperMethods.decrementStatusEffects(player, EffectRegistry.GOLDENAEGIS, stacks);
+        }
+    }
 
     @Override
     public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
