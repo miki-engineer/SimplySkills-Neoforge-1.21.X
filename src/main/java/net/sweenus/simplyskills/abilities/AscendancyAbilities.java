@@ -228,6 +228,10 @@ public class AscendancyAbilities {
     }
 
     public static boolean chainbreaker(Player player) {
+        if (!player.level().isClientSide()) {
+            AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                    PlayerAnimation.of("spell_engine:one_handed_shout_release"), 1.0F);
+        }
         // Cleanse whole effects, including higher levels, without modifying the live collection.
         for (MobEffectInstance effect : java.util.List.copyOf(player.getActiveEffects())) {
             if (!effect.getEffect().value().isBeneficial()) {
