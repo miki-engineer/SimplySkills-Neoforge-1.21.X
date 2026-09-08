@@ -109,7 +109,7 @@ public class SkywardSunderEffect extends MobEffect {
                         if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)
                                 && skywardSunder.getDuration() > slash_1 && skywardSunder.getDuration() % 2 == 0) {
 
-                            if (AscendancyAbilities.getAscendancyPoints(player) > 30 && le.isAlive())
+                            if (AscendancyAbilities.getAscendancyPoints(player) >= 30 && le.isAlive())
                                 le.addEffect(new MobEffectInstance(EffectRegistry.DEATHMARK, 60, 0));
 
                             le.invulnerableTime = 0;
@@ -134,7 +134,7 @@ public class SkywardSunderEffect extends MobEffect {
             if (player.hasEffect(EffectRegistry.MIGHT)) {
                 MobEffectInstance mightEffect = player.getEffect(EffectRegistry.MIGHT);
                 if (mightEffect !=null) {
-                    HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, mightEffect.getDuration(), mightEffect.getAmplifier(), 9);
+                    HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, mightEffect.getDuration(), mightEffect.getAmplifier() + 1, 9);
                 }
             }
         }
