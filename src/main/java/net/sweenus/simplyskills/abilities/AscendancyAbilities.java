@@ -96,7 +96,7 @@ public class AscendancyAbilities {
         player.level().playSound(null, player, SoundRegistry.SPELL_SLASH,
                 SoundSource.PLAYERS, 0.4f, 1.1f);
         if (getAscendancyPoints(player) > 9)
-            HelperMethods.incrementStatusEffect(player, EffectRegistry.ARCANEATTUNEMENT, 60, 1+(getAscendancyPoints(player) / 10), 19);
+            HelperMethods.incrementStatusEffect(player, EffectRegistry.ARCANEATTUNEMENT, 60, getAscendancyPoints(player) / 10, 20);
 
         return true;
     }
