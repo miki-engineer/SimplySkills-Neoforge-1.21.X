@@ -42,6 +42,8 @@ public abstract class SpellProjectileMixin extends Projectile {
 
     @Shadow private boolean skipTravel;
 
+    @Shadow protected Set<Integer> impactHistory;
+
     @Shadow public abstract void setVelocity(double x, double y, double z, float speed, float spread, float divergence);
 
     @Shadow public abstract Holder<Spell> getSpellEntry();
@@ -52,6 +54,21 @@ public abstract class SpellProjectileMixin extends Projectile {
 
     public SpellProjectileMixin(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
+    }
+
+    @Override
+    protected boolean canHitEntity(Entity entity) {
+        if (this.getSpellEntry() != null) {
+            ResourceLocation spellId = simplyskills$getSpellId();
+            if (spellId.getNamespace().equals("simplyskills")
+                    && (spellId.getPath().equals("righteous_shield_projectile")
+                    || spellId.getPath().equals("righteous_shield_projectile_2"))
+                    && this.impactHistory.contains(entity.getId())) {
+                // An already-hit enemy must not hide the next target from the collision ray.
+                return false;
+            }
+        }
+        return super.canHitEntity(entity);
     }
 
     @Inject(method = "ricochetFrom", at = @At("RETURN"))
