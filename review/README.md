@@ -2,6 +2,7 @@
 
 This directory restores the development, porting, verification and release-review notes to the current branch. Reviewers do not need a cached branch or the private session handoff. The notes were previously removed in commit `890cd40`; these copies retain the recorded evidence and point to public review documents for remaining work.
 
+- [AI usage disclosure](../AI_USAGE.md): implementation involvement, review locations, original credits and authorship limits.
 - [Development guide](development.md): code navigation, build command and implementation conventions.
 - [Porting notes](porting-notes.md): platform changes, balance changes and corrections to inherited behavior.
 - [Verification evidence](verification.md): recorded debugger measurements, user observations and unverified cases.
