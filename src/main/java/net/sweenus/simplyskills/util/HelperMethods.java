@@ -348,7 +348,7 @@ public class HelperMethods {
             int currentAmplifier = livingEntity.getEffect(statusEffect).getAmplifier();
             int currentDuration = livingEntity.getEffect(statusEffect).getDuration();
 
-            if (currentAmplifier < 1 ) {
+            if (stacksRemoved >= currentAmplifier + 1) {
                 livingEntity.removeEffect(statusEffect);
                 return;
             }
