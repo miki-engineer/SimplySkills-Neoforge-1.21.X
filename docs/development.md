@@ -38,6 +38,6 @@ Runtime probes belong in IntelliJ, not mod source. Existing shared-effect verifi
 
 ## Review separately from this refactor
 
-`HelperMethods.capStatusEffect` matches translated display names and uses a fall-through switch. Its cap semantics need a focused behavior review before changing them. The shared multi-stack depletion guard was corrected after runtime reproduction; exact, excess and partial post-fix checks passed through Exhaustion decay; the Aegis 35-stack path remains pending. These are potential behavior fixes, not formatting changes; they were preserved in this cleanup.
+`HelperMethods.capStatusEffect` matches translated display names and uses a fall-through switch. Its cap semantics need a focused behavior review before changing them. The shared multi-stack depletion guard was corrected after runtime reproduction; exact, excess and partial post-fix checks passed through Exhaustion decay; Aegis partial consumption (40 minus 35) passed, with exact 35-stack depletion pending. These are potential behavior fixes, not formatting changes; they were preserved in this cleanup.
 
 IDE inspection also reports unchecked category lookups in respecialisation/level helpers, deprecated attribute/experience APIs, unused ranged-attribute helpers and duplicated particle placement loops. These pre-existing warnings need caller and compatibility review before removal or behavior changes; no IDE errors were reported in the two refactored files.
