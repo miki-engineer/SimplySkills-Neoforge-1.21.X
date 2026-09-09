@@ -15,7 +15,6 @@ import net.sweenus.simplyskills.util.HelperMethods;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
@@ -23,11 +22,6 @@ import java.util.List;
 
 @Mixin(SkillsMod.class)
 public class SkillsModMixin {
-
-    @ModifyVariable(method = "tryUnlockSkill", at = @At("HEAD"), argsOnly = true)
-    private boolean simplyskills$removeUnlockRestrictions(boolean force) {
-        return force || SimplySkills.generalConfig.removeUnlockRestrictions;
-    }
 
     @Inject(at = @At("HEAD"), method = "tryUnlockSkill")
     public void simplyskills$tryUnlockSkill(ServerPlayer player, ResourceLocation categoryId, String skillId, boolean force, CallbackInfo ci) {
@@ -68,25 +62,6 @@ public class SkillsModMixin {
     @Inject(at = @At("TAIL"), method = "eraseCategory")
     public void simplyskills$eraseCategory(ServerPlayer player, ResourceLocation categoryId, CallbackInfo ci) {
         ModPacketHandler.sendSignatureAbility(player);
-    }
-
-    @Inject(at = @At("HEAD"), method = "onSkillClickPacket", cancellable = true)
-    public void simplyskills$toggleSkillForTesting(ServerPlayer player, SkillClickInPacket packet, CallbackInfo ci) {
-        String categoryId = packet.getCategoryId().toString();
-        boolean isSpecialisation = HelperMethods.stringContainsAny(categoryId, SimplySkills.getSpecialisations());
-        boolean isAscendancy = categoryId.equals("simplyskills:ascendancy");
-
-        if (!SimplySkills.generalConfig.removeUnlockRestrictions || (!isSpecialisation && !isAscendancy))
-            return;
-
-        SkillsAPI.getCategory(packet.getCategoryId())
-                .flatMap(category -> category.getSkill(packet.getSkillId()))
-                .filter(skill -> HelperMethods.isUnlocked(categoryId, packet.getSkillId(), player))
-                .ifPresent(skill -> {
-                    skill.lock(player);
-                    ModPacketHandler.sendSignatureAbility(player);
-                    ci.cancel();
-                });
     }
 
     @Inject(at = @At("TAIL"), method = "onSkillClickPacket")

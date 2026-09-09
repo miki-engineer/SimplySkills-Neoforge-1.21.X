@@ -85,8 +85,7 @@ The original code and text used for this comparison are available in [AbilityLog
 
 Review and testing support:
 
-- For quick animation testing, enable `removeUnlockRestrictions: true` in `run/config/simplyskills/general.json5` before starting Client. Click an unlocked class/Ascendancy node again to turn it off, then click the next node to unlock it. Turn off the previous active ability before selecting another. Enabled on this computer; the local config is not transferred by Git and the source default remains false. Config parsing passed; click toggling still needs confirmation in the next client run.
-- `removeUnlockRestrictions` is temporary testing support. It must be removed before release so the original path requirements and exclusive branches are fully restored.
+- Removed the temporary unlock-restriction bypass and click-to-lock testing hook. Normal path/exclusivity rules apply; the existing Gracious Manuscript exception remains.
 - Test traces are kept in the IntelliJ debugger. They are not included in the mod.
 
 ## In-game verification
@@ -121,6 +120,6 @@ Review and testing support:
 - Earlier intermittent first-use input/cooldown behavior did not reproduce in the latest user rejoin/first-press check with Anoint Weapon, consistent with an earlier successful isolated rejoin. No input-handling change made; this does not rule out an intermittent failure. Reproduce before changing input handling.
 - Lightning Ball rolls a 5% discharge chance per nearby entity every five ticks. Its original text only describes this as periodic.
 - Registered-effect review reuses completed tree/shared-mechanic runtime evidence and tests specific uncovered mechanics; the registry mapping itself is not a new runtime pass. Prominence-only effects and integration were subsequently removed at user request.
-- Main tree testing is complete. Remaining regression and release work is tracked in the README and verification notes.
+- Main tree testing is complete. Remaining regression and release work is tracked in the handoff and verification notes.
 - The development client can report missing Spell Engine conventional tags and Simply Swords recipes for optional mods that are not installed. These warnings do not stop the client and are not produced by Simply Skills logic.
 

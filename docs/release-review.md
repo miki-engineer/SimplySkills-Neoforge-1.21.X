@@ -16,8 +16,8 @@ Agony selected the owned test wolf at squared distance 4 and returned false in t
 
 ## Release gates and lower-priority work
 
-- Temporary `removeUnlockRestrictions` support defaults to false but remains in source. The project handoff requires removing it before release.
-- Packaged-JAR installation remains pending. Second-player checks are deferred until a suitable setup or tester is available. Prominence integration has been removed; post-removal normal-path runtime smoke checks remain pending.
+- Temporary unlock-bypass support has been removed. Normal progression after removal still needs runtime verification; existing test-world allocations are not reset.
+- Packaged-JAR installation, world loading, UI and Arcane Bolt orientation are user-confirmed; dedicated packaged-server startup remains pending. Second-player checks are deferred until a suitable setup or tester is available. Prominence integration has been removed; post-removal normal-path runtime smoke checks remain pending.
 - `capStatusEffect` uses translated names, amplifier-based caps and switch fall-through. Its apparent hook is in `SpellforgedEffect`, but SPELLFORGED currently registers `SoulshockEffect`; do not describe the cap hook as a confirmed live failure. Establish reachability and intended caps before fixing or removing it.
 - Deprecated APIs, unchecked category lookups, unused helper methods and duplicated particle code remain cleanup candidates, as listed in [development.md](development.md). Treat possible behavior changes separately from mechanical refactors.
 
