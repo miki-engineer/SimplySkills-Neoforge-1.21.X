@@ -82,8 +82,8 @@ public class SignatureAbilities {
             return;
         ParticleGroup particles = new ParticleGroup();
         particles.id = entry.id().toString();
-        particles.appearance = entry.defaults().copy().scale(0.15F);
-        particles.batch = new ParticleGroup.Batch().count(12)
+        particles.appearance = entry.defaults().copy().scale(0.45F);
+        particles.batch = new ParticleGroup.Batch().count(20)
                 .shape(ParticleGroup.Shape.PIPE).origin(ParticleGroup.Anchor.ENTITY, 0.2F)
                 .widthFactor(0.8F).speed(0.055F);
         // Group appearances require Spell Engine's packet, not vanilla level_particles.
