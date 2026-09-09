@@ -213,6 +213,7 @@ public class RangerAbilities {
             else
                 HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, marksmanDuration, marksmanStacks, 6);
         }
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
         return true;
     }
 
@@ -268,6 +269,7 @@ public class RangerAbilities {
         player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALARROWS,
                 elementalArrowsDuration, amplifier, false, false, true));
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_healing_release");
         return true;
     }
 
@@ -275,6 +277,7 @@ public class RangerAbilities {
     public static boolean signatureRangerArrowRain(String rangerSkillTree, Player player) {
         int arrowRainDuration = SimplySkills.rangerConfig.effectRangerArrowRainDuration;
         player.addEffect(new MobEffectInstance(EffectRegistry.ARROWRAIN, arrowRainDuration, 0, false, false, true));
+        SignatureAbilities.playCastingGesture(player, "spell_engine:archery_upwards_release");
         return true;
     }
 

@@ -216,6 +216,7 @@ public class RogueAbilities {
             player.addEffect(new MobEffectInstance(EffectRegistry.FANOFBLADES,
                     fanOfBladesDuration, fanOfBladesStacks - 1, false, false, true));
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
         return true;
     }
 
@@ -246,6 +247,7 @@ public class RogueAbilities {
             RogueAbilities.passiveRoguePreparationShadowstrike(player);
         }
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
         return true;
     }
 
@@ -269,6 +271,7 @@ public class RogueAbilities {
             HelperMethods.incrementStatusEffect(player, EffectRegistry.IMMOBILIZINGAURA, siphoningStrikesduration,
                     1, 2);
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_weapon_cross");
         return true;
     }
 

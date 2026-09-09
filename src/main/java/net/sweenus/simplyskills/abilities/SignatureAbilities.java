@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.spell_engine.api.spell.registry.SpellRegistry;
+import net.spell_engine.api.spell.fx.PlayerAnimation;
 import net.spell_engine.Platform;
 import net.spell_engine.utils.AnimationHelper;
 import net.spell_engine.internals.SpellExecution;
@@ -62,6 +63,14 @@ public class SignatureAbilities {
                     });
             AbilityLogic.onSpellCastEffects(player, targets, spellId, null);
         });
+    }
+
+    /** Release gesture for direct-effect abilities, called once on successful activation. */
+    public static void playCastingGesture(Player player, String animationId) {
+        if (!player.level().isClientSide()) {
+            AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                    PlayerAnimation.of(animationId), 1.0F);
+        }
     }
 
     public static void signatureAbilityManager(Player player, String abilityType) {

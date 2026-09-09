@@ -159,6 +159,7 @@ public class BerserkerAbilities {
             player.level().playSound(null, player, SoundRegistry.SOUNDEFFECT15,
                     SoundSource.PLAYERS, 0.5f, 1.1f);
         }
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
         return true;
     }
 
@@ -171,6 +172,7 @@ public class BerserkerAbilities {
                 SkillReferencePosition.berserkerSpecialisationBloodthirstyMighty, player))
             HelperMethods.incrementStatusEffect(player, EffectRegistry.MIGHT, bloodthirstyDuration,
                     bloodthirstyMightyStacks, 5);
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
         return true;
     }
 
@@ -191,6 +193,7 @@ public class BerserkerAbilities {
             player.level().playSound(null, player, SoundRegistry.SOUNDEFFECT15,
                     SoundSource.PLAYERS, 0.5f, 1.1f);
         }
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
         return true;
     }
 

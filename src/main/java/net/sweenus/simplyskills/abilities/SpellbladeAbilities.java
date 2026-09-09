@@ -28,6 +28,7 @@ public class SpellbladeAbilities {
         int elementalSurgeDuration = SimplySkills.spellbladeConfig.signatureSpellbladeElementalSurgeDuration;
         player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALSURGE,
                 elementalSurgeDuration, 0, false, false, true));
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
         return true;
     }
     // Elemental Impact
@@ -43,6 +44,7 @@ public class SpellbladeAbilities {
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,
                     elementalImpactDuration + 15, elementalImpactResistanceAmplifier, false, false, true));
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_projectile_release");
         return true;
     }
     // Spellweaver
@@ -53,6 +55,7 @@ public class SpellbladeAbilities {
         player.addEffect(new MobEffectInstance(EffectRegistry.SPELLWEAVER,
                 spellweaverDuration, spellweaverStacks - 1, false, false, true));
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_weapon_cross");
         return true;
     }
 

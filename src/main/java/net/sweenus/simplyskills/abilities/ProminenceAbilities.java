@@ -89,6 +89,7 @@ public class ProminenceAbilities {
         player.addEffect(new MobEffectInstance(EffectRegistry.BONEARMOR,
                 400, Math.min(6, count.get()), false, false, true));
         player.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST, 400, Math.min(6, count.get()) , false, false, true));
+        SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_ground_release");
         return true;
     }
     public static void boneArmorEffect(ServerPlayer player) {
@@ -190,6 +191,7 @@ public class ProminenceAbilities {
         player.level().playSound(null, player, SoundRegistry.ACTIVATE_PLINTH_01,
                 SoundSource.PLAYERS, 0.4f, 1.0f);
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
         return true;
     }
 
