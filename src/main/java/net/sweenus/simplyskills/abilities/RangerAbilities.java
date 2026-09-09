@@ -213,7 +213,6 @@ public class RangerAbilities {
             else
                 HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, marksmanDuration, marksmanStacks, 6);
         }
-        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
         return true;
     }
 
