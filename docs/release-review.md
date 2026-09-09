@@ -1,6 +1,6 @@
 # Remaining code review
 
-Static review of shared stack handling, curse targeting and release setup. Stack depletion is fixed and runtime-verified at the recorded scope; targeting findings remain static observations. This is not an exhaustive code audit. They are outside the completed HUD/helper refactor checks.
+Static review of shared stack handling, curse targeting and release setup. Stack depletion is fixed and runtime-verified at the recorded scope; curse/taunt target leakage now has runtime evidence and a fix pending restart validation; nearest-enemy selection remains a static concern. This is not an exhaustive code audit. They are outside the completed HUD/helper refactor checks.
 
 ## Resolved stack depletion
 
@@ -8,7 +8,7 @@ The shared helper now removes the effect when the requested removal reaches or e
 
 ## Address before release
 
-1. **Curse/taunt targeting retains entity state on shared effect objects.** `AgonyEffect` and `TauntedEffect` store a mutable `target` field. Registered effect objects are shared across affected entities. Agony reads the victim's TAUNTED instance instead of AGONY, then retains the last target when subsequent victims have no taunt source. A taunted-and-cursed mob can therefore seed targeting for another cursed mob; ordinary/restored taunt instances can also leave stale state. Resolve the intended Agony behavior and use per-instance/local source data without retaining a target on the registry object. Verify with distinct mobs and casters, including a missing/restored source.
+1. **Curse/taunt target leakage: fixed, runtime retest pending.** Two-husk traces reproduced shared target retention in Agony and Taunt. TauntedEffect now obtains a local target solely from the affected entity's sourced Taunt instance. AgonyEffect and TormentEffect no longer contain copied taunting ticks or shared entity fields; forced targeting belongs to Taunt, consistent with Torment's 30-point upgrade. Damage/healing hooks, durations, visuals and activation targeting are unchanged. No repository callers used the removed setters. Compilation and Gradle build passed. Verify source-less and restored Taunt cannot inherit another mob's caster, valid Taunt still selects its own caster, curses alone do not force a target, and existing curse combat hooks still work. Distinct-caster behavior remains pending. See verification notes for evidence limits.
 
 ## Resolve targeting intent
 

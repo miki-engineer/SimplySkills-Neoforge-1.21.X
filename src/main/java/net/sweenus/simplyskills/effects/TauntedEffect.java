@@ -9,21 +9,15 @@ import net.sweenus.simplyskills.registry.EffectRegistry;
 
 public class TauntedEffect extends MobEffect {
 
-    public LivingEntity target;
-
     public TauntedEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
-    }
-
-    public void setTarget(LivingEntity livingEntity) {
-        target = livingEntity;
     }
 
 
     @Override
     public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
         if (!livingEntity.level().isClientSide()) {
-
+            LivingEntity target = null;
             if (livingEntity.getEffect(EffectRegistry.TAUNTED) instanceof SimplyStatusEffectInstance statusEffect) {
                 target = statusEffect.getSourceEntity();
             }

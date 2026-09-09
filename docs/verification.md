@@ -87,3 +87,9 @@ Post-restart debugger checks passed with no probe errors:
 - Aegis exact boundary: caller reported 35 stacks and cost 35; paired helper traces recorded 1190 ticks before removal and `effect=null` immediately afterward.
 
 All agent probes were removed; user-owned breakpoints retained. Client remains running locally. These checks verify stack consumption/depletion; no new measurement of Divine Protection strength or multiplayer behavior was made.
+
+## Curse/taunt target isolation — retest pending
+
+Pre-fix Client trace: both tagged NoAI husks carried command-applied Agony; husk B also had ordinary MobEffectInstance Taunt without a source. Initially both effect registries reported no retained target. Player 56 cast Torment at 30 points on husk A (1296). Immediately afterward AgonyEffect and TauntedEffect for husk B (1316) both reported retainedTarget=56 despite B still carrying an ordinary, source-less Taunt instance. A carried the expected SimplyStatusEffectInstance Taunt. No probe errors. This proves shared target leakage at the targeting branch; actual pursuit was not observed because the husks had NoAI. TormentEffect contains the same copied logic, but its own cross-mob leakage was not separately reproduced.
+
+Taunt now resolves its target locally per affected entity. Agony and Torment are marker effects with their existing combat hooks; only Taunt forces targeting. IntelliJ compilation and Java 21 Gradle build passed. Restart validation is pending. Recreate or reset tagged husks to avoid retaining a target assigned by the old code. Verify valid sourced Taunt, source-less/restored Taunt, curse-only isolation, and curse combat hooks; distinct casters remain untested. Agent probes removed before editing. Local setup: Torment selected, 30 spent Ascendancy points; husks tagged curse_probe/curse_a and curse_probe/curse_b. Worlds and debugger state do not transfer through Git.
