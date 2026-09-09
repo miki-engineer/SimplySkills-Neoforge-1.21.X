@@ -120,7 +120,7 @@ public class AscendancyAbilities {
             if ((closestEntity instanceof LivingEntity ee)) {
                 if (HelperMethods.checkFriendlyFireAOE(ee, player)) {
                     SimplyStatusEffectInstance agonyEffect = new SimplyStatusEffectInstance(
-                            EffectRegistry.AGONY, 200 + getAscendancyPoints(player), 0, false,
+                            EffectRegistry.AGONY, 160 + getAscendancyPoints(player), 0, false,
                             false, true);
                     agonyEffect.setSourceEntity(player);
                     ee.addEffect(agonyEffect);
