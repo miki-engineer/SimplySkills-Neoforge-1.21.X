@@ -232,37 +232,13 @@
 "effect.simplyskills.shadow_aura.desc": "Обрушивается на близлежащих врагов, но истощает здоровье пользователя.",
 "effect.simplyskills.shadow_aura.description": "Обрушивается на близлежащих врагов, но истощает здоровье пользователя.",
 
-"effect.simplyskills.focus": "Фокусировка",
-"effect.simplyskills.focus.desc": "Следующая Ваша атака из лука заряжается медленнее, но наносит больше урона.",
-"effect.simplyskills.focus.description": "Следующая Ваша атака из лука заряжается медленнее, но наносит больше урона.",
 
-"effect.simplyskills.titans_grip": "Хватка титана",
-"effect.simplyskills.titans_grip.desc": "Более медленная атака и нанесение повышенного урона при удерживании одного вида оружия.",
-"effect.simplyskills.titans_grip.description": "Более медленная атака и нанесение повышенного урона при удерживании одного вида оружия.",
 
-"effect.simplyskills.melody_of_war": "Мелодия войны",
-"effect.simplyskills.melody_of_war.desc": "Получение повышенного урона и регенерации.",
-"effect.simplyskills.melody_of_war.description": "Получение повышенного урона и регенерации.",
 
-"effect.simplyskills.melody_of_swiftness": "Мелодия стремительности",
-"effect.simplyskills.melody_of_swiftness.desc": "Получение повышенной скорости передвижения и Грации дельфина.",
-"effect.simplyskills.melody_of_swiftness.description": "Получение повышенной скорости передвижения и Грации дельфина.",
 
-"effect.simplyskills.melody_of_protection": "Мелодия защиты",
-"effect.simplyskills.melody_of_protection.desc": "Получение Силы и принятие на 10% меньше урона.",
-"effect.simplyskills.melody_of_protection.description": "Получение Силы и принятие на 10% меньше урона.",
 
-"effect.simplyskills.melody_of_safety": "Мелодия безопасности",
-"effect.simplyskills.melody_of_safety.desc": "Возврат 10% от максимального здоровья в секунду.",
-"effect.simplyskills.melody_of_safety.description": "Возврат 10% от максимального здоровья в секунду.",
 
-"effect.simplyskills.melody_of_concentration": "Мелодия сосредоточенности",
-"effect.simplyskills.melody_of_concentration.desc": "Получение повышенной скорости атаки/передвижения.",
-"effect.simplyskills.melody_of_concentration.description": "Получение повышенной скорости атаки/передвижения.",
 
-"effect.simplyskills.melody_of_bloodlust": "Мелодия кровожадности",
-"effect.simplyskills.melody_of_bloodlust.desc": "Получение повышенной скорости атаки и урона.",
-"effect.simplyskills.melody_of_bloodlust.description": "Получение повышенной скорости атаки и урона.",
 
 "effect.simplyskills.raging_javelin": "Яростное метательное копьё",
 "effect.simplyskills.raging_javelin.desc": "Периодически бросайте удерживаемый предмет на своих врагов.",
@@ -319,7 +295,6 @@
 "text.autoconfig.simplyskills.category.crusader": "Крестоносец",
 "text.autoconfig.simplyskills.category.cleric": "Жрец",
 "text.autoconfig.simplyskills.category.necromancer": "Некромант",
-"text.autoconfig.simplyskills.category.misc": "Прочее",
 
 "text.skills.berserker_category.title": "§7§bСпециализация: Берсерк",
 "text.skills.wizard_category.title": "§7§bСпециализация: Чародей",
@@ -1607,14 +1582,5 @@
 "text.autoconfig.simplyskills.option.necromancer.enableNecromancerSpecialisation.@Tooltip": "Вкл./выкл. возможность разблокирования этой специализации.\nНе блокирует специализацию в случае ранней разблокировки.",
 "text.autoconfig.simplyskills.option.necromancer.enableNecromancerSpecialisation.@PrefixText": "§aИзменение этих значений приведёт к нестабильности игры/сбоям. Используйте на свой страх и риск.",
 
-"text.autoconfig.simplyskills.option.necromancer.signatureNecromancerSummoningRitualCooldown": "Перезарядка §6[Характерное умение]:§7 Набор призыва",
-
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackMulti": "Множитель урона атаки «Хватка титана»",
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackMulti.@Tooltip": "Атрибут generic_attack_damage умножается на это число.\n1.0 = +100%",
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackMulti.@PrefixText": "§aНастройки совместимости Prominence§7",
-
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackSpeedMulti": "Множитель скорости урона «Хватка титана»",
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackSpeedMulti.@Tooltip": "Атрибут generic_attack_speed отрицательно умножается на это число.\n0.9 = -90% ПРИМЕЧАНИЕ: Свыше 0.9 вероятнее всего, сломает атаки из Better Combat.",
-"text.autoconfig.simplyskills.option.misc.promSkellaksCallPhysDmgMulti": "Множитель физического урона S'kellak's Call",
-"text.autoconfig.simplyskills.option.misc.promSkellaksCallPhysDmgMulti.@Tooltip": "Количество generic_attack_damage используется в качестве физического урона при использовании S'kellak's Call.\nВ дополнение этой настройки, умение также наносит не настраиваемый урон от огненного заклинания."
+"text.autoconfig.simplyskills.option.necromancer.signatureNecromancerSummoningRitualCooldown": "Перезарядка §6[Характерное умение]:§7 Набор призыва"
 }

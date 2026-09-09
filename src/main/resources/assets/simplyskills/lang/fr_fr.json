@@ -121,8 +121,6 @@
 "effect.simplyskills.righteous_shield.desc":          "Effectue un Bouclier Juste.",
 "effect.simplyskills.shadow_aura":                    "Aura d'Ombre",
 "effect.simplyskills.shadow_aura.desc":               "Lance des attaques sur les ennemis proches, mais draine les PV de l'utilisateur.",
-"effect.simplyskills.focus":                          "Concentration",
-"effect.simplyskills.focus.desc":                     "Votre prochaine attaque d'arc se charge plus lentement et inflige plus de dégats.",
 "effect.simplyskills.warriors_devotion":              "Dévotion du Guerrier",
 "effect.simplyskills.warriors_devotion.desc":         "Attaquez plus lentement et infligez plus de dégats lorsque vous utilisez une seule arme.",
 

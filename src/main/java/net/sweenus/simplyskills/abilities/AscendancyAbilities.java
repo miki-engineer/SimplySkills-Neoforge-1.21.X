@@ -1,9 +1,6 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.neoforged.fml.ModList;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -20,7 +17,6 @@ import net.spell_engine.Platform;
 import net.spell_engine.api.spell.fx.PlayerAnimation;
 import net.spell_engine.internals.casting.SpellCast;
 import net.spell_engine.utils.AnimationHelper;
-import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.effects.instance.SimplyStatusEffectInstance;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
@@ -34,13 +30,6 @@ public class AscendancyAbilities {
     public static int getAscendancyPoints(Player player) {
         if (player instanceof  ServerPlayer serverPlayer) {
 
-            if (ModList.get().isLoaded("prominent")) {
-                if (BuiltInRegistries.ATTRIBUTE.get(ResourceLocation.parse("eldritch_end:corruption")) != null) {
-                    int corruptionMaximum = SimplySkills.miscConfig.promCorruptionMax;
-                    double corruptionMultiplier = SimplySkills.miscConfig.promCorruptionMulti;
-                    return (int) Math.min(((int) player.getAttributeValue(BuiltInRegistries.ATTRIBUTE.getHolder(ResourceLocation.parse("eldritch_end:corruption")).orElseThrow()) * corruptionMultiplier), corruptionMaximum);
-                } // Scale abilities with Corruption in Prominence
-            }
 
             return HelperMethods.countUnlockedSkills("ascendancy", serverPlayer);
         }
@@ -75,9 +64,7 @@ public class AscendancyAbilities {
     }
 
     public static boolean cyclonicCleave(Player player) {
-        if (ModList.get().isLoaded("prominent"))
-            SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:cyclonic_cleave_prom", 3, player, null);
-        else SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:cyclonic_cleave", 3, player, null);
+        SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:cyclonic_cleave", 3, player, null);
 
         return true;
     }

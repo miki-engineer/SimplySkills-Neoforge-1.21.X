@@ -1,6 +1,5 @@
 package net.sweenus.simplyskills.items;
 
-import net.neoforged.fml.ModList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.component.DataComponents;
@@ -20,7 +19,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.puffish.skillsmod.api.Category;
-import net.puffish.skillsmod.api.Skill;
 import net.puffish.skillsmod.api.SkillsAPI;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.client.SimplySkillsClient;
@@ -29,7 +27,6 @@ import net.sweenus.simplyskills.network.UpdateUnspentPointsPacket;
 import net.sweenus.simplyskills.registry.SoundRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-import java.util.Collection;
 import java.util.List;
 
 public class SkillChronicle extends Item {
@@ -79,12 +76,7 @@ public class SkillChronicle extends Item {
                 for (Category uc : (Iterable<Category>) SkillsAPI.streamUnlockedCategories(serverUser)::iterator) {
 
                     //Check for points spent in base tree
-                    if (ModList.get().isLoaded("prominent") && uc.getId().toString().equals("puffish_skills:prom")) {
-                        pointsRemaining = uc.getPointsLeft(serverUser);
-                        hasSpentPoints = uc.streamUnlockedSkills(serverUser).findAny().isPresent();
-                        //System.out.println("Checking if we have skills unlocked");
-                    }
-                    else if (!ModList.get().isLoaded("prominent") && uc.getId().toString().equals("simplyskills:tree")) {
+                    if (uc.getId().toString().equals("simplyskills:tree")) {
                         pointsRemaining = uc.getPointsLeft(serverUser);
                         hasSpentPoints = uc.streamUnlockedSkills(serverUser).findAny().isPresent();
                         //System.out.println("Checking if we have skills unlocked");
@@ -145,10 +137,7 @@ public class SkillChronicle extends Item {
                 tooltip.add(Component.literal(""));
                 tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip8"));
                 tooltip.add(Component.literal(""));
-                if (ModList.get().isLoaded("prominent"))
-                    tooltip.add(Component.literal("§7Stored Skill Trees."));
-                else
-                    tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip14"));
+                tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip14"));
                 HelperMethods.printNBT(itemStack, tooltip, "category");
                 tooltip.add(Component.literal(""));
                 tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip15"));
@@ -179,10 +168,7 @@ public class SkillChronicle extends Item {
             tooltip.add(Component.literal(""));
             tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip1"));
             tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip2"));
-            if (ModList.get().isLoaded("prominent"))
-                tooltip.add(Component.literal("skill trees."));
-            else
-                tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip3"));
+            tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip3"));
             tooltip.add(Component.literal(""));
             tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip4"));
             tooltip.add(Component.translatable("item.simplyskills.skill_chronicle.tooltip5"));

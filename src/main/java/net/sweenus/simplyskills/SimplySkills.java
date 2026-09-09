@@ -3,7 +3,6 @@ package net.sweenus.simplyskills;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer;
-import net.neoforged.fml.ModList;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.bus.api.IEventBus;
@@ -15,7 +14,6 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -31,7 +29,6 @@ import net.sweenus.simplyskills.abilities.RogueAbilities;
 import net.sweenus.simplyskills.entities.DreadglareEntity;
 import net.sweenus.simplyskills.entities.GreaterDreadglareEntity;
 import net.sweenus.simplyskills.entities.WraithEntity;
-import net.sweenus.simplyskills.network.KeybindPacket;
 import net.sweenus.simplyskills.network.ModPacketHandler;
 import net.sweenus.simplyskills.mixins.LivingEntityAccessor;
 import net.sweenus.simplyskills.registry.*;
@@ -61,7 +58,6 @@ public class SimplySkills {
     public static CrusaderConfig crusaderConfig;
     public static ClericConfig clericConfig;
     public static NecromancerConfig necromancerConfig;
-    public static MiscConfig miscConfig;
 
     private static void setSpecialisations() {
         specialisations.add("simplyskills:rogue");
@@ -121,7 +117,6 @@ public class SimplySkills {
         crusaderConfig = AutoConfig.getConfigHolder(ConfigWrapper.class).getConfig().crusader;
         clericConfig = AutoConfig.getConfigHolder(ConfigWrapper.class).getConfig().cleric;
         necromancerConfig = AutoConfig.getConfigHolder(ConfigWrapper.class).getConfig().necromancer;
-        miscConfig = AutoConfig.getConfigHolder(ConfigWrapper.class).getConfig().misc;
 
         PassiveSkillReward.register();
         setSpecialisations();
@@ -136,7 +131,7 @@ public class SimplySkills {
     private void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             removeLegacyAttributeModifiers(player);
-            if (generalConfig.disableDefaultPuffishTrees || ModList.get().isLoaded("prominent")) {
+            if (generalConfig.disableDefaultPuffishTrees) {
                 processPlayer(player);
             }
             ModPacketHandler.sendSignatureAbility(player);
@@ -230,13 +225,8 @@ public class SimplySkills {
                 categoryObj.erase(player);
                 categoryObj.lock(player);
             });
-        } // Remove Simply Skills tree when Prominent is detected
-        if (ModList.get().isLoaded("prominent")  && categoryId.equals("simplyskills:tree")) {
-            SkillsAPI.getCategory(ResourceLocation.parse(categoryId)).ifPresent(categoryObj -> {
-                categoryObj.erase(player);
-                categoryObj.lock(player);
-            });
         }
+
     }
 
 }

@@ -4,7 +4,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -32,7 +31,6 @@ import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchools;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
-import net.sweenus.simplyskills.network.CooldownPacket;
 import net.sweenus.simplyskills.network.KeybindPacket;
 import net.sweenus.simplyskills.network.ModPacketHandler;
 import net.sweenus.simplyskills.registry.EntityRegistry;
@@ -87,10 +85,6 @@ public class SignatureAbilities {
         String ascendancyTree = "simplyskills:ascendancy";
         boolean ability_success = false;
         String ability = "none";
-
-        if (ModList.get().isLoaded("prominent"))
-            ascendancyTree = "puffish_skills:prom";
-
 
 
         // - WIZARD -
@@ -284,9 +278,7 @@ public class SignatureAbilities {
                 }
                 if (HelperMethods.isUnlocked(ascendancyTree,
                         SkillReferencePosition.ascendancyBoneArmor, player)) {
-                    if (ModList.get().isLoaded("prominent"))
-                        ability_success = ProminenceAbilities.boneArmor(player);
-                    else ability_success = AscendancyAbilities.boneArmor(player);
+                    ability_success = AscendancyAbilities.boneArmor(player);
                     ability = "BoneArmor";
                 }
                 if (HelperMethods.isUnlocked(ascendancyTree,
@@ -341,10 +333,7 @@ public class SignatureAbilities {
                 }
                 if (HelperMethods.isUnlocked(ascendancyTree,
                         SkillReferencePosition.ascendancyChainbreaker, player)) {
-                    if (ascendancyTree.equals("puffish_skills:prom")) {
-                        ability_success = ProminenceAbilities.promDissonance(player);
-                    }
-                    else {ability_success = AscendancyAbilities.chainbreaker(player);}
+                    ability_success = AscendancyAbilities.chainbreaker(player);
                     ability = "Chainbreaker";
                 }
             }
@@ -497,9 +486,7 @@ public class SignatureAbilities {
                 cooldownType = "ascendancy";
             }
             case "BoneArmor" -> {
-                if (ModList.get().isLoaded("prominent"))
-                    cooldown = 40 * 1000;
-                else cooldown = 70 * 1000;
+                cooldown = 70 * 1000;
                 type = "physical, buff, recovery";
                 cooldownType = "ascendancy";
             }
@@ -581,7 +568,6 @@ public class SignatureAbilities {
         //System.out.println(sendCooldown);
         sendCooldownPacket((ServerPlayer) player, (int) sendCooldown, cooldownType);
     }
-
 
 
     // -- SPELL CASTING --
@@ -675,7 +661,6 @@ public class SignatureAbilities {
         }
         return false;
     }
-
 
 
     @OnlyIn(Dist.CLIENT)

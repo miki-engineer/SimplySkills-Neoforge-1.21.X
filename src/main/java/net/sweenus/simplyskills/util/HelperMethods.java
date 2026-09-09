@@ -165,7 +165,7 @@ public class HelperMethods {
         }
         return false;
     }
-    
+
     //Checks if category has given skill unlocked
     public static boolean hasUnlockedSkill(Category category, String skillId, LivingEntity livingEntity) {
         if (livingEntity instanceof ServerPlayer serverPlayer) {
@@ -476,30 +476,20 @@ public class HelperMethods {
         if (getCategory(ascendancyTree).isPresent())
             getCategory(ascendancyTree).get().resetSkills(user);
 
-        if (ModList.get().isLoaded("prominent")) {
-            ResourceLocation prom = ResourceLocation.parse("puffish_skills:prom");
-            if (getCategory(prom).isPresent())
-                getCategory(prom).get().resetSkills(user);
-        }
 
         return true;
     }
     public static boolean levelAll( ServerPlayer user ) {
 
         List<String> specialisations = SimplySkills.getSpecialisationsAsArray();
-        if (!ModList.get().isLoaded("prominent")) {
-            for (String specialisation : specialisations) {
-                getCategory(ResourceLocation.parse(specialisation)).get().unlock(user);
-                getCategory(ResourceLocation.parse(specialisation)).get().addExtraPoints(user, 99);
-            }
+        for (String specialisation : specialisations) {
+            getCategory(ResourceLocation.parse(specialisation)).get().unlock(user);
+            getCategory(ResourceLocation.parse(specialisation)).get().addExtraPoints(user, 99);
         }
         getCategory(ResourceLocation.parse("simplyskills:tree")).get().addExtraPoints(user, 99);
-        if (!ModList.get().isLoaded("prominent")) {
-            getCategory(ResourceLocation.parse("simplyskills:ascendancy")).get().unlock(user);
-            getCategory(ResourceLocation.parse("simplyskills:ascendancy")).get().addExtraPoints(user, 99);
-        }
-        if (ModList.get().isLoaded("prominent"))
-            getCategory(ResourceLocation.parse("puffish_skills:prom")).get().addExtraPoints(user, 99);
+        getCategory(ResourceLocation.parse("simplyskills:ascendancy")).get().unlock(user);
+        getCategory(ResourceLocation.parse("simplyskills:ascendancy")).get().addExtraPoints(user, 99);
+
         return true;
     }
 
@@ -518,9 +508,7 @@ public class HelperMethods {
         for (String specialisation : specialisations) {
             getCategory(ResourceLocation.parse(specialisation)).get().erase(user);
             getCategory(ResourceLocation.parse("simplyskills:ascendancy")).get().erase(user);
-            if (ModList.get().isLoaded("prominent"))
-                getCategory(ResourceLocation.parse("puffish_skills:prom")).get().erase(user);
-            else getCategory(ResourceLocation.parse("simplyskills:tree")).get().erase(user);
+            getCategory(ResourceLocation.parse("simplyskills:tree")).get().erase(user);
         }
     }
 
@@ -701,7 +689,7 @@ public class HelperMethods {
                 if (!nbt.getString("category" + i).isEmpty()) {
                     if (type.equals("category") && !nbt.getString("category" + i).contains("tree"))
                         tooltip.add(Component.literal("  §6◇ §f" + nbt.getString("category" + i).
-                                replace("simplyskills:", "").replace("puffish_skills:prom", "Talent Tree")));
+                                replace("simplyskills:", "")));
                 }
                 if (!nbt.getString("skill" + i).isEmpty())
                     skillPrintCount++;

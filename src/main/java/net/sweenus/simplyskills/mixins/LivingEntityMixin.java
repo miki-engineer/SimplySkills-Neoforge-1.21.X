@@ -5,7 +5,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.sweenus.simplyskills.SimplySkills;
-import net.sweenus.simplyskills.abilities.ProminenceAbilities;
 import net.sweenus.simplyskills.effects.UndyingEffect;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
@@ -68,16 +67,6 @@ public abstract class LivingEntityMixin {
         LivingEntity livingEntity = (LivingEntity) (Object)this;
 
         float newAmount = DynamicDamage.dynamicDamageReduction(attacker, livingEntity, amount, lastHurt, cir.getReturnValue(), lastDamageStamp);
-
-        //Prom Melody damage buffs
-        if (attacker != null) {
-            if (attacker.hasEffect(EffectRegistry.MELODYOFWAR)) {
-                newAmount = newAmount + (newAmount * 0.10f);
-            }
-            if (attacker.hasEffect(EffectRegistry.MELODYOFBLOODLUST)) {
-                newAmount = newAmount + (newAmount * 0.05f);
-            }
-        }
 
         if (newAmount != amount)
             cir.setReturnValue(newAmount);

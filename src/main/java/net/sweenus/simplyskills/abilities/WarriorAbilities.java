@@ -1,6 +1,5 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.neoforged.fml.ModList;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -173,16 +172,11 @@ public class WarriorAbilities {
     public static void passiveWarriorSwordfall(Player player, LivingEntity target) {
         if (player.getMainHandItem().getItem() instanceof SwordItem || player.getMainHandItem().getItem() instanceof AxeItem) {
             int effectChance = SimplySkills.warriorConfig.passiveWarriorSwordfallChance;
-            if (ModList.get().isLoaded("prominent") && player.hasEffect(EffectRegistry.TITANSGRIP))
-                effectChance = effectChance * 2;
-            else if (!ModList.get().isLoaded("prominent") && player.hasEffect(EffectRegistry.MIGHT))
+            if (player.hasEffect(EffectRegistry.MIGHT))
                 effectChance = effectChance * 2;
             int roll = player.getRandom().nextInt(100);
             if (roll < effectChance) {
-                if (ModList.get().isLoaded("prominent"))
-                    SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:physical_eldritch_hammers", 32, target, null);
-                else
-                    SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:physical_swordfall", 32, target, null);
+                SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:physical_swordfall", 32, target, null);
             }
         }
     }

@@ -13,7 +13,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.abilities.AscendancyAbilities;
@@ -51,12 +50,7 @@ public class CyclonicCleaveEffect extends MobEffect {
                     player.hurtMarked = true;
                 }
                 double damage;
-                if (ModList.get().isLoaded("prominent"))
-                    damage = (player.getAttributeValue(Attributes.ATTACK_DAMAGE)
-                            + player.getAttributeValue(Attributes.ATTACK_SPEED))
-                            * damageModifier;
-                else
-                    damage = (HelperMethods.getHighestAttributeValue(player) * damageModifier);
+                damage = (HelperMethods.getHighestAttributeValue(player) * damageModifier);
 
                 AABB box = HelperMethods.createBox(player, bullrushRadius);
                 for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
@@ -70,8 +64,7 @@ public class CyclonicCleaveEffect extends MobEffect {
                                 le.hurt(player.damageSources().playerAttack(player), (float) damage);
                                 le.invulnerableTime = 0;
                                 ParticleOptions particleType = ParticleTypes.CLOUD;
-                                if (ModList.get().isLoaded("prominent"))
-                                    particleType = ParticleTypes.PORTAL;
+
 
                                 HelperMethods.spawnParticlesPlane(
                                         player.level(),

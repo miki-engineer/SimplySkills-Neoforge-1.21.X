@@ -1,6 +1,5 @@
 package net.sweenus.simplyskills.items;
 
-import net.neoforged.fml.ModList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,15 +40,11 @@ public class MalevolentManuscript extends Item {
     public void appendHoverText(ItemStack itemStack, TooltipContext context, List<Component> tooltip, TooltipFlag tooltipContext) {
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip1"));
-        if (ModList.get().isLoaded("prominent"))
-            tooltip.add(Component.literal("in your base talent tree,"));
-        else tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip2"));
+        tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip2"));
         tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip3"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip4"));
-        if (ModList.get().isLoaded("prominent"))
-            tooltip.add(Component.literal("of any other skill trees."));
-        else tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip5"));
+        tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip5"));
         tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip6"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("item.simplyskills.malevolent_manuscript.tooltip7").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.UNDERLINE));

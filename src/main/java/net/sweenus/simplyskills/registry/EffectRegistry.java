@@ -8,7 +8,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.puffish.attributesmod.AttributesMod;
@@ -19,9 +18,7 @@ import net.spell_power.api.SpellPowerMechanics;
 import net.spell_power.api.SpellSchools;
 import net.sweenus.simplyskills.SimplySkills;
 import net.neoforged.neoforge.registries.RegisterEvent;
-import net.sweenus.simplyskills.config.MiscConfig;
 import net.sweenus.simplyskills.effects.*;
-import net.sweenus.simplyskills.util.HelperMethods;
 
 public class EffectRegistry {
     public static double mightIncrease = 0.10;
@@ -216,7 +213,7 @@ public class EffectRegistry {
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
     public static Holder<MobEffect> BONEARMOR = Holder.direct(new BoneArmorEffect(MobEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(getPromBloodMagic(),
+            .addAttributeModifier(Attributes.ARMOR,
                     ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "bone_armor_blood_spell_power"),
                     +1,
                     AttributeModifier.Operation.ADD_VALUE)
@@ -274,43 +271,6 @@ public class EffectRegistry {
                     ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "golden_aegis_healing_spell_power"),
                     0.01,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-    public static Holder<MobEffect> FOCUS = Holder.direct(new FocusEffect(MobEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(AttributesMod.RANGED_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "focus_ranged_damage"),
-                    0.2,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-    public static Holder<MobEffect> TITANSGRIP = Holder.direct(new TitansGripEffect(MobEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(Attributes.ATTACK_DAMAGE,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "titans_grip_attack_damage"),
-                    SimplySkills.miscConfig.promWarriorsDevotionAttackMulti,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
-            .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "titans_grip_attack_speed"),
-                    -SimplySkills.miscConfig.promWarriorsDevotionAttackSpeedMulti,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-
-    public static Holder<MobEffect> MELODYOFWAR = Holder.direct(new MelodyOfWarEffect(MobEffectCategory.BENEFICIAL, 3124687));
-    public static Holder<MobEffect> MELODYOFSWIFTNESS = Holder.direct(new MelodyOfSwiftnessEffect(MobEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "melody_of_swiftness_movement_speed"),
-                    0.30,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-    public static Holder<MobEffect> MELODYOFPROTECTION = Holder.direct(new MelodyOfProtectionEffect(MobEffectCategory.BENEFICIAL, 3124687));
-    public static Holder<MobEffect> MELODYOFSAFETY = Holder.direct(new MelodyOfSafetyEffect(MobEffectCategory.BENEFICIAL, 3124687));
-    public static Holder<MobEffect> MELODYOFCONCENTRATION = Holder.direct(new MelodyOfConcentrationEffect(MobEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "melody_of_concentration_attack_speed"),
-                    0.20,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
-            .addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "melody_of_concentration_movement_speed"),
-                    0.10,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-    public static Holder<MobEffect> MELODYOFBLOODLUST = Holder.direct(new MelodyOfBloodlustEffect(MobEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(Attributes.ATTACK_SPEED,
-                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "melody_of_bloodlust_attack_speed"),
-                    0.20,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     public static Holder<MobEffect> RAGINGJAVELIN = Holder.direct(new RagingJavelinEffect(MobEffectCategory.BENEFICIAL, 3124687));
 
     public static Holder<MobEffect> registerStatusEffect(String name, Holder<MobEffect> statusEffect) {
@@ -318,7 +278,7 @@ public class EffectRegistry {
                 ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, name), statusEffect.value());
         return BuiltInRegistries.MOB_EFFECT.wrapAsHolder(registeredEffect);
     }
-    
+
     public static void registerEffects(RegisterEvent event) {
         if (!event.getRegistryKey().equals(Registries.MOB_EFFECT))
             return;
@@ -412,14 +372,6 @@ public class EffectRegistry {
         RIGHTEOUSSHIELD = registerStatusEffect("righteous_shield", RIGHTEOUSSHIELD);
         GOLDENAEGIS = registerStatusEffect("golden_aegis", GOLDENAEGIS);
         SHADOWAURA = registerStatusEffect("shadow_aura", SHADOWAURA);
-        FOCUS = registerStatusEffect("focus", FOCUS);
-        TITANSGRIP = registerStatusEffect("titans_grip", TITANSGRIP);
-        MELODYOFWAR = registerStatusEffect("melody_of_war", MELODYOFWAR);
-        MELODYOFSWIFTNESS = registerStatusEffect("melody_of_swiftness", MELODYOFSWIFTNESS);
-        MELODYOFPROTECTION = registerStatusEffect("melody_of_protection", MELODYOFPROTECTION);
-        MELODYOFSAFETY = registerStatusEffect("melody_of_safety", MELODYOFSAFETY);
-        MELODYOFCONCENTRATION = registerStatusEffect("melody_of_concentration", MELODYOFCONCENTRATION);
-        MELODYOFBLOODLUST = registerStatusEffect("melody_of_bloodlust", MELODYOFBLOODLUST);
         RAGINGJAVELIN = registerStatusEffect("raging_javelin", RAGINGJAVELIN);
 
         if (ModList.get().isLoaded("paladins")) {
@@ -427,17 +379,6 @@ public class EffectRegistry {
             SACREDONSLAUGHT = registerStatusEffect("sacred_onslaught", SACREDONSLAUGHT);
         }
 
-    }
-
-    public static Holder<Attribute> getPromBloodMagic() {
-        Holder<Attribute> returnAttribute = Attributes.ARMOR;
-        if (ModList.get().isLoaded("prominent")) {
-            if (BuiltInRegistries.ATTRIBUTE.get(ResourceLocation.parse("death_knights:blood")) != null) {
-                returnAttribute = BuiltInRegistries.ATTRIBUTE.getHolder(ResourceLocation.parse("death_knights:blood")).orElseThrow();
-            }
-        }
-
-        return returnAttribute;
     }
 
 

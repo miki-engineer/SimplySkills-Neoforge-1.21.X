@@ -25,7 +25,7 @@ Curse/taunt target isolation and focused combat checks passed after the fix. Ago
 
 Next: packaged-JAR verification outside IntelliJ. Install `build/libs/simplyskills-1.7.2+1.21.1-neoforge.jar` in a separate Minecraft 1.21.1 NeoForge instance with required dependencies, then verify startup, world loading, skill menu, one class cast and one Ascendancy cast. Dedicated-server packaged startup and removal of temporary testing support remain release work. Existing gameplay evidence still counts.
 
-Prominence compatibility testing is out of scope for this release at the user's request. Existing integration code is retained; compatibility remains unverified. This scope update changes documentation only; no runtime checks were performed.
+Prominence integration has been removed at the user's request: alternate ability/tree branches, eight exclusive effects, compatibility config, assets, and the Immersive Melodies development dependency. Normal NeoForge branches are retained, including Bone Armor's armor bonus and 70-second base cooldown. IntelliJ compilation and Java 21 Gradle build passed; packaged file inspection found no removed integration classes/assets. Runtime validation after this removal is pending: restart, load the world, check trees/HUD and Bone Armor/Chainbreaker/Cyclonic Cleave, plus Skill Chronicle and Malevolent Manuscript. Then continue packaged-JAR verification. See the verification notes for scope.
 
 Remaining release work:
 

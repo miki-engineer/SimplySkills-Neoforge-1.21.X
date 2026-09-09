@@ -61,8 +61,7 @@ public class SkywardSunderEffect extends MobEffect {
                 }
                 if (skywardSunder.getDuration() == slash_2 + 5) {
                     SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:skyward_sunder_slam", 3, player, null);
-                    if (ModList.get().isLoaded("prominent")) // iframes for fall dmg
-                        HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, 60, 0, 1);
+
                 }
                 if (skywardSunder.getDuration() == slash_2 - 2) {
                     player.level().playSound(null, player, SoundRegistry.DAMAGE_03,

@@ -2,7 +2,6 @@ package net.sweenus.simplyskills.mixins.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.neoforged.fml.ModList;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.puffish.skillsmod.client.data.ClientCategoryData;
@@ -111,9 +110,7 @@ public abstract class SkillsScreenMixin {
         SkillsScreenAccessor accessor = (SkillsScreenAccessor) this;
         Bounds2i bounds = accessor.getBounds();
 
-        // Don't draw star systems when prominent is loaded
-        if (!ModList.get().isLoaded("prominent"))
-            drawParallaxTextures(context, bounds);
+        drawParallaxTextures(context, bounds);
     }
 
     @Unique

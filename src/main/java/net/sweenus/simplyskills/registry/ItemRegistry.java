@@ -1,6 +1,5 @@
 package net.sweenus.simplyskills.registry;
 
-import net.neoforged.fml.ModList;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -15,7 +14,6 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 
 public class ItemRegistry {
 
-    private static final boolean isProminenceLoaded = ModList.get().isLoaded("prominent");
 
     public static Item MALEVOLENTMANUSCRIPT;
     public static Item GRACIOUSMANUSCRIPT;
@@ -30,7 +28,7 @@ public class ItemRegistry {
         if (!event.getRegistryKey().equals(Registries.ITEM))
             return;
 
-        MALEVOLENTMANUSCRIPT = isProminenceLoaded ? null : registerItem("malevolent_manuscript",
+        MALEVOLENTMANUSCRIPT = registerItem("malevolent_manuscript",
                 new MalevolentManuscript(new Item.Properties()
                         .rarity(Rarity.EPIC)
                         .stacksTo(1)

@@ -8,11 +8,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.puffish.skillsmod.api.Category;
-import net.puffish.skillsmod.api.Experience;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.abilities.*;
-import net.sweenus.simplyskills.abilities.compat.ProminenceInternalAbilities;
 import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
@@ -22,12 +19,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.List;
-import java.util.Optional;
 
 import static net.puffish.skillsmod.api.SkillsAPI.getCategory;
 
@@ -107,22 +101,7 @@ public abstract class ServerPlayerEntityMixin {
             AscendancyAbilities.boneArmorEffect(serverPlayer);
 
 
-            //Prom effects
-            ProminenceAbilities.boneArmorEffect(serverPlayer);
-
         }
-    }
-
-    @ModifyVariable(method = "hurt", at = @At("HEAD"), argsOnly = true)
-    private float simplyskills$damageResult(float amount){
-        Player player = (Player) (Object) this;
-        if (player.hasEffect(EffectRegistry.RAGE))
-            return amount;
-        //Prom Melody of Safety Protection
-        if (player.hasEffect(EffectRegistry.MELODYOFPROTECTION)) {
-            return ProminenceAbilities.melodyOfProtection(amount);
-        }
-        return amount;
     }
 
     @Inject(at = @At("HEAD"), method = "trackStartFallingPosition")
@@ -331,12 +310,7 @@ public abstract class ServerPlayerEntityMixin {
                     && AscendancyAbilities.getAscendancyPoints(player) > 29 && player.tickCount %400 == 0) {
                 AscendancyAbilities.goldenAegis(player);
             }
-            if (ModList.get().isLoaded("prominent")
-                    && HelperMethods.isUnlocked("puffish_skills:prom",
-                    SkillReferencePosition.ascendancyRighteousShield, player)
-                    && ProminenceAbilities.getAscendancyPoints(player) > 29 && player.tickCount %400 == 0) {
-                AscendancyAbilities.goldenAegis(player);
-            }
+
 
             // Necromancer Winterborn
             if (HelperMethods.isUnlocked("simplyskills:necromancer",
@@ -347,11 +321,6 @@ public abstract class ServerPlayerEntityMixin {
 
             NecromancerAbilities.effectPlague(player);
 
-            if (ModList.get().isLoaded("prominent")) {
-                ProminenceAbilities.warriorsDevotion(player);
-                if (ModList.get().isLoaded("immersive_melodies"))
-                    ProminenceInternalAbilities.bardAbility(player);
-            }
 
             // Tick Gem effects
             if (ModList.get().isLoaded("simplyswords")) {

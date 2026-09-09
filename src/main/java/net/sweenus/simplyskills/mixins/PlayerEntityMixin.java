@@ -1,6 +1,5 @@
 package net.sweenus.simplyskills.mixins;
 
-import net.neoforged.fml.ModList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -62,11 +61,7 @@ public class PlayerEntityMixin {
                     SkillReferencePosition.ascendancyRighteousShield, player)) {
                 AscendancyAbilities.goldenAegis(player);
             }
-            if (ModList.get().isLoaded("prominent")
-                    && HelperMethods.isUnlocked("puffish_skills:prom",
-                    SkillReferencePosition.ascendancyRighteousShield, player)) {
-                AscendancyAbilities.goldenAegis(player);
-            }
+
 
         }
     }

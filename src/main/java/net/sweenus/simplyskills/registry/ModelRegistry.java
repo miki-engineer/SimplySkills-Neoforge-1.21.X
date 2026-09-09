@@ -24,8 +24,7 @@ public class ModelRegistry {
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/arcane_slash"),
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/arrow"),
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/righteous_shield"),
-                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/righteous_hammers"),
-                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/eldritch_hammers")
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/righteous_hammers")
         ));
     }
 

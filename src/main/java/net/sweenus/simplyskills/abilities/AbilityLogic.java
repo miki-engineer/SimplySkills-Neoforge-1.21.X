@@ -6,11 +6,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.puffish.skillsmod.api.Category;
 import net.puffish.skillsmod.api.SkillsAPI;
@@ -191,10 +189,7 @@ public class AbilityLogic {
             school = SpellRegistry.from(player.level()).get(spellId).school;
 
         if (HelperMethods.isUnlocked("simplyskills:tree",
-                SkillReferencePosition.initiateEmpower, player)
-                || (ModList.get().isLoaded("prominent")
-                && HelperMethods.isUnlocked("puffish_skills:prom",
-                SkillReferencePosition.initiateEmpower, player)))
+                SkillReferencePosition.initiateEmpower, player))
             InitiateAbilities.passiveInitiateEmpower(player, school, schools);
 
         if (player.hasEffect(EffectRegistry.STEALTH)) {
@@ -236,24 +231,7 @@ public class AbilityLogic {
 
         // Not Amethyst Imbuement safe (Anything that requires Spell Engine spellId)
         if (spellId !=null) {
-            if (ModList.get().isLoaded("prominent")) {
-                ProminenceAbilities.focusEffect(player, spellId);
 
-                // Make S'kellak's Call deal hybrid phys/fire damage
-                if (spellId.toString().contains("physical_eldritch_hammers") && targets != null) {
-                    for (Entity target : targets) {
-                        if (target instanceof LivingEntity) {
-                            DamageSource damageSource = player.damageSources().playerAttack(player);
-                            double multi = SimplySkills.miscConfig.promSkellaksCallPhysDmgMulti;
-                            double amount = player.getAttributeValue(Attributes.ATTACK_DAMAGE) * multi;
-                            target.invulnerableTime = 0;
-                            target.hurt(damageSource, (float) amount);
-                            target.invulnerableTime = 0;
-                        }
-                    }
-                }
-
-            }
 
             if (HelperMethods.isUnlocked("simplyskills:cleric", SkillReferencePosition.clericMutualMending, player)
                     && ModList.get().isLoaded("paladins")) {
@@ -386,21 +364,13 @@ public class AbilityLogic {
                 && target instanceof LivingEntity livingTarget) {
             WarriorAbilities.passiveWarriorTwinstrike(player, livingTarget);
         }
-        //Passive Prom Twinstrike
-        if (ModList.get().isLoaded("prominent")
-                && HelperMethods.isUnlocked("puffish_skills:prom",
-                SkillReferencePosition.promTwinstrike, player)
-                && target instanceof LivingEntity livingTarget) {
-            ProminenceAbilities.promTwinstrike(player, livingTarget);
-        }
+
+
 
         //Passive Warrior Swordfall
         if (target instanceof LivingEntity livingTarget) {
             if (HelperMethods.isUnlocked("simplyskills:tree",
-                    SkillReferencePosition.warriorSwordfall, player)
-                    || (ModList.get().isLoaded("prominent")
-                    && HelperMethods.isUnlocked("puffish_skills:prom",
-                    SkillReferencePosition.warriorSwordfall, player)))
+                    SkillReferencePosition.warriorSwordfall, player))
                 WarriorAbilities.passiveWarriorSwordfall(player, livingTarget);
         }
 

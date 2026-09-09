@@ -107,7 +107,7 @@ public class ModPacketHandler {
             }
         }
 
-        String ascendancyTree = net.neoforged.fml.ModList.get().isLoaded("prominent") ? "puffish_skills:prom" : "simplyskills:ascendancy";
+        String ascendancyTree = "simplyskills:ascendancy";
         for (AscendancyOption ascendancy : ASCENDANCIES) {
             String skill = ascendancy.skill();
             if (HelperMethods.isUnlocked(ascendancyTree, skill, player)) {
