@@ -98,7 +98,7 @@
           "composite_model": {
             "models": [
               {
-                "orientation": "ALONG_MOTION",
+                "orientation": "TOWARDS_MOTION",
                 "fx": {
                   "model_id": "simplyskills:spell_projectile/meteor_projectile",
                   "light_emission": "NONE",

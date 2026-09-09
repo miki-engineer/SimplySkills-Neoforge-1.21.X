@@ -29,8 +29,7 @@ Compatibility work:
 
 - Skill definitions, spells, effects, projectiles, particles, and models were updated because the old data does not work correctly with the new APIs.
 - Swordfall, Judgment, Havensmith's Call, and Righteous Hammers were adjusted to appear and move like they did originally.
-- Elemental arrows use the new Spell Engine orientation needed to point in their flight direction. This fixes the sideways rendering caused by the API change; it is not a gameplay change.
-- Fan of Blades uses the same new orientation so its daggers point in their flight direction instead of rendering sideways.
+- Projectile orientation restores the original TOWARDS_MOTION default, including elemental arrows, Fan of Blades, Arcane Bolt and 23 definitions found in the remaining-orientation audit. Spell Engine 0.15.6 defaults to TOWARDS_MOTION; the port had explicitly selected ALONG_MOTION, adding a 90-degree rotation. Original passive_throw explicitly uses ALONG_MOTION and retains it. Seeking Righteous Hammers retain their separately approved custom spin. This changes model orientation only; projectile trajectories and combat values are unchanged.
 - Skill icons, custom effect hooks, targeting, and projectile spawning were updated to restore their original behavior on NeoForge.
 - Player-kill callbacks now use NeoForge's living-death event, restoring Bloodthirsty healing and the Ranger and Rogue Renewal upgrades after the original callback target was removed in 1.21.1.
 - Evasion now uses NeoForge's incoming-damage event and respects Minecraft's normal hurt immunity before rolling again.

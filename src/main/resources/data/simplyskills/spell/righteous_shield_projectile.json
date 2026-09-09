@@ -71,7 +71,7 @@
           "composite_model": {
             "models": [
               {
-                "orientation": "ALONG_MOTION",
+                "orientation": "TOWARDS_MOTION",
                 "fx": {
                   "model_id": "simplyskills:spell_projectile/righteous_shield",
                   "light_emission": "GLOW",
