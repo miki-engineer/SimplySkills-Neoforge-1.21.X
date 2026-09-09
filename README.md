@@ -20,10 +20,6 @@ Minecraft **1.21.1**, Java **21**, NeoForge **21.1.248+**, Puffish Skills **0.18
 
 Place the mod JAR and its dependencies in your instance's `mods` folder. Main gameplay checks and modpack world loading have been tested; some visual and multiplayer checks remain unverified.
 
-## Development
-
-Build with `./gradlew build` (Windows: `.\gradlew.bat build`). The JAR is written to `build/libs`.
-
 [Development guide](docs/development.md) · [Handoff](docs/handoff.md) · [Verification](docs/verification.md)
 
 Original code and assets are credited to Sweenus and Timefall Development. See [LICENSE](LICENSE).

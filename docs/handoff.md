@@ -29,5 +29,5 @@ Session paused for continuation at home; the local dedicated server was stopped 
 - [Verification evidence](verification.md): observed results, scope limitations and local server setup.
 - [Porting notes](porting-notes.md): compatibility changes, intentional balance changes and known original-mod behavior.
 
-Read this handoff before continuing. Update it in place after completed changes, then commit and push. Keep the public README focused on installation and player-facing differences; update it only when those change. Keep test measurements in the verification notes rather than adding a session or commit history here.
+Read this handoff before continuing. Update it in place after completed changes, then commit and push. Keep the public README focused on installation and player-facing differences, without Gradle build instructions; update it only when those change. Keep test measurements in the verification notes rather than adding a session or commit history here.
 
