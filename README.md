@@ -61,7 +61,7 @@ All thirteen Ascendancy abilities have completed their main checks at the record
 
 ### Next tests on either computer
 
-Buff-particle preview covers 15 activations: Berserker three signatures (rage); Rogue three, Elemental Arrows, Elemental Surge/Spellweaver and Magic Circle (arcane); Anoint Weapon, Consecration, Righteous Hammers and Chainbreaker (holy); Bone Armor (skull). Each activation sends upward PIPE particles through Spell Engine ParticleHelper.sendBatches, fixing the vanilla level_particles EncoderException. User can see particles, but the enlarged preview was packed inside the legs. Retained scale 0.45 and count 20; raised the origin from 20% to 55% of entity height and widened the PIPE from width factor 0.8 to 2.0 so sparks start outside the body around waist height. Installed API confirms origin is a height fraction and radius is half entity width times width factor. Upward motion only, no outward ring or repeating aura. Sacred Onslaught hand gesture removed. Gradle build passed. Pending restart: check raised, widened particles on Anoint Weapon and Consecration for body clearance, visibility and density, then sample rage/arcane/skull themes. Multiplayer visibility remains unverified.
+Buff activation particle preview removed at user request from all 15 activations, including the shared sender helper. Existing ability effects and casting gestures remain; Sacred Onslaught still uses its rush alone. Gradle build passed. Pending restart: confirm the added buff bursts are gone, then continue the remaining casting-animation checks.
 
 Bone Armor and Righteous Hammers casting gestures passed user visual confirmation after restart. Both code builds passed previously; the current client log contains no animation playback errors. Reuse their completed gameplay checks unless a new failure appears.
 
@@ -76,7 +76,7 @@ Casting-gesture visual checklist:
 | Ranger | Disengage: leap only, hand gesture removed at user request (build passed; loads on next restart); Elemental Arrows: healing/enchantment release; Arrow Rain: upward archery release. User confirms both tested; visual checks complete at this scope. |
 | Spellblade | Elemental Surge: area release; Elemental Impact: forward release; Spellweaver: crossed weapons. User confirmed all three gestures and pose recovery. |
 | Cleric | Anoint Weapon: healing/enchantment release |
-| Crusader | Sacred Onslaught: rush only, hand gesture removed at user request; Consecration: two-handed ground release. Removal and particle additions await restart/visual checks. |
+| Crusader | Sacred Onslaught: rush only, hand gesture removed at user request; Consecration: two-handed ground release. Rush-only and Consecration gesture visual checks remain pending. |
 | Ascendancy | Agony and Torment: forward release, visually confirmed after restart |
 | Optional Prominence | Alternate Bone Armor: ground release; Dissonance: shout (dependency not installed locally) |
 

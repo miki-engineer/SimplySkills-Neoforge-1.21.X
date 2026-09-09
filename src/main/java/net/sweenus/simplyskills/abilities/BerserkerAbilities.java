@@ -160,7 +160,6 @@ public class BerserkerAbilities {
                     SoundSource.PLAYERS, 0.5f, 1.1f);
         }
         SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_rage);
         return true;
     }
 
@@ -174,7 +173,6 @@ public class BerserkerAbilities {
             HelperMethods.incrementStatusEffect(player, EffectRegistry.MIGHT, bloodthirstyDuration,
                     bloodthirstyMightyStacks, 5);
         SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_rage);
         return true;
     }
 
@@ -196,7 +194,6 @@ public class BerserkerAbilities {
                     SoundSource.PLAYERS, 0.5f, 1.1f);
         }
         SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_rage);
         return true;
     }
 

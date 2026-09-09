@@ -29,7 +29,6 @@ public class SpellbladeAbilities {
         player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALSURGE,
                 elementalSurgeDuration, 0, false, false, true));
         SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_arcane);
         return true;
     }
     // Elemental Impact
@@ -57,7 +56,6 @@ public class SpellbladeAbilities {
                 spellweaverDuration, spellweaverStacks - 1, false, false, true));
 
         SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_weapon_cross");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_arcane);
         return true;
     }
 

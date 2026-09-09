@@ -147,7 +147,6 @@ public class CrusaderAbilities {
         player.addEffect(new MobEffectInstance(EffectRegistry.CONSECRATION, consecrationDuration, 0 , false, false, true));
 
         SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_ground_release");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_holy);
         return true;
     }
 

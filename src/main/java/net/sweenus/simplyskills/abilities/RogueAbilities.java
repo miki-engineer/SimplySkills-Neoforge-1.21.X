@@ -217,7 +217,6 @@ public class RogueAbilities {
                     fanOfBladesDuration, fanOfBladesStacks - 1, false, false, true));
 
         SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_arcane);
         return true;
     }
 
@@ -249,7 +248,6 @@ public class RogueAbilities {
         }
 
         SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_arcane);
         return true;
     }
 
@@ -274,7 +272,6 @@ public class RogueAbilities {
                     1, 2);
 
         SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_weapon_cross");
-        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_arcane);
         return true;
     }
 
