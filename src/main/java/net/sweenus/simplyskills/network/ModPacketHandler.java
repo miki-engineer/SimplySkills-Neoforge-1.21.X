@@ -23,6 +23,49 @@ import java.util.List;
 
 public class ModPacketHandler {
 
+    private record SignatureOption(String category, String skill, String sprite) {}
+    private record AscendancyOption(String skill, String sprite) {}
+
+    private static final List<SignatureOption> SIGNATURES = List.of(
+            new SignatureOption("simplyskills:rogue", SkillReferencePosition.rogueSpecialisationPreparation, "preparation"),
+            new SignatureOption("simplyskills:rogue", SkillReferencePosition.rogueSpecialisationEvasion, "evasion"),
+            new SignatureOption("simplyskills:rogue", SkillReferencePosition.rogueSpecialisationSiphoningStrikes, "siphoning_strikes"),
+            new SignatureOption("simplyskills:ranger", SkillReferencePosition.rangerSpecialisationDisengage, "disengage"),
+            new SignatureOption("simplyskills:ranger", SkillReferencePosition.rangerSpecialisationArrowRain, "arrow_rain"),
+            new SignatureOption("simplyskills:ranger", SkillReferencePosition.rangerSpecialisationElementalArrows, "elemental_arrows"),
+            new SignatureOption("simplyskills:berserker", SkillReferencePosition.berserkerSpecialisationRampage, "rampage"),
+            new SignatureOption("simplyskills:berserker", SkillReferencePosition.berserkerSpecialisationBerserking, "berserking"),
+            new SignatureOption("simplyskills:berserker", SkillReferencePosition.berserkerSpecialisationBloodthirsty, "bloodthirsty"),
+            new SignatureOption("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationConsecration, "consecration"),
+            new SignatureOption("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationHeavensmithsCall, "heavensmiths_call"),
+            new SignatureOption("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationSacredOnslaught, "sacred_onslaught"),
+            new SignatureOption("simplyskills:cleric", SkillReferencePosition.clericSpecialisationAnointWeapon, "anoint_weapon"),
+            new SignatureOption("simplyskills:cleric", SkillReferencePosition.clericSpecialisationSacredOrb, "sacred_orb"),
+            new SignatureOption("simplyskills:cleric", SkillReferencePosition.clericSpecialisationDivineIntervention, "divine_intervention"),
+            new SignatureOption("simplyskills:wizard", SkillReferencePosition.wizardSpecialisationIceComet, "ice_comet"),
+            new SignatureOption("simplyskills:wizard", SkillReferencePosition.wizardSpecialisationMeteorShower, "meteor_shower"),
+            new SignatureOption("simplyskills:wizard", SkillReferencePosition.wizardSpecialisationArcaneBolt, "arcane_bolt"),
+            new SignatureOption("simplyskills:wizard", SkillReferencePosition.wizardSpecialisationStaticDischarge, "lightning_beam"),
+            new SignatureOption("simplyskills:spellblade", SkillReferencePosition.spellbladeSpecialisationElementalSurge, "elemental_surge"),
+            new SignatureOption("simplyskills:spellblade", SkillReferencePosition.spellbladeSpecialisationElementalImpact, "elemental_impact"),
+            new SignatureOption("simplyskills:spellblade", SkillReferencePosition.spellbladeSpecialisationSpellweaver, "spellweaver"),
+            new SignatureOption("simplyskills:necromancer", SkillReferencePosition.necromancerSpecialisationSummoningRitual, "summoning_ritual"));
+
+    private static final List<AscendancyOption> ASCENDANCIES = List.of(
+            new AscendancyOption(SkillReferencePosition.ascendancyRighteousHammers, "righteous_hammers"),
+            new AscendancyOption(SkillReferencePosition.ascendancyBoneArmor, "bone_armor"),
+            new AscendancyOption(SkillReferencePosition.ascendancyCyclonicCleave, "cyclonic_cleave"),
+            new AscendancyOption(SkillReferencePosition.ascendancyMagicCircle, "magic_circle"),
+            new AscendancyOption(SkillReferencePosition.ascendancyArcaneSlash, "arcane_slash"),
+            new AscendancyOption(SkillReferencePosition.ascendancyAgony, "agony"),
+            new AscendancyOption(SkillReferencePosition.ascendancyTorment, "torment"),
+            new AscendancyOption(SkillReferencePosition.ascendancyRapidfire, "rapidfire"),
+            new AscendancyOption(SkillReferencePosition.ascendancyCataclysm, "cataclysm"),
+            new AscendancyOption(SkillReferencePosition.ascendancyGhostwalk, "ghostwalk"),
+            new AscendancyOption(SkillReferencePosition.ascendancySkywardSunder, "skyward_sunder"),
+            new AscendancyOption(SkillReferencePosition.ascendancyRighteousShield, "righteous_shield"),
+            new AscendancyOption(SkillReferencePosition.ascendancyChainbreaker, "chainbreaker"));
+
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToServer(KeybindPacket.TYPE, KeybindPacket.STREAM_CODEC, KeybindPacket::handle);
@@ -50,122 +93,47 @@ public class ModPacketHandler {
     }
 
     public static void sendSignatureAbility(ServerPlayer player) {
-        ResourceLocation identifier = ResourceLocation.parse("simplyskills:empty");
-        ResourceLocation identifier2 = ResourceLocation.parse("simplyskills:empty");
-        String stringSend = "empty";
-        String stringSend2 = "empty";
-        List<SignatureOption> signatures = List.of(
-                new SignatureOption("simplyskills:rogue", SkillReferencePosition.rogueSpecialisationPreparation),
-                new SignatureOption("simplyskills:rogue", SkillReferencePosition.rogueSpecialisationEvasion),
-                new SignatureOption("simplyskills:rogue", SkillReferencePosition.rogueSpecialisationSiphoningStrikes),
-                new SignatureOption("simplyskills:ranger", SkillReferencePosition.rangerSpecialisationDisengage),
-                new SignatureOption("simplyskills:ranger", SkillReferencePosition.rangerSpecialisationArrowRain),
-                new SignatureOption("simplyskills:ranger", SkillReferencePosition.rangerSpecialisationElementalArrows),
-                new SignatureOption("simplyskills:berserker", SkillReferencePosition.berserkerSpecialisationRampage),
-                new SignatureOption("simplyskills:berserker", SkillReferencePosition.berserkerSpecialisationBerserking),
-                new SignatureOption("simplyskills:berserker", SkillReferencePosition.berserkerSpecialisationBloodthirsty),
-                new SignatureOption("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationConsecration),
-                new SignatureOption("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationHeavensmithsCall),
-                new SignatureOption("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationSacredOnslaught),
-                new SignatureOption("simplyskills:cleric", SkillReferencePosition.clericSpecialisationAnointWeapon),
-                new SignatureOption("simplyskills:cleric", SkillReferencePosition.clericSpecialisationSacredOrb),
-                new SignatureOption("simplyskills:cleric", SkillReferencePosition.clericSpecialisationDivineIntervention),
-                new SignatureOption("simplyskills:wizard", SkillReferencePosition.wizardSpecialisationIceComet),
-                new SignatureOption("simplyskills:wizard", SkillReferencePosition.wizardSpecialisationMeteorShower),
-                new SignatureOption("simplyskills:wizard", SkillReferencePosition.wizardSpecialisationArcaneBolt),
-                new SignatureOption("simplyskills:wizard", SkillReferencePosition.wizardSpecialisationStaticDischarge),
-                new SignatureOption("simplyskills:spellblade", SkillReferencePosition.spellbladeSpecialisationElementalSurge),
-                new SignatureOption("simplyskills:spellblade", SkillReferencePosition.spellbladeSpecialisationElementalImpact),
-                new SignatureOption("simplyskills:spellblade", SkillReferencePosition.spellbladeSpecialisationSpellweaver),
-                new SignatureOption("simplyskills:necromancer", SkillReferencePosition.necromancerSpecialisationSummoningRitual));
+        ResourceLocation signatureId = ResourceLocation.parse("simplyskills:empty");
+        ResourceLocation ascendancyId = ResourceLocation.parse("simplyskills:empty");
+        String signatureCategory = "empty";
+        String ascendancySkill = "empty";
 
-        for (SignatureOption signature : signatures) {
+        for (SignatureOption signature : SIGNATURES) {
             if (HelperMethods.isUnlocked(signature.category(), null, player)
                     && HelperMethods.isUnlocked(signature.category(), signature.skill(), player)) {
-                identifier = ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, signature.skill());
-                stringSend = signature.category();
+                signatureId = ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, signature.skill());
+                signatureCategory = signature.category();
                 break;
             }
         }
 
-        List<String> ascendancies = List.of(
-                SkillReferencePosition.ascendancyRighteousHammers, SkillReferencePosition.ascendancyBoneArmor,
-                SkillReferencePosition.ascendancyCyclonicCleave, SkillReferencePosition.ascendancyMagicCircle,
-                SkillReferencePosition.ascendancyArcaneSlash, SkillReferencePosition.ascendancyAgony,
-                SkillReferencePosition.ascendancyTorment, SkillReferencePosition.ascendancyRapidfire,
-                SkillReferencePosition.ascendancyCataclysm, SkillReferencePosition.ascendancyGhostwalk,
-                SkillReferencePosition.ascendancySkywardSunder, SkillReferencePosition.ascendancyRighteousShield,
-                SkillReferencePosition.ascendancyChainbreaker);
         String ascendancyTree = net.neoforged.fml.ModList.get().isLoaded("prominent") ? "puffish_skills:prom" : "simplyskills:ascendancy";
-        for (String skill : ascendancies) {
+        for (AscendancyOption ascendancy : ASCENDANCIES) {
+            String skill = ascendancy.skill();
             if (HelperMethods.isUnlocked(ascendancyTree, skill, player)) {
-                identifier2 = ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, skill);
-                stringSend2 = skill;
+                ascendancyId = ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, skill);
+                ascendancySkill = skill;
                 break;
             }
         }
-        PacketDistributor.sendToPlayer(player, new SignaturePayload(identifier, identifier2, stringSend, stringSend2));
+        PacketDistributor.sendToPlayer(player, new SignaturePayload(signatureId, ascendancyId, signatureCategory, ascendancySkill));
     }
 
-    private record SignatureOption(String category, String skill) {
-    }
-
-    private static String signatureSprite(String className, String skill) {
-        if (className.equals("simplyskills:rogue")) {
-            if (skill.equals(SkillReferencePosition.rogueSpecialisationSiphoningStrikes)) return "siphoning_strikes";
-            if (skill.equals(SkillReferencePosition.rogueSpecialisationEvasion)) return "evasion";
-            if (skill.equals(SkillReferencePosition.rogueSpecialisationPreparation)) return "preparation";
+    private static String signatureSprite(String category, String skill) {
+        for (SignatureOption signature : SIGNATURES) {
+            if (signature.category().equals(category) && signature.skill().equals(skill)) {
+                return signature.sprite();
+            }
         }
-        if (className.equals("simplyskills:ranger")) {
-            if (skill.equals(SkillReferencePosition.rangerSpecialisationElementalArrows)) return "elemental_arrows";
-            if (skill.equals(SkillReferencePosition.rangerSpecialisationArrowRain)) return "arrow_rain";
-            if (skill.equals(SkillReferencePosition.rangerSpecialisationDisengage)) return "disengage";
-        }
-        if (className.equals("simplyskills:berserker")) {
-            if (skill.equals(SkillReferencePosition.berserkerSpecialisationBloodthirsty)) return "bloodthirsty";
-            if (skill.equals(SkillReferencePosition.berserkerSpecialisationBerserking)) return "berserking";
-            if (skill.equals(SkillReferencePosition.berserkerSpecialisationRampage)) return "rampage";
-        }
-        if (className.equals("simplyskills:crusader")) {
-            if (skill.equals(SkillReferencePosition.crusaderSpecialisationConsecration)) return "consecration";
-            if (skill.equals(SkillReferencePosition.crusaderSpecialisationHeavensmithsCall)) return "heavensmiths_call";
-            if (skill.equals(SkillReferencePosition.crusaderSpecialisationSacredOnslaught)) return "sacred_onslaught";
-        }
-        if (className.equals("simplyskills:cleric")) {
-            if (skill.equals(SkillReferencePosition.clericSpecialisationSacredOrb)) return "sacred_orb";
-            if (skill.equals(SkillReferencePosition.clericSpecialisationAnointWeapon)) return "anoint_weapon";
-            if (skill.equals(SkillReferencePosition.clericSpecialisationDivineIntervention)) return "divine_intervention";
-        }
-        if (className.equals("simplyskills:wizard")) {
-            if (skill.equals(SkillReferencePosition.wizardSpecialisationArcaneBolt)) return "arcane_bolt";
-            if (skill.equals(SkillReferencePosition.wizardSpecialisationIceComet)) return "ice_comet";
-            if (skill.equals(SkillReferencePosition.wizardSpecialisationMeteorShower)) return "meteor_shower";
-            if (skill.equals(SkillReferencePosition.wizardSpecialisationStaticDischarge)) return "lightning_beam";
-        }
-        if (className.equals("simplyskills:spellblade")) {
-            if (skill.equals(SkillReferencePosition.spellbladeSpecialisationElementalImpact)) return "elemental_impact";
-            if (skill.equals(SkillReferencePosition.spellbladeSpecialisationElementalSurge)) return "elemental_surge";
-            if (skill.equals(SkillReferencePosition.spellbladeSpecialisationSpellweaver)) return "spellweaver";
-        }
-        if (className.equals("simplyskills:necromancer")
-                && skill.equals(SkillReferencePosition.necromancerSpecialisationSummoningRitual)) return "summoning_ritual";
         return null;
     }
 
     private static String ascendancySprite(String skill) {
-        if (skill.equals(SkillReferencePosition.ascendancyRighteousHammers)) return "righteous_hammers";
-        if (skill.equals(SkillReferencePosition.ascendancyBoneArmor)) return "bone_armor";
-        if (skill.equals(SkillReferencePosition.ascendancyCyclonicCleave)) return "cyclonic_cleave";
-        if (skill.equals(SkillReferencePosition.ascendancyMagicCircle)) return "magic_circle";
-        if (skill.equals(SkillReferencePosition.ascendancyArcaneSlash)) return "arcane_slash";
-        if (skill.equals(SkillReferencePosition.ascendancyAgony)) return "agony";
-        if (skill.equals(SkillReferencePosition.ascendancyTorment)) return "torment";
-        if (skill.equals(SkillReferencePosition.ascendancyRapidfire)) return "rapidfire";
-        if (skill.equals(SkillReferencePosition.ascendancyCataclysm)) return "cataclysm";
-        if (skill.equals(SkillReferencePosition.ascendancyGhostwalk)) return "ghostwalk";
-        if (skill.equals(SkillReferencePosition.ascendancySkywardSunder)) return "skyward_sunder";
-        if (skill.equals(SkillReferencePosition.ascendancyRighteousShield)) return "righteous_shield";
-        if (skill.equals(SkillReferencePosition.ascendancyChainbreaker)) return "chainbreaker";
+        for (AscendancyOption ascendancy : ASCENDANCIES) {
+            if (ascendancy.skill().equals(skill)) {
+                return ascendancy.sprite();
+            }
+        }
         return null;
     }
 

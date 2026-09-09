@@ -337,20 +337,7 @@ public class HelperMethods {
     public static void decrementStatusEffect(
             LivingEntity livingEntity,
             Holder<MobEffect> statusEffect) {
-
-        if (livingEntity.hasEffect(statusEffect)) {
-            int currentAmplifier = livingEntity.getEffect(statusEffect).getAmplifier();
-            int currentDuration = livingEntity.getEffect(statusEffect).getDuration();
-
-            if (currentAmplifier < 1 ) {
-                livingEntity.removeEffect(statusEffect);
-                return;
-            }
-
-            livingEntity.removeEffect(statusEffect);
-            livingEntity.addEffect(new MobEffectInstance(
-                    statusEffect, currentDuration, currentAmplifier - 1, false, false, true));
-        }
+        decrementStatusEffects(livingEntity, statusEffect, 1);
     }
 
     public static void decrementStatusEffects(
