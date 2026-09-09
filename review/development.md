@@ -4,7 +4,7 @@
 
 | Area | Location | Responsibility |
 | --- | --- | --- |
-| Mod setup | `SimplySkills.java`, `registry/` | Registration and configuration wiring |
+| Mod setup | [SimplySkills.java](../src/main/java/net/sweenus/simplyskills/SimplySkills.java), [registry/](../src/main/java/net/sweenus/simplyskills/registry/) | Registration and configuration wiring |
 | Skill node IDs | `util/SkillReferencePosition.java` | IDs from the skill-tree data; IDs can repeat between categories |
 | Activation and cooldown | `abilities/SignatureAbilities.java` | Select and dispatch the active ability, then send its cooldown |
 | Class mechanics | `abilities/*Abilities.java` | Class-specific triggers, targeting and upgrades |

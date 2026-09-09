@@ -10,4 +10,10 @@ This directory restores the development, porting, verification and release-revie
 
 The verification notes describe prior observations, not a fresh test of every path in the current revision. Later changes and pending retests are identified explicitly. Raw debugger state, local worlds and runtime configs are not included. The private `docs/handoff.md` is not required to review the code.
 
-Keep these public notes current when implementation or validation changes. Keep the root README focused on players.
+## Continuing on another computer
+
+Pull the current `main` branch before continuing. The public notes in this directory travel with Git; the private handoff, ignored runtime worlds/configs, RCON helper and IntelliJ debugger state do not. References to a running Client or local settings in the evidence describe the recorded test session, not the current computer.
+
+Use the [development guide](development.md#verification-workflow) for build and validation steps, the [dedicated development server notes](verification.md#dedicated-development-server) for the recorded local setup, and the [release checks](release-review.md#release-gates-and-lower-priority-work) to select remaining tests. Reuse completed evidence at its stated scope and recreate any required local setup before testing.
+
+Keep these public notes current when implementation or validation changes. Return to the [project README](../README.md) for the player overview.

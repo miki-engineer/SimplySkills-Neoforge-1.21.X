@@ -21,3 +21,9 @@ Minecraft **1.21.1**, Java **21**, NeoForge **21.1.248+**, Puffish Skills **0.18
 Place the mod JAR and its dependencies in your instance's `mods` folder. Main gameplay checks and modpack world loading have been tested; some visual and multiplayer checks remain unverified.
 
 Original code and assets are credited to Sweenus and Timefall Development. See [LICENSE](LICENSE).
+
+## Review and testing
+
+The port has been submitted for review. See the [review documentation](review/README.md), [AI usage disclosure](AI_USAGE.md), [recorded testing evidence](review/verification.md) and [remaining release checks](review/release-review.md). Packaged dedicated-server startup, second-player interactions and specific progression, compatibility-removal and visual regression checks remain pending.
+
+Documentation navigation has been checked against the tracked repository files. Recorded gameplay results retain their original scope; syncing this checkout does not provide new runtime validation.

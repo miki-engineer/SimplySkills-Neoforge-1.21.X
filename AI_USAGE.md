@@ -31,4 +31,4 @@ The maintainer directed requested changes, reported problems, performed in-game 
 
 Prior observations and their scope are preserved in the verification notes. [Remaining release checks](review/release-review.md) include packaged dedicated-server startup, second-player interactions and other specific unverified paths. Adding this disclosure does not constitute new runtime validation.
 
-`AGENTS.md` contains assistant workflow instructions; it is not an authorship record. Private handoffs, worlds, runtime configurations and debugger state are not required to read the [public review documentation](review/README.md). Keep this disclosure current as additional authorship information becomes available or the scope of AI use changes.
+The previously tracked `AGENTS.md` contained assistant workflow instructions; it was removed from the review branch and is not an authorship record. Private handoffs, worlds, runtime configurations and debugger state are not required to read the [public review documentation](review/README.md). Keep this disclosure current as additional authorship information becomes available or the scope of AI use changes.
