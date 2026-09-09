@@ -74,18 +74,11 @@ public class SignatureAbilities {
         }
     }
 
-    /** One small ring and rising sparks at buff activation; no repeating aura. */
+    /** Brief rising sparks at buff activation; no repeating aura. */
     public static void playBuffParticles(Player player, SpellEngineParticles.Entry entry) {
         if (!(player.level() instanceof ServerLevel world))
             return;
         var particle = entry.type().spawnable(entry.defaults().copy().scale(0.15F), player);
-        for (int i = 0; i < 20; i++) {
-            double angle = Math.PI * 2 * i / 20;
-            double x = Math.cos(angle);
-            double z = Math.sin(angle);
-            world.sendParticles(particle, player.getX() + x * 0.65, player.getY() + 0.12,
-                    player.getZ() + z * 0.65, 0, x * 0.035, 0.015, z * 0.035, 1);
-        }
         for (int i = 0; i < 12; i++) {
             double angle = Math.PI * 2 * i / 12;
             world.sendParticles(particle, player.getX() + Math.cos(angle) * 0.4,
