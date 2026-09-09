@@ -56,6 +56,8 @@ Performance adjustment:
 
 Confirmed original code corrections:
 
+- Agony and Torment: the [original 1.20.1 implementation](https://github.com/Sweenus/SimplySkills/blob/1.20.1/src/main/java/net/sweenus/simplyskills/abilities/AscendancyAbilities.java) selects the nearest living entity before checking friendly fire, so a rejected friendly can prevent a cast. The port now filters eligible targets first to match the nearest-enemy description. This is a correction to inherited behavior, not a loader compatibility repair. Both curses passed farther-enemy selection and no-eligible-target checks after restart; existing friendly-fire rules remain in use.
+
 - Challenge: the original checks for more than one enemy, while its text grants Haste for each nearby enemy. The port allows one enemy to grant the first stack.
 - Rampage Charge: the original starts the charge but does not grant Regeneration or Resistance. Its text explicitly promises both effects, so the port adds them.
 - Weapon Expert: the original sets `chance` to `5` but checks whether a random value is greater than `5`, which succeeds 94% of the time. The port reverses that comparison so the value acts as a 5% chance. The skill text only says "occasionally" and does not give a number.
