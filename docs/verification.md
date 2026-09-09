@@ -69,3 +69,7 @@ Preparation regression: user reported dashing with Shadowstrike off. Runtime cap
 For quick switching, enable local `removeUnlockRestrictions` and click the previous active node off before selecting the next. No repeated skill commands are needed when toggling works. Worlds/configs do not transfer through Git.
 
 See [the README](../README.md) for the current task and release gates. The evidence here remains scoped to the builds and observations recorded; later refactors need their own validation.
+
+## Refactor regression
+
+After rebuilding and restarting the dedicated server, RCON applied two Barrier stacks to the tagged test husk. Two one-damage attempts changed amplifier 1 to 0, then removed the effect; health remained 16.6. A third attempt without Barrier succeeded and reduced health to 15.6. This exercises the refactored single-stack helper through the normal damage hook, including final depletion. Class and Ascendancy HUD/casting checks remain pending on the freshly launched client.
