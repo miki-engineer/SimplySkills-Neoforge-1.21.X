@@ -23,11 +23,13 @@ The shared multi-stack depletion bug is fixed and its planned runtime checks pas
 
 Current task: curse/taunt target leakage reproduced across two husks and fixed. Taunt now reads a local target from its own effect instance; Agony and Torment no longer run copied targeting ticks. IntelliJ compilation and Java 21 Gradle build passed. Post-restart Taunt isolation passed: sourced husk A targeted its caster, while source-less husk B retained no target. No probe errors. Torment damage redirection also passed (husk 20 to 17.06 on a 3-damage attempt; player 24.1 through the hook). Agony combat regression passed across four triggers (0.8384 bonus damage and approximately 0.208 healing each). Focused isolation and combat checks are complete at this scope; remaining curse-only, distinct-caster and restored-source checks are explicit in the review notes. All agent probes removed. Nearest-enemy failure reproduced twice: Agony selected the owned wolf at distance 2 and returned false. Agony and Torment now filter candidates through the existing friendly-fire rules before selecting the nearest. IntelliJ compilation and Java 21 Gradle build passed; restart and verify each curse skips the nearer wolf, then verify friendly-only/no-target behavior. Runtime validation of this selection fix is pending. Two-caster and restored-source checks remain pending; see [release-review.md](docs/release-review.md). Packaged-JAR verification also remains pending: install `build/libs/simplyskills-1.7.2+1.21.1-neoforge.jar` in a separate Minecraft 1.21.1 NeoForge instance with required dependencies, then verify startup, world loading, skill menu, one class cast and one Ascendancy cast. Existing gameplay evidence still counts.
 
+Prominence compatibility testing is out of scope for this release at the user's request. Existing integration code is retained; compatibility remains unverified. This scope update changes documentation only; no runtime checks were performed.
+
 Remaining release work:
 
 - Build and test the packaged JAR outside IntelliJ, including dedicated-server startup.
 - Remove temporary `removeUnlockRestrictions` testing support before release.
-- Verify second-player visibility/interactions and optional Prominence compatibility where supported.
+- Second-player visibility/interactions remain unverified and deferred until a two-client setup or external tester is available.
 - Review the remaining specific lifecycle/performance concerns and deferred checks in the verification notes; avoid repeating completed shared mechanics.
 
 Session paused for continuation at home; the local dedicated server was stopped through RCON. Its world, configs and command helper are ignored by Git; they must be recreated on another computer. Local RCON command access is described in the verification notes.
