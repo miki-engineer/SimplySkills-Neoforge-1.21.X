@@ -73,3 +73,17 @@ See [the README](../README.md) for the current task and release gates. The evide
 ## Refactor regression
 
 After rebuilding and restarting the dedicated server, RCON applied two Barrier stacks to the tagged test husk. Two one-damage attempts changed amplifier 1 to 0, then removed the effect; health remained 16.6. A third attempt without Barrier succeeded and reduced health to 15.6. This exercises the refactored single-stack helper through the normal damage hook, including final depletion. User confirmed Arcane Bolt icon and casting work normally on the restarted client. After Bone Armor was unlocked via RCON, user confirmed its Ascendancy-slot icon, armor activation and cooldown. Both HUD slots and the single-stack consumption/depletion checks passed at this scope.
+
+## Multi-stack depletion fix
+
+Pre-fix Exhaustion decay removed five from five but left one stack, confirmed by the next helper entry. The shared guard now removes the effect when `stacksRemoved >= currentAmplifier + 1`; positive remainders keep the existing replacement behavior. IntelliJ compilation and Java 21 Gradle build passed.
+
+Post-restart debugger checks passed with no probe errors:
+
+- Exact decay: 5 minus 5 produced `effect=null`, twice.
+- Partial decay: 7 minus 5 left two stacks, preserving the 1182-tick duration.
+- Excess decay: about one second later, 2 minus 5 produced `effect=null`.
+- Aegis partial consumption: caller reported 40 stacks and cost 35; five remained with the same 1194-tick duration, then natural decay cleared them.
+- Aegis exact boundary: caller reported 35 stacks and cost 35; paired helper traces recorded 1190 ticks before removal and `effect=null` immediately afterward.
+
+All agent probes were removed; user-owned breakpoints retained. Client remains running locally. These checks verify stack consumption/depletion; no new measurement of Divine Protection strength or multiplayer behavior was made.
