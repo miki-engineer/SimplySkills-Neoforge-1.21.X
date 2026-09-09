@@ -113,6 +113,8 @@ public class AscendancyAbilities {
         ServerLevel world = (ServerLevel) player.level();
         AABB box = HelperMethods.createBox(player, 10);
         Entity closestEntity = world.getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE).stream()
+                .filter(entity -> entity instanceof LivingEntity livingEntity
+                        && HelperMethods.checkFriendlyFireAOE(livingEntity, player))
                 .min(Comparator.comparingDouble(entity -> entity.distanceToSqr(player)))
                 .orElse(null);
 
@@ -155,6 +157,8 @@ public class AscendancyAbilities {
         ServerLevel world = (ServerLevel) player.level();
         AABB box = HelperMethods.createBox(player, 10);
         Entity closestEntity = world.getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE).stream()
+                .filter(entity -> entity instanceof LivingEntity livingEntity
+                        && HelperMethods.checkFriendlyFireAOE(livingEntity, player))
                 .min(Comparator.comparingDouble(entity -> entity.distanceToSqr(player)))
                 .orElse(null);
 

@@ -1,6 +1,6 @@
 # Remaining code review
 
-Static review of shared stack handling, curse targeting and release setup. Stack depletion is fixed and runtime-verified at the recorded scope; curse/taunt target leakage is fixed with focused post-restart isolation and combat checks passed; nearest-enemy selection remains a static concern. This is not an exhaustive code audit. They are outside the completed HUD/helper refactor checks.
+Static review of shared stack handling, curse targeting and release setup. Stack depletion is fixed and runtime-verified at the recorded scope; curse/taunt target leakage is fixed with focused post-restart isolation and combat checks passed; nearest-enemy selection has a reproduced Agony failure and a fix pending restart validation. This is not an exhaustive code audit. They are outside the completed HUD/helper refactor checks.
 
 ## Resolved stack depletion
 
@@ -10,9 +10,9 @@ The shared helper now removes the effect when the requested removal reaches or e
 
 1. **Curse/taunt target leakage: fixed, focused runtime checks passed.** Two-husk traces reproduced shared target retention in Agony and Taunt. TauntedEffect now obtains a local target solely from the affected entity's sourced Taunt instance. AgonyEffect and TormentEffect no longer contain copied taunting ticks or shared entity fields; forced targeting belongs to Taunt, consistent with Torment's 30-point upgrade. Damage/healing hooks, durations, visuals and activation targeting are unchanged. No repository callers used the removed setters. Compilation and Gradle build passed. Post-restart valid sourced Taunt and source-less isolation passed on two fresh husks. Torment redirection and Agony bonus damage/healing also passed after the fix. Restored-source isolation after seeding and remaining curse-only cases remain pending. Distinct-caster behavior remains pending. See verification notes for evidence limits.
 
-## Resolve targeting intent
+## Nearest eligible target — fixed, retest pending
 
-Agony and Torment choose the nearest living entity before applying the friendly-fire filter. A friendly entity closer than an enemy can cause the cast to fail instead of choosing the nearest eligible enemy. Their description says nearest enemy. Confirm the intended rule, then filter eligible enemies before selecting the minimum distance if that is the intended behavior. Test a friendly mob nearer than a hostile one.
+Agony selected the owned test wolf at squared distance 4 and returned false in two casts, despite the farther test husk setup. Both curses now filter living candidates through checkFriendlyFireAOE before selecting minimum distance, matching their nearest-enemy descriptions. Existing rules, search box, spell mechanics and failure handling are preserved. IntelliJ compilation and Java 21 Gradle build passed. After restart, verify Agony and Torment select the farther eligible husk while the owned wolf is closer, and fail normally when only friendly entities or no candidates remain. Torment selection failure was identified from the identical implementation, not separately reproduced before the fix.
 
 ## Release gates and lower-priority work
 
