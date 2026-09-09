@@ -1,6 +1,6 @@
 # Remaining code review
 
-Static review of shared stack handling, curse targeting and release setup. Stack depletion is fixed and runtime-verified at the recorded scope; curse/taunt target leakage now has runtime evidence and a fix pending restart validation; nearest-enemy selection remains a static concern. This is not an exhaustive code audit. They are outside the completed HUD/helper refactor checks.
+Static review of shared stack handling, curse targeting and release setup. Stack depletion is fixed and runtime-verified at the recorded scope; curse/taunt target leakage is fixed with focused post-restart isolation and combat checks passed; nearest-enemy selection remains a static concern. This is not an exhaustive code audit. They are outside the completed HUD/helper refactor checks.
 
 ## Resolved stack depletion
 
@@ -8,7 +8,7 @@ The shared helper now removes the effect when the requested removal reaches or e
 
 ## Address before release
 
-1. **Curse/taunt target leakage: fixed, runtime retest pending.** Two-husk traces reproduced shared target retention in Agony and Taunt. TauntedEffect now obtains a local target solely from the affected entity's sourced Taunt instance. AgonyEffect and TormentEffect no longer contain copied taunting ticks or shared entity fields; forced targeting belongs to Taunt, consistent with Torment's 30-point upgrade. Damage/healing hooks, durations, visuals and activation targeting are unchanged. No repository callers used the removed setters. Compilation and Gradle build passed. Post-restart valid sourced Taunt and source-less isolation passed on two fresh husks. Restored-source isolation after seeding, curse-only cases and existing curse combat hooks remain pending. Distinct-caster behavior remains pending. See verification notes for evidence limits.
+1. **Curse/taunt target leakage: fixed, focused runtime checks passed.** Two-husk traces reproduced shared target retention in Agony and Taunt. TauntedEffect now obtains a local target solely from the affected entity's sourced Taunt instance. AgonyEffect and TormentEffect no longer contain copied taunting ticks or shared entity fields; forced targeting belongs to Taunt, consistent with Torment's 30-point upgrade. Damage/healing hooks, durations, visuals and activation targeting are unchanged. No repository callers used the removed setters. Compilation and Gradle build passed. Post-restart valid sourced Taunt and source-less isolation passed on two fresh husks. Torment redirection and Agony bonus damage/healing also passed after the fix. Restored-source isolation after seeding and remaining curse-only cases remain pending. Distinct-caster behavior remains pending. See verification notes for evidence limits.
 
 ## Resolve targeting intent
 
