@@ -39,3 +39,5 @@ Runtime probes belong in IntelliJ, not mod source. Existing shared-effect verifi
 ## Review separately from this refactor
 
 `HelperMethods.capStatusEffect` matches translated display names and uses a fall-through switch. Its cap semantics need a focused behavior review before changing them. The multi-stack decrement helper also has legacy exact-depletion behavior. These are potential behavior fixes, not formatting changes; they were preserved in this cleanup.
+
+IDE inspection also reports unchecked category lookups in respecialisation/level helpers, deprecated attribute/experience APIs, unused ranged-attribute helpers and duplicated particle placement loops. These pre-existing warnings need caller and compatibility review before removal or behavior changes; no IDE errors were reported in the two refactored files.
