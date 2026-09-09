@@ -158,8 +158,10 @@ public class BerserkerAbilities {
                     rampageSubEffectDuration, 0, false, false, true));
             player.level().playSound(null, player, SoundRegistry.SOUNDEFFECT15,
                     SoundSource.PLAYERS, 0.5f, 1.1f);
+            SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_projectile_release");
+        } else {
+            SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
         }
-        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_shout_release");
         return true;
     }
 
