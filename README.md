@@ -163,7 +163,7 @@ The original code and text used for this comparison are available in [AbilityLog
 
 Review and testing support:
 
-- When `removeUnlockRestrictions` is enabled, class and Ascendancy nodes can be clicked again to turn them off. This option is disabled by default.
+- For quick animation testing, enable `removeUnlockRestrictions: true` in `run/config/simplyskills/general.json5` before starting Client. Click an unlocked class/Ascendancy node again to turn it off, then click the next node to unlock it. Turn off the previous active ability before selecting another. Enabled on this computer; the local config is not transferred by Git and the source default remains false. Config parsing passed; click toggling still needs confirmation in the next client run.
 - `removeUnlockRestrictions` is temporary testing support. It must be removed before release so the original path requirements and exclusive branches are fully restored.
 - Test traces are kept in the IntelliJ debugger. They are not included in the mod.
 
