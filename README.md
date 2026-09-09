@@ -70,7 +70,7 @@ Casting-gesture visual checklist:
 | Class | Abilities and gestures |
 | --- | --- |
 | Berserker | Rampage (with or without Charge), Bloodthirsty and Berserking: one-handed shout. User prefers the same shout during the body tackle; conditional pointing gesture removed. Compilation/build passed; final Rampage gesture confirmation pending after restart. |
-| Rogue | Evasion and Preparation: outward area release; Siphoning Strikes: crossed weapons |
+| Rogue | Evasion and Preparation: outward area release; Siphoning Strikes: crossed weapons. Preparation dash bug fixed in node reference; restart and verify Shadowstrike off/on before continuing visual checks. |
 | Ranger | Disengage: outward area release; Elemental Arrows: healing/enchantment release; Arrow Rain: upward archery release |
 | Spellblade | Elemental Surge: area release; Elemental Impact: forward release; Spellweaver: crossed weapons |
 | Cleric | Anoint Weapon: healing/enchantment release |
@@ -81,6 +81,8 @@ Casting-gesture visual checklist:
 Existing coverage retained: Wizard Meteor Shower/Ice Comet/Static Discharge/Arcane Bolt; Cleric Divine Intervention/Sacred Orb; Crusader Heavensmith's Call; Necromancer Summoning Ritual; all other Ascendancy gestures, including delayed Rapidfire/Skyward Sunder sequences. Reuse prior visual evidence where recorded.
 
 After one full Client restart, test the new gestures in third person by toggling nodes. Agony/Torment are confirmed; next confirm Rampage after restarting for the shared shout gesture, then Bloodthirsty and Berserking, one at a time using the signature key, then the remaining class groups above. Confirm a suitable gesture, normal pose recovery, and no playback errors; watch interactions with movement and effect-driven follow-up animations. Failed Agony/Torment casts should not gesture. Gameplay regression and multiplayer visibility remain pending; static coverage is not a visual pass.
+Preparation regression: user reported dashing with Shadowstrike off. Runtime captured the Shadowstrike branch (range 8), with velocity changing from stationary to approximately (-7.74, 0, -0.47). The reference incorrectly used kp8uei8ppni71b5x (Preparation itself); corrected it to m2fqj7bmtsh33fvs (Shadowstrike), verified against rogue/skills.json. IntelliJ compilation and Gradle build passed. Pending after full restart: Preparation with Shadowstrike OFF must not dash; ON must dash. Earlier Rogue completion did not validate this distinction. Three IDE probes remain: RogueAbilities 225 (unlock/effects/velocity), 187 (dash), SignatureAbilities 354 (final ability/effects/velocity). No source logging added.
+
 For quick switching, enable local `removeUnlockRestrictions` and click the previous active node off before selecting the next. No repeated skill commands are needed when toggling works. Worlds/configs do not transfer through Git.
 
 After animations, continue direct registered-effect checks using shared-effect evidence, resolve tooltip discrepancies (including Agony duration), and complete regression/performance review. Remove temporary `removeUnlockRestrictions` support before release. Keep pending checks explicit and push completed changes with this handoff.
