@@ -124,6 +124,8 @@ public class AscendancyAbilities {
                             false, true);
                     agonyEffect.setSourceEntity(player);
                     ee.addEffect(agonyEffect);
+                    AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                            PlayerAnimation.of("spell_engine:one_handed_projectile_release"), 1.0F);
                     HelperMethods.spawnWaistHeightParticles(world, ParticleTypes.SMOKE, player, ee, 20);
                     player.level().playSound(null, player, SoundRegistry.MAGIC_SHAMANIC_SPELL_04,
                             SoundSource.PLAYERS, 0.2f, 1.0f);
@@ -164,6 +166,8 @@ public class AscendancyAbilities {
                             false, true);
                     tormentEffect.setSourceEntity(player);
                     ee.addEffect(tormentEffect);
+                    AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                            PlayerAnimation.of("spell_engine:one_handed_projectile_release"), 1.0F);
                     player.level().playSound(null, player, SoundRegistry.MAGIC_SHAMANIC_SPELL_04,
                             SoundSource.PLAYERS, 0.2f, 1.0f);
 
