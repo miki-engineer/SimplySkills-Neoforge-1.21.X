@@ -126,6 +126,8 @@ Compatibility work:
 
 Deliberate balance change:
 
+- Consecration base cooldown increased from 30 to 60 seconds at user request. Default config and English/French/Russian tooltips updated; local crusader.json5 set to 60. Existing configs on other computers retain their saved value and must be updated manually. Haste modifiers still apply. JSON parsing, IntelliJ compilation and Gradle build passed; actual cooldown and tooltip verification pending after restart.
+
 - Raging Javelin now throws every 20 ticks by default instead of every 8 ticks. The interval can be changed in the config.
 - Ascendancy Righteous Hammers lasts 20 seconds instead of the original 40 seconds, at the user's request. Its base cooldown remains 60 seconds.
 
