@@ -20,8 +20,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.spell_engine.api.spell.registry.SpellRegistry;
 import net.spell_engine.api.spell.fx.PlayerAnimation;
+import net.spell_engine.api.spell.fx.ParticleGroup;
 import net.spell_engine.Platform;
 import net.spell_engine.fx.SpellEngineParticles;
+import net.spell_engine.fx.ParticleHelper;
 import net.spell_engine.utils.AnimationHelper;
 import net.spell_engine.internals.SpellExecution;
 import net.spell_engine.internals.casting.SpellCast;
@@ -76,15 +78,16 @@ public class SignatureAbilities {
 
     /** Brief rising sparks at buff activation; no repeating aura. */
     public static void playBuffParticles(Player player, SpellEngineParticles.Entry entry) {
-        if (!(player.level() instanceof ServerLevel world))
+        if (!(player.level() instanceof ServerLevel))
             return;
-        var particle = entry.type().spawnable(entry.defaults().copy().scale(0.15F), player);
-        for (int i = 0; i < 12; i++) {
-            double angle = Math.PI * 2 * i / 12;
-            world.sendParticles(particle, player.getX() + Math.cos(angle) * 0.4,
-                    player.getY() + 0.3 + (i % 3) * 0.3, player.getZ() + Math.sin(angle) * 0.4,
-                    0, 0, 0.055, 0, 1);
-        }
+        ParticleGroup particles = new ParticleGroup();
+        particles.id = entry.id().toString();
+        particles.appearance = entry.defaults().copy().scale(0.15F);
+        particles.batch = new ParticleGroup.Batch().count(12)
+                .shape(ParticleGroup.Shape.PIPE).origin(ParticleGroup.Anchor.ENTITY, 0.2F)
+                .widthFactor(0.8F).speed(0.055F);
+        // Group appearances require Spell Engine's packet, not vanilla level_particles.
+        ParticleHelper.sendBatches(player, List.of(particles));
     }
 
     public static void signatureAbilityManager(Player player, String abilityType) {
