@@ -21,6 +21,7 @@ import net.minecraft.world.phys.AABB;
 import net.spell_engine.api.spell.registry.SpellRegistry;
 import net.spell_engine.api.spell.fx.PlayerAnimation;
 import net.spell_engine.Platform;
+import net.spell_engine.fx.SpellEngineParticles;
 import net.spell_engine.utils.AnimationHelper;
 import net.spell_engine.internals.SpellExecution;
 import net.spell_engine.internals.casting.SpellCast;
@@ -70,6 +71,26 @@ public class SignatureAbilities {
         if (!player.level().isClientSide()) {
             AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
                     PlayerAnimation.of(animationId), 1.0F);
+        }
+    }
+
+    /** One small ring and rising sparks at buff activation; no repeating aura. */
+    public static void playBuffParticles(Player player, SpellEngineParticles.Entry entry) {
+        if (!(player.level() instanceof ServerLevel world))
+            return;
+        var particle = entry.type().spawnable(entry.defaults().copy().scale(0.15F), player);
+        for (int i = 0; i < 20; i++) {
+            double angle = Math.PI * 2 * i / 20;
+            double x = Math.cos(angle);
+            double z = Math.sin(angle);
+            world.sendParticles(particle, player.getX() + x * 0.65, player.getY() + 0.12,
+                    player.getZ() + z * 0.65, 0, x * 0.035, 0.015, z * 0.035, 1);
+        }
+        for (int i = 0; i < 12; i++) {
+            double angle = Math.PI * 2 * i / 12;
+            world.sendParticles(particle, player.getX() + Math.cos(angle) * 0.4,
+                    player.getY() + 0.3 + (i % 3) * 0.3, player.getZ() + Math.sin(angle) * 0.4,
+                    0, 0, 0.055, 0, 1);
         }
     }
 

@@ -57,6 +57,7 @@ public class AscendancyAbilities {
         }
         player.addEffect(new MobEffectInstance(EffectRegistry.RIGHTEOUSHAMMERS,
                 400, 1 + (getAscendancyPoints(player) / 10), false, false, true));
+        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_holy);
         return true;
     }
 
@@ -67,6 +68,7 @@ public class AscendancyAbilities {
         }
         player.addEffect(new MobEffectInstance(EffectRegistry.BONEARMOR,
                 800, 3 + (getAscendancyPoints(player) / 10), false, false, true));
+        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_skull);
         return true;
     }
     public static void boneArmorEffect(ServerPlayer player) {
@@ -93,6 +95,7 @@ public class AscendancyAbilities {
                 25, 0, false, false, true));
         player.level().playSound(null, player, SoundRegistry.SPELL_RADIANT_HIT,
                 SoundSource.PLAYERS, 0.2f, 0.9f);
+        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_arcane);
         return true;
     }
     public static boolean magicCircleEffect(Player player) {
@@ -257,6 +260,7 @@ public class AscendancyAbilities {
         HelperMethods.spawnParticlesPlane(player.level(), ParticleTypes.POOF, player.blockPosition(), 1, 0, 0.1, 0);
         if (getAscendancyPoints(player) > 29)
             player.addEffect(new MobEffectInstance(EffectRegistry.UNDYING, 120, 0, false, false, true));
+        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_holy);
         return true;
     }
 

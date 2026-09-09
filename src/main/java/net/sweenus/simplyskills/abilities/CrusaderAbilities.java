@@ -132,7 +132,6 @@ public class CrusaderAbilities {
                 SkillReferencePosition.crusaderSpecialisationSacredOnslaughtMighty, player)) {
             HelperMethods.incrementStatusEffect(player, EffectRegistry.MIGHT, divineProtectionDuration, 3, 5);
         }
-        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_projectile_release");
         return true;
     }
 
@@ -148,6 +147,7 @@ public class CrusaderAbilities {
         player.addEffect(new MobEffectInstance(EffectRegistry.CONSECRATION, consecrationDuration, 0 , false, false, true));
 
         SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_ground_release");
+        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_holy);
         return true;
     }
 

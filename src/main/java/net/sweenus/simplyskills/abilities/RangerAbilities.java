@@ -269,6 +269,7 @@ public class RangerAbilities {
                 elementalArrowsDuration, amplifier, false, false, true));
 
         SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_healing_release");
+        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_arcane);
         return true;
     }
 

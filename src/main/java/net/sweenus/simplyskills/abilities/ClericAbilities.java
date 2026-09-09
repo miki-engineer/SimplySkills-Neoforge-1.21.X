@@ -156,6 +156,7 @@ public class ClericAbilities {
     public static boolean signatureClericAnointWeapon(Player player) {
         player.addEffect(new MobEffectInstance(EffectRegistry.ANOINTED, 400, 0, false, false, true));
         SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_healing_release");
+        SignatureAbilities.playBuffParticles(player, net.spell_engine.fx.SpellEngineParticles.magic_holy);
         return true;
     }
     // Cleanse tick
