@@ -18,12 +18,12 @@ Most other changes restore the original behavior on the new platform. Existing c
 
 Minecraft **1.21.1**, Java **21**, NeoForge **21.1.248+**, Puffish Skills **0.18.3+**, Puffish Attributes **0.8.3+**, Spell Engine **1.10.2+**, and Spell Power **1.6.0+**. Use the NeoForge versions of dependencies.
 
-Place the mod JAR and its dependencies in your instance's `mods` folder. Main gameplay checks and modpack world loading have been tested; some visual and multiplayer checks remain unverified.
+Place the mod JAR and its dependencies in your instance's `mods` folder. Main gameplay, progression, item roundtrips, visual smoke checks and modpack world loading have been verified at the scopes recorded below.
 
 Original code and assets are credited to Sweenus and Timefall Development. See [LICENSE](LICENSE).
 
 ## Review and testing
 
-The port has been submitted for review. See the [review documentation](review/README.md), [AI usage disclosure](AI_USAGE.md), [recorded testing evidence](review/verification.md) and [remaining release checks](review/release-review.md). Packaged dedicated-server startup, second-player interactions and specific progression, compatibility-removal and visual regression checks remain pending.
+The port has been submitted for review. See the [review documentation](review/README.md), [AI usage disclosure](AI_USAGE.md), [recorded testing evidence](review/verification.md) and [remaining release checks](review/release-review.md). Progression limits, post-removal ability smoke checks, build storage/restoration and focused curse isolation checks passed. Projectile visual smoke checks are user-confirmed. Second-player interactions and packaged dedicated-server startup have not been run.
 
-Core/class summaries and detailed Ascendancy, shared-mechanic, visual and server testing are consolidated in the verification document. Documentation links and preservation of the existing evidence have been checked. Recorded gameplay results retain their original scope; this reorganization adds no runtime validation.
+Core/class summaries and detailed Ascendancy, shared-mechanic, visual and server testing are consolidated in the verification document. The latest development-server checks used Java 21, NeoForge 21.1.248 and Spell Engine 1.10.5; the Gradle build passed. Local worlds, configs and debugger state do not transfer through Git.
