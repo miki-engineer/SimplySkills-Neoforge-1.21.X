@@ -1,32 +1,34 @@
 package net.sweenus.simplyskills.network;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.client.SimplySkillsClient;
 
+public record CooldownPacket(int cooldown, String cooldownType) implements CustomPacketPayload {
 
-public class CooldownPacket {
+    public static final Type<CooldownPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "cooldown"));
+    public static final StreamCodec<io.netty.buffer.ByteBuf, CooldownPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT,
+            CooldownPacket::cooldown,
+            ByteBufCodecs.STRING_UTF8,
+            CooldownPacket::cooldownType,
+            CooldownPacket::new);
 
-    public static final Identifier COOLDOWN_PACKET = new Identifier("simplyskills", "cooldown");
-
-    public static void init() {
-        ClientPlayNetworking.registerGlobalReceiver(COOLDOWN_PACKET, (client, handler, buffer, sender) -> {
-
-            int cooldown = buffer.readInt();
-            String cooldownType = buffer.readString();
-
-            client.execute(()->{
-
-                if (cooldownType.contains("signature"))
-                    SimplySkillsClient.abilityCooldown = cooldown;
-                else if (cooldownType.contains("ascendancy"))
-                    SimplySkillsClient.abilityCooldown2 = cooldown;
-                //System.out.println("cooldown is: " +cooldown +"ms");
-
-
-            });
+    public static void handle(CooldownPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (packet.cooldownType().contains("signature"))
+                SimplySkillsClient.abilityCooldown = packet.cooldown();
+            else if (packet.cooldownType().contains("ascendancy"))
+                SimplySkillsClient.abilityCooldown2 = packet.cooldown();
         });
-
     }
 
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

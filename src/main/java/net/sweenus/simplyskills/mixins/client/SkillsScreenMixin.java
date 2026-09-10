@@ -1,10 +1,9 @@
 package net.sweenus.simplyskills.mixins.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.puffish.skillsmod.client.data.ClientCategoryData;
 import net.puffish.skillsmod.client.gui.SkillsScreen;
 import net.puffish.skillsmod.util.Bounds2i;
@@ -24,18 +23,18 @@ import java.util.Random;
 public abstract class SkillsScreenMixin {
 
     @Unique
-    Map<Identifier, TextureState> textureStates = new HashMap<>();
+    Map<ResourceLocation, TextureState> textureStates = new HashMap<>();
     @Unique
-    private final Identifier cloudsTexture1 = new Identifier("simplyskills", "textures/backgrounds/decor/clouds.png");
+    private final ResourceLocation cloudsTexture1 = ResourceLocation.fromNamespaceAndPath("simplyskills", "textures/backgrounds/decor/clouds.png");
     @Unique
-    private final Identifier cloudsTexture2 = new Identifier("simplyskills", "textures/backgrounds/decor/clouds_2.png");
+    private final ResourceLocation cloudsTexture2 = ResourceLocation.fromNamespaceAndPath("simplyskills", "textures/backgrounds/decor/clouds_2.png");
     @Unique
-    private final Identifier cloudsTexture3 = new Identifier("simplyskills", "textures/backgrounds/decor/clouds_3.png");
+    private final ResourceLocation cloudsTexture3 = ResourceLocation.fromNamespaceAndPath("simplyskills", "textures/backgrounds/decor/clouds_3.png");
     @Unique
     private float cloudsX = 0;
 
     @Unique
-    private Identifier selectedCloudsTexture = null;
+    private ResourceLocation selectedCloudsTexture = null;
 
     @Unique
     private void selectRandomCloudsTexture() {
@@ -103,26 +102,24 @@ public abstract class SkillsScreenMixin {
     }*/
 
     // MAIN
-    @Inject(method = "drawContentWithCategory(Lnet/minecraft/client/gui/DrawContext;DDLnet/puffish/skillsmod/client/data/ClientCategoryData;)V",
+    @Inject(method = "drawContentWithCategory(Lnet/minecraft/client/gui/GuiGraphics;DDLnet/puffish/skillsmod/client/data/ClientCategoryData;)V",
             at = @At(value = "INVOKE",
                     shift = At.Shift.AFTER,
-                    target = "Lnet/puffish/skillsmod/client/gui/SkillsScreen;drawBackground(Lnet/minecraft/client/gui/DrawContext;Lnet/puffish/skillsmod/client/config/ClientBackgroundConfig;)V"))
-    private void injectDrawBackground(DrawContext context, double mouseX, double mouseY, ClientCategoryData activeCategoryData, CallbackInfo ci) {
+                    target = "Lnet/puffish/skillsmod/client/gui/SkillsScreen;drawBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/puffish/skillsmod/client/config/ClientBackgroundConfig;)V"))
+    private void injectDrawBackground(GuiGraphics context, double mouseX, double mouseY, ClientCategoryData activeCategoryData, CallbackInfo ci) {
         SkillsScreenAccessor accessor = (SkillsScreenAccessor) this;
         Bounds2i bounds = accessor.getBounds();
 
-        // Don't draw star systems when prominent is loaded
-        if (!FabricLoader.getInstance().isModLoaded("prominent"))
-            drawParallaxTextures(context, bounds);
+        drawParallaxTextures(context, bounds);
     }
 
     @Unique
-    private void drawParallaxTextures(DrawContext context, Bounds2i bounds) {
+    private void drawParallaxTextures(GuiGraphics context, Bounds2i bounds) {
 
         long currentTime = System.currentTimeMillis();
 
         for(int i = 1; i <= 30; i++){
-            Identifier parallaxTexture = new Identifier("simplyskills", String.format("textures/backgrounds/decor/planet_%02d.png", i));
+            ResourceLocation parallaxTexture = ResourceLocation.fromNamespaceAndPath("simplyskills", String.format("textures/backgrounds/decor/planet_%02d.png", i));
             updateAndDrawAnimatedTexture(context, parallaxTexture, bounds, currentTime);
         }
 
@@ -130,7 +127,7 @@ public abstract class SkillsScreenMixin {
     }
 
     @Unique
-    private void updateAndDrawAnimatedTexture(DrawContext context, Identifier texture, Bounds2i bounds, long currentTime) {
+    private void updateAndDrawAnimatedTexture(GuiGraphics context, ResourceLocation texture, Bounds2i bounds, long currentTime) {
         int frameCount = 120;
         int spriteSheetWidth = 7680;
         int frameWidth = spriteSheetWidth / frameCount;
@@ -157,8 +154,8 @@ public abstract class SkillsScreenMixin {
         float[] newPosition = updatePlanetPosition(state.x, state.y, bounds, state.speed, state.scale);
         state.x = newPosition[0];
         state.y = newPosition[1];
-        MatrixStack matrixStack = context.getMatrices();
-        matrixStack.push();
+        PoseStack matrixStack = context.pose();
+        matrixStack.pushPose();
         matrixStack.scale(state.scale, state.scale, 1.0f);
 
         int boundsWidth = bounds.width();
@@ -172,10 +169,10 @@ public abstract class SkillsScreenMixin {
         dynamicBrightness = Math.max(dynamicBrightness, 0.0f);
 
         RenderSystem.setShaderColor(dynamicBrightness, dynamicBrightness, dynamicBrightness, 1.0F);
-        context.drawTexture(texture, (int) state.x, (int) state.y, u, 0, frameWidth, frameHeight, spriteSheetWidth, frameHeight);
+        context.blit(texture, (int) state.x, (int) state.y, u, 0, frameWidth, frameHeight, spriteSheetWidth, frameHeight);
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     @Unique
@@ -202,7 +199,7 @@ public abstract class SkillsScreenMixin {
     }
 
     @Unique
-    private void updateAndDrawCloudsTexture(DrawContext context, Bounds2i bounds) {
+    private void updateAndDrawCloudsTexture(GuiGraphics context, Bounds2i bounds) {
         if (cloudsX == 0)
             cloudsX = -bounds.width();
         if (selectedCloudsTexture == null) {
@@ -216,18 +213,18 @@ public abstract class SkillsScreenMixin {
             newX = 0;
         }
         cloudsX = newX;
-        MatrixStack matrixStack = context.getMatrices();
-        matrixStack.push();
+        PoseStack matrixStack = context.pose();
+        matrixStack.pushPose();
 
         // Set partial transparency
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F);
         int cloudsHeight = 1440;
-        context.drawTexture(selectedCloudsTexture, (int) cloudsX, bounds.min().y, 0, 0, bounds.width() + 10240, cloudsHeight, bounds.width() + 10240, cloudsHeight);
+        context.blit(selectedCloudsTexture, (int) cloudsX, bounds.min().y, 0, 0, bounds.width() + 10240, cloudsHeight, bounds.width() + 10240, cloudsHeight);
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 }

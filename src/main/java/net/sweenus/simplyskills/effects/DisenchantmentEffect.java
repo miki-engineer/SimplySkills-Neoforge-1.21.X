@@ -1,31 +1,32 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class DisenchantmentEffect extends StatusEffect {
-    public DisenchantmentEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class DisenchantmentEffect extends MobEffect {
+    public DisenchantmentEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
-            if (livingEntity.age % 20 == 0){
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
+            if (livingEntity.tickCount % 20 == 0){
                 HelperMethods.buffSteal(null, livingEntity, true, true, false, false);
             }
 
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

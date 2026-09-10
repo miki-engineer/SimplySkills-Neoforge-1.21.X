@@ -1,49 +1,49 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Tameable;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.util.math.Box;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class ImmobilizingAuraEffect extends StatusEffect {
-    public ImmobilizingAuraEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class ImmobilizingAuraEffect extends MobEffect {
+    public ImmobilizingAuraEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity.age % 20 == 0) {
+            if (livingEntity.tickCount % 20 == 0) {
                 int radius = 2;
 
-                Box box = HelperMethods.createBox(livingEntity, radius);
-                for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                AABB box = HelperMethods.createBox(livingEntity, radius);
+                for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
                         if ((entities instanceof LivingEntity le)) {
-                            if (livingEntity instanceof Tameable te) {
+                            if (livingEntity instanceof OwnableEntity te) {
 
                                 if (te.getOwner() == null)
                                     break;
-                                if (te.getOwner() instanceof PlayerEntity pe) {
-                                    if (HelperMethods.checkFriendlyFire(le, pe)) {
-                                        le.addStatusEffect(new StatusEffectInstance(EffectRegistry.IMMOBILIZE, 25, 0, false, false, true));
+                                if (te.getOwner() instanceof Player pe) {
+                                    if (HelperMethods.checkFriendlyFireAOE(le, pe)) {
+                                        le.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZE, 25, 0, false, false, true));
                                     }
                                 }
                             }
-                            else if (livingEntity instanceof PlayerEntity playerEntity) {
+                            else if (livingEntity instanceof Player playerEntity) {
 
-                                if (HelperMethods.checkFriendlyFire(le, playerEntity)) {
-                                    le.addStatusEffect(new StatusEffectInstance(EffectRegistry.IMMOBILIZE, 25, 0, false, false, true));
+                                if (HelperMethods.checkFriendlyFireAOE(le, playerEntity)) {
+                                    le.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZE, 25, 0, false, false, true));
                                 }
                             }
                         }
@@ -51,12 +51,13 @@ public class ImmobilizingAuraEffect extends StatusEffect {
                 }
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

@@ -1,16 +1,16 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.paladins.effect.Effects;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.paladins.effect.PaladinEffects;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.effects.instance.SimplyStatusEffectInstance;
 import net.sweenus.simplyskills.registry.EffectRegistry;
@@ -24,7 +24,7 @@ import java.util.Random;
 public class CrusaderAbilities {
 
     // Retribution
-    public static void passiveCrusaderRetribution(PlayerEntity player, LivingEntity attacker) {
+    public static void passiveCrusaderRetribution(Player player, LivingEntity attacker) {
         int random = new Random().nextInt(100);
         int retributionChance = SimplySkills.crusaderConfig.passiveCrusaderRetributionChance;
         if (random < retributionChance)
@@ -33,10 +33,10 @@ public class CrusaderAbilities {
 
 
     //Exhaustive Recovery
-    public static void passiveCrusaderExhaustiveRecovery(PlayerEntity player, LivingEntity attacker) {
+    public static void passiveCrusaderExhaustiveRecovery(Player player, LivingEntity attacker) {
         int random = new Random().nextInt(100);
         int recoveryChance = SimplySkills.crusaderConfig.passiveCrusaderExhaustiveRecoveryChance;
-        int exhaustStacks = SimplySkills.crusaderConfig.passiveCrusaderExhaustiveRecoveryExhaustionStacks - 1;
+        int exhaustStacks = SimplySkills.crusaderConfig.passiveCrusaderExhaustiveRecoveryExhaustionStacks;
         if (random < recoveryChance) {
             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:paladins_flash_heal", 32, player, null);
             HelperMethods.incrementStatusEffect(player, EffectRegistry.EXHAUSTION, 300, exhaustStacks, 99);
@@ -44,12 +44,13 @@ public class CrusaderAbilities {
     }
 
     //Aegis
-    public static void passiveCrusaderAegis(PlayerEntity player) {
+    public static void passiveCrusaderAegis(Player player) {
         int frequency = SimplySkills.crusaderConfig.passiveCrusaderAegisFrequency;
         int stacksRemoved = SimplySkills.crusaderConfig.passiveCrusaderAegisStacksRemoved;
-        if (player.hasStatusEffect(EffectRegistry.EXHAUSTION)) {
-            if (player.age % frequency == 0 && player.getStatusEffect(EffectRegistry.EXHAUSTION).getAmplifier() > stacksRemoved) {
-                HelperMethods.incrementStatusEffect(player, Effects.DIVINE_PROTECTION, 200, 1, 5);
+        if (player.hasEffect(EffectRegistry.EXHAUSTION)) {
+            int exhaustionStacks = player.getEffect(EffectRegistry.EXHAUSTION).getAmplifier() + 1;
+            if (player.tickCount % frequency == 0 && exhaustionStacks >= stacksRemoved) {
+                HelperMethods.incrementStatusEffect(player, PaladinEffects.DIVINE_PROTECTION.entry, 200, 1, 5);
                 HelperMethods.decrementStatusEffects(player, EffectRegistry.EXHAUSTION, stacksRemoved);
             }
         }
@@ -59,7 +60,7 @@ public class CrusaderAbilities {
     //------- SIGNATURE ABILITIES --------
 
     // Heavensmith's Call
-    public static boolean signatureHeavensmithsCall(String crusaderSkillTree, PlayerEntity player) {
+    public static boolean signatureHeavensmithsCall(String crusaderSkillTree, Player player) {
         BlockPos blockpos = null;
         Entity target = null;
         boolean success = false;
@@ -67,7 +68,7 @@ public class CrusaderAbilities {
         int duration = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallDADuration;
 
         if (HelperMethods.getTargetedEntity(player, heavensmithsCallRange) != null)
-            blockpos = HelperMethods.getTargetedEntity(player, heavensmithsCallRange).getBlockPos();
+            blockpos = HelperMethods.getTargetedEntity(player, heavensmithsCallRange).blockPosition();
 
         if (blockpos == null)
             blockpos = HelperMethods.getBlockLookingAt(player, heavensmithsCallRange);
@@ -79,7 +80,7 @@ public class CrusaderAbilities {
 
             if (HelperMethods.isUnlocked(crusaderSkillTree,
                         SkillReferencePosition.crusaderSpecialisationDivineAdjudication, player))
-                    player.addStatusEffect(new StatusEffectInstance(EffectRegistry.DIVINEADJUDICATION, duration, 0, false, false, true));
+                    player.addEffect(new MobEffectInstance(EffectRegistry.DIVINEADJUDICATION, duration, 0, false, false, true));
 
             SignatureAbilities.castSpellEngineIndirectTarget(player,
                     "simplyskills:physical_heavensmiths_call",
@@ -90,23 +91,23 @@ public class CrusaderAbilities {
     }
 
     public static void signatureHeavensmithsCallImpact(String crusaderSkillTree, List<Entity> targets,
-                                                       Identifier spellId, PlayerEntity player) {
+                                                       ResourceLocation spellId, Player player) {
         int tauntDuration = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallTauntMarkDuration;
         if (spellId != null && spellId.toString().equals("simplyskills:physical_heavensmiths_call")) {
         Entity target = targets.get(0);
-        Box box = HelperMethods.createBox(target, 3);
+        AABB box = HelperMethods.createBox(target, 3);
+            for (Entity entities : target.level().getEntities(target, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
+                if (entities instanceof LivingEntity le && HelperMethods.checkFriendlyFireAOE(le, player)) {
+                    if (HelperMethods.isUnlocked(crusaderSkillTree, SkillReferencePosition.crusaderSpecialisationHeavensmithsCallMark, player)) {
+                        le.addEffect(new MobEffectInstance(EffectRegistry.DEATHMARK, tauntDuration));
+                    }
 
-            for (Entity entities : target.getWorld().getOtherEntities(target, box, EntityPredicates.VALID_LIVING_ENTITY)) {
-                if (entities instanceof LivingEntity le && HelperMethods.checkFriendlyFire(le, player)) {
-                    if (HelperMethods.isUnlocked(crusaderSkillTree, SkillReferencePosition.crusaderSpecialisationHeavensmithsCallMark, player))
-                        le.addStatusEffect(new StatusEffectInstance(EffectRegistry.DEATHMARK, tauntDuration));
-
-                    if ((le instanceof MobEntity me) && HelperMethods.isUnlocked(crusaderSkillTree, SkillReferencePosition.crusaderSpecialisationHeavensmithsCallTaunt, player)) {
+                    if ((le instanceof Mob me) && HelperMethods.isUnlocked(crusaderSkillTree, SkillReferencePosition.crusaderSpecialisationHeavensmithsCallTaunt, player)) {
                         SimplyStatusEffectInstance tauntEffect = new SimplyStatusEffectInstance(
                                 EffectRegistry.TAUNTED, tauntDuration, 0, false,
                                 false, true);
                         tauntEffect.setSourceEntity(player);
-                        me.addStatusEffect(tauntEffect);
+                        me.addEffect(tauntEffect);
                     }
                 }
             }
@@ -114,18 +115,18 @@ public class CrusaderAbilities {
     }
 
     // Sacred Onslaught
-    public static boolean signatureCrusaderSacredOnslaught(String crusaderSkillTree, PlayerEntity player) {
+    public static boolean signatureCrusaderSacredOnslaught(String crusaderSkillTree, Player player) {
 
         int divineProtectionDuration = SimplySkills.crusaderConfig.signatureCrusaderSacredOnslaughtDPDuration;
         int dashDuration = SimplySkills.crusaderConfig.signatureCrusaderSacredOnslaughtDashDuration;
 
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.SACREDONSLAUGHT, dashDuration, 0, false, false, true));
+        player.addEffect(new MobEffectInstance(EffectRegistry.SACREDONSLAUGHT, dashDuration, 0, false, false, true));
 
         if (HelperMethods.isUnlocked(crusaderSkillTree,
                 SkillReferencePosition.crusaderSpecialisationSacredOnslaughtDefend, player)) {
-            player.addStatusEffect(new StatusEffectInstance(Effects.DIVINE_PROTECTION, divineProtectionDuration, 0 , false, false, true));
-            player.getWorld().playSoundFromEntity(null, player, SoundRegistry.SOUNDEFFECT15,
-                    SoundCategory.PLAYERS, 0.5f, 1.1f);
+            player.addEffect(new MobEffectInstance(PaladinEffects.DIVINE_PROTECTION.entry, divineProtectionDuration, 0 , false, false, true));
+            player.level().playSound(null, player, SoundRegistry.SOUNDEFFECT15,
+                    SoundSource.PLAYERS, 0.5f, 1.1f);
         }
         if (HelperMethods.isUnlocked(crusaderSkillTree,
                 SkillReferencePosition.crusaderSpecialisationSacredOnslaughtMighty, player)) {
@@ -135,7 +136,7 @@ public class CrusaderAbilities {
     }
 
     // Consecration
-    public static boolean signatureCrusaderConsecration(String crusaderSkillTree, PlayerEntity player) {
+    public static boolean signatureCrusaderConsecration(String crusaderSkillTree, Player player) {
 
         int consecrationExtendDuration = SimplySkills.crusaderConfig.signatureCrusaderConsecrationExtendDuration;
         int consecrationDuration = SimplySkills.crusaderConfig.signatureCrusaderConsecrationDuration;
@@ -143,8 +144,9 @@ public class CrusaderAbilities {
         if (HelperMethods.isUnlocked(crusaderSkillTree, SkillReferencePosition.crusaderSpecialisationConsecrationDuration, player))
             consecrationDuration = SimplySkills.crusaderConfig.signatureCrusaderConsecrationDuration + consecrationExtendDuration;
 
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.CONSECRATION, consecrationDuration, 0 , false, false, true));
+        player.addEffect(new MobEffectInstance(EffectRegistry.CONSECRATION, consecrationDuration, 0 , false, false, true));
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_ground_release");
         return true;
     }
 
@@ -167,23 +169,24 @@ public class CrusaderAbilities {
     // ------- EFFECTS --------
 
     // Heavensmith's Call - Divine Adjudication
-    public static void effectDivineAdjudication(PlayerEntity player) {
+    public static void effectDivineAdjudication(Player player) {
         int frequency = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallDAFrequency;
 
         if (HelperMethods.isUnlocked("simplyskills:crusader",
                 SkillReferencePosition.crusaderSpecialisationHeavensmithsCall, player) &&
-                player.hasStatusEffect(EffectRegistry.DIVINEADJUDICATION) && player.age % frequency == 0) {
+                player.hasEffect(EffectRegistry.DIVINEADJUDICATION) && player.tickCount % frequency == 0) {
             int chance = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallDAChance;
             int radius = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallDARadius;
             int exhaustStacksRemoved = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallDAExhaustStacks;
             int mightDuration = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallDAMightDuration;
-            int mightStacksMax = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallDAMightStacksMax - 1;
+            int mightStacksMax = SimplySkills.crusaderConfig.signatureCrusaderHeavensmithsCallDAMightStacksMax;
             String spellIdentifier = "simplyskills:paladins_judgement";
 
 
             if (SignatureAbilities.castSpellEngineAOE(player, spellIdentifier, radius, chance, true, false)) {
-                if (HelperMethods.isUnlocked("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationHeavensmithsCallExhaust, player))
+                if (HelperMethods.isUnlocked("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationHeavensmithsCallExhaust, player)) {
                     HelperMethods.decrementStatusEffects(player, EffectRegistry.EXHAUSTION, exhaustStacksRemoved);
+                }
                 if (HelperMethods.isUnlocked("simplyskills:crusader", SkillReferencePosition.crusaderSpecialisationHeavensmithsCallMighty, player))
                     HelperMethods.incrementStatusEffect(player, EffectRegistry.MIGHT, mightDuration, 1, mightStacksMax);
             }

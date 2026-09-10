@@ -1,71 +1,75 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundCategory;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class UndyingEffect extends StatusEffect {
-    public UndyingEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class UndyingEffect extends MobEffect {
+    public static final String PENDING_DEATH = "simplyskills_undying_pending_death";
+
+    public UndyingEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity.hasStatusEffect(EffectRegistry.UNDYING)) {
-                int durationRemaining = livingEntity.getStatusEffect(EffectRegistry.UNDYING).getDuration();
+            if (livingEntity.hasEffect(EffectRegistry.UNDYING)) {
+                int durationRemaining = livingEntity.getEffect(EffectRegistry.UNDYING).getDuration();
                 if (durationRemaining == 35 && ((livingEntity.getHealth() / livingEntity.getMaxHealth()) * 100) < 60)
-                    livingEntity.getWorld().playSoundFromEntity(null, livingEntity, SoundRegistry.SOUNDEFFECT11,
-                            SoundCategory.PLAYERS, 0.3f, 1f);
+                    livingEntity.level().playSound(null, livingEntity, SoundRegistry.SOUNDEFFECT11,
+                            SoundSource.PLAYERS, 0.3f, 1f);
             }
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
+        super.applyEffectTick(livingEntity, amplifier);
+            return true;
+    }
+    public void onEffectRemovedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        if (((entity.getHealth() / entity.getMaxHealth()) * 100) < 60) {
+            entity.getPersistentData().putBoolean(PENDING_DEATH, true);
+        } else {
+            entity.level().playSound(null, entity, SoundRegistry.SPELL_RADIANT_EXPIRE,
+                    SoundSource.PLAYERS, 0.4f, 1);
+        }
     }
 
-    @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        if (((entity.getHealth() / entity.getMaxHealth()) * 100) < 60) {
-            entity.damage(entity.getDamageSources().magic(), entity.getMaxHealth());
-            entity.getWorld().playSoundFromEntity(null, entity, SoundRegistry.SOUNDEFFECT36,
-                    SoundCategory.PLAYERS, 0.4f, 1.3f);
+    public static void applyPendingDeath(LivingEntity entity) {
+        if (entity.getPersistentData().getBoolean(PENDING_DEATH)
+                && !entity.hasEffect(EffectRegistry.UNDYING)) {
+            entity.getPersistentData().remove(PENDING_DEATH);
+            entity.hurt(entity.damageSources().magic(), entity.getMaxHealth());
+            entity.level().playSound(null, entity, SoundRegistry.SOUNDEFFECT36,
+                    SoundSource.PLAYERS, 0.4f, 1.3f);
             HelperMethods.spawnParticlesPlane(
-                    entity.getWorld(),
+                    entity.level(),
                     ParticleTypes.SOUL,
-                    entity.getBlockPos(),
+                    entity.blockPosition(),
                     2, 0, 0.4, 0);
             HelperMethods.spawnParticlesPlane(
-                    entity.getWorld(),
+                    entity.level(),
                     ParticleTypes.SCULK_SOUL,
-                    entity.getBlockPos(),
+                    entity.blockPosition(),
                     2, 0, 0.6, 0);
-        } else {
-            entity.getWorld().playSoundFromEntity(null, entity, SoundRegistry.SPELL_RADIANT_EXPIRE,
-                    SoundCategory.PLAYERS, 0.4f, 1);
         }
-
-        super.onRemoved(entity, attributes, amplifier);
     }
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
-
-    @Override
-    public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        entity.getWorld().playSoundFromEntity(null, entity, SoundRegistry.SPELL_CELESTIAL_HIT,
-                SoundCategory.PLAYERS, 0.1f, 1.4f);
-        super.onApplied(entity, attributes, amplifier);
+    public void onEffectAddedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        entity.level().playSound(null, entity, SoundRegistry.SPELL_CELESTIAL_HIT,
+                SoundSource.PLAYERS, 0.1f, 1.4f);
     }
 
 }

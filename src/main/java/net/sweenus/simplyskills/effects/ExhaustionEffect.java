@@ -1,36 +1,37 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.puffish.attributesmod.AttributesMod;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class ExhaustionEffect extends StatusEffect {
-    public ExhaustionEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class ExhaustionEffect extends MobEffect {
+    public ExhaustionEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
-            if (livingEntity instanceof PlayerEntity player) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
+            if (livingEntity instanceof Player player) {
                 int amount = (int) (1 + player.getAttributeValue(AttributesMod.STAMINA));
                 int frequency = 20;
-                if (player.age % frequency == 0) {
+                if (player.tickCount % frequency == 0) {
                     HelperMethods.decrementStatusEffects(player, EffectRegistry.EXHAUSTION, amount);
                 }
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

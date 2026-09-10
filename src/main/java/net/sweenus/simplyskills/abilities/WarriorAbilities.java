@@ -1,15 +1,14 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.ShieldItem;
-import net.minecraft.item.SwordItem;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.SwordItem;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
@@ -17,28 +16,30 @@ import net.sweenus.simplyskills.util.SkillReferencePosition;
 
 public class WarriorAbilities {
 
-    public static void passiveWarriorSpellbreaker(PlayerEntity player) {
+    public static void passiveWarriorSpellbreaker(Player player) {
         int spellbreakingDuration = SimplySkills.warriorConfig.passiveWarriorSpellbreakerDuration;
         int spellbreakingChance = SimplySkills.warriorConfig.passiveWarriorSpellbreakerChance;
-        if (player.getRandom().nextInt(100) < spellbreakingChance) {
-            player.addStatusEffect(new StatusEffectInstance(EffectRegistry.SPELLBREAKING, spellbreakingDuration, 0, false, false, true));
+        int roll = player.getRandom().nextInt(100);
+        if (roll < spellbreakingChance) {
+            player.addEffect(new MobEffectInstance(EffectRegistry.SPELLBREAKING, spellbreakingDuration, 0, false, false, true));
         }
     }
-    public static void passiveWarriorSpellbreakerOnHit(PlayerEntity player) {
+    public static void passiveWarriorSpellbreakerOnHit(Player player) {
         int spellbreakingDuration = SimplySkills.warriorConfig.passiveWarriorSpellbreakerDuration;
         int spellbreakingChance = SimplySkills.warriorConfig.passiveWarriorSpellbreakerChance;
-        if (player.getRandom().nextInt(100) < spellbreakingChance) {
-            player.addStatusEffect(new StatusEffectInstance(EffectRegistry.RAGINGJAVELIN, spellbreakingDuration / 2, 0, false, false, true));
+        int roll = player.getRandom().nextInt(100);
+        if (roll < spellbreakingChance) {
+            player.addEffect(new MobEffectInstance(EffectRegistry.RAGINGJAVELIN, spellbreakingDuration / 2, 0, false, false, true));
         }
     }
 
-    public static void passiveWarriorDeathDefy(PlayerEntity player) {
+    public static void passiveWarriorDeathDefy(Player player) {
         int deathDefyFrequency = SimplySkills.warriorConfig.passiveWarriorDeathDefyFrequency;
         int deathDefyAmplifierPerTenPercentHealth = SimplySkills.warriorConfig.passiveWarriorDeathDefyAmplifierPerTenPercentHealth;
         int regen = 0;
 
         int healthThreshold = SimplySkills.warriorConfig.passiveWarriorDeathDefyHealthThreshold;
-        if (player.age % deathDefyFrequency == 0) {
+        if (player.tickCount % deathDefyFrequency == 0) {
             float playerHealthPercent = ((player.getHealth() / player.getMaxHealth()) * 100);
             if (playerHealthPercent < healthThreshold) {
                 if (playerHealthPercent < (healthThreshold - 10))
@@ -46,21 +47,21 @@ public class WarriorAbilities {
                 if (playerHealthPercent < (healthThreshold - 20))
                     regen = regen + (deathDefyAmplifierPerTenPercentHealth * 2);
 
-                player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION,
+                player.addEffect(new MobEffectInstance(MobEffects.REGENERATION,
                         deathDefyFrequency + 5, regen, false, false, true));
-                if (player.hasStatusEffect(StatusEffects.REGENERATION)
-                        && player.getStatusEffect(StatusEffects.REGENERATION).getAmplifier() > 0)
+                if (player.hasEffect(MobEffects.REGENERATION)
+                        && player.getEffect(MobEffects.REGENERATION).getAmplifier() > 0)
                     HelperMethods.incrementStatusEffect(player, EffectRegistry.EXHAUSTION,
                             deathDefyFrequency + 60, regen +1, 49);
             }
         }
     }
 
-    public static void passiveWarriorGoliath(PlayerEntity player) {
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.EARTHSHAKER, 200, 0, false, false, true));
+    public static void passiveWarriorGoliath(Player player) {
+        player.addEffect(new MobEffectInstance(EffectRegistry.EARTHSHAKER, 200, 0, false, false, true));
     }
 
-    public static void passiveWarriorArmorMastery(PlayerEntity player) {
+    public static void passiveWarriorArmorMastery(Player player) {
         int armorMasteryThreshold = SimplySkills.warriorConfig.passiveWarriorArmorMasteryArmorThreshold - 1;
         int armorMasteryChance = SimplySkills.warriorConfig.passiveWarriorArmorMasteryChance;
         int heavyArmorMasteryDuration = SimplySkills.warriorConfig.passiveWarriorHeavyArmorMasteryDuration;
@@ -68,58 +69,63 @@ public class WarriorAbilities {
         int mediumArmorMasteryDuration = SimplySkills.warriorConfig.passiveWarriorMediumArmorMasteryDuration;
         int mediumArmorMasteryAmplifier = SimplySkills.warriorConfig.passiveWarriorMediumArmorMasteryAmplifier;
 
-        if (player.getRandom().nextInt(100) < armorMasteryChance) {
-            if (player.getArmor() > armorMasteryThreshold
+        int roll = player.getRandom().nextInt(100);
+        if (roll < armorMasteryChance) {
+            if (player.getArmorValue() > armorMasteryThreshold
                     && HelperMethods.isUnlocked("simplyskills:tree",
                     SkillReferencePosition.warriorHeavyArmorMastery, player)) {
-                player.addStatusEffect(new StatusEffectInstance(StatusEffects.STRENGTH,
+                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
                         heavyArmorMasteryDuration, heavyArmorMasteryAmplifier, false, false, true));
             } else if (HelperMethods.isUnlocked("simplyskills:tree",
                     SkillReferencePosition.warriorMediumArmorMastery, player)){
-                player.addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION,
+                player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION,
                         mediumArmorMasteryDuration, mediumArmorMasteryAmplifier, false, false, true));
             }
         }
     }
 
-    public static void passiveWarriorFrenzy(PlayerEntity player) {
+    public static void passiveWarriorFrenzy(Player player) {
         int frenzyDuration = SimplySkills.warriorConfig.passiveWarriorFrenzyExhaustionDuration;
         int frenzyStacks = SimplySkills.warriorConfig.passiveWarriorFrenzyExhaustionStacks;
 
         HelperMethods.incrementStatusEffect(player, EffectRegistry.EXHAUSTION, frenzyDuration, frenzyStacks, 79);
     }
 
-    public static void passiveWarriorCarnage(PlayerEntity player) {
+    public static void passiveWarriorCarnage(Player player) {
 
         int frequency = 15;
-        int amount = (int) player.getMaxHealth() / 10;
+        float stableMaxHealth = player.getMaxHealth();
+        MobEffectInstance healthBoost = player.getEffect(MobEffects.HEALTH_BOOST);
+        if (healthBoost != null)
+            stableMaxHealth -= 4 * (healthBoost.getAmplifier() + 1);
+        int amount = Math.max(0, (int) stableMaxHealth / 10);
 
-        if (player.age % frequency == 0) {
-            if (player.hasStatusEffect(EffectRegistry.EXHAUSTION)) {
-                if (player.getStatusEffect(EffectRegistry.EXHAUSTION).getAmplifier() >= 75) {
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.HEALTH_BOOST, frequency + 5, amount, false, false, true));
-                    player.addStatusEffect(new StatusEffectInstance(EffectRegistry.IMMOBILIZINGAURA, frequency + 5, amount, false, false, true));
+        if (player.tickCount % frequency == 0) {
+            if (player.hasEffect(EffectRegistry.EXHAUSTION)) {
+                if (player.getEffect(EffectRegistry.EXHAUSTION).getAmplifier() >= 74) {
+                    player.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST, frequency + 5, amount, false, false, true));
+                    player.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZINGAURA, frequency + 5, amount, false, false, true));
                 }
             }
-            if (player.hasStatusEffect(EffectRegistry.RAGE)) {
-                if (player.getStatusEffect(EffectRegistry.RAGE).getAmplifier() >= 75) {
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.HEALTH_BOOST, frequency + 5, amount, false, false, true));
-                    player.addStatusEffect(new StatusEffectInstance(EffectRegistry.IMMOBILIZINGAURA, frequency + 5, amount, false, false, true));
+            if (player.hasEffect(EffectRegistry.RAGE)) {
+                if (player.getEffect(EffectRegistry.RAGE).getAmplifier() >= 74) {
+                    player.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST, frequency + 5, amount, false, false, true));
+                    player.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZINGAURA, frequency + 5, amount, false, false, true));
                 }
             }
         }
     }
 
-    public static void passiveWarriorShieldMastery(PlayerEntity player) {
+    public static void passiveWarriorShieldMastery(Player player) {
         int shieldMasteryFrequency = SimplySkills.warriorConfig.passiveWarriorShieldMasteryFrequency;
         int shieldMasteryWeaknessAmplifier = SimplySkills.warriorConfig.passiveWarriorShieldMasteryWeaknessAmplifier;
         int shieldMasteryResistanceAmplifier = SimplySkills.warriorConfig.passiveWarriorShieldMasteryResistanceAmplifier;
         int shieldMasteryResistanceAmplifierPerTier = SimplySkills.warriorConfig.passiveWarriorShieldMasteryResistanceAmplifierPerTier;
 
 
-        if (player.age % shieldMasteryFrequency == 0) {
-            if (player.getOffHandStack() != null) {
-                if (player.getOffHandStack().getItem() instanceof ShieldItem) {
+        if (player.tickCount % shieldMasteryFrequency == 0) {
+            if (player.getOffhandItem() != null) {
+                if (player.getOffhandItem().getItem() instanceof ShieldItem) {
 
                     int mastery = shieldMasteryResistanceAmplifier;
 
@@ -130,49 +136,47 @@ public class WarriorAbilities {
                             SkillReferencePosition.bulwarkShieldMasteryProficient, player))
                         mastery = mastery + shieldMasteryResistanceAmplifierPerTier;
 
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE,
+                    player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,
                             shieldMasteryFrequency + 5, mastery, false, false, true));
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS,
+                    player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,
                             shieldMasteryFrequency + 5, shieldMasteryWeaknessAmplifier, false, false, true));
                 }
             }
         }
     }
 
-    public static void passiveWarriorRebuke(PlayerEntity player, LivingEntity attacker) {
+    public static void passiveWarriorRebuke(Player player, LivingEntity attacker) {
         int rebukeChance = SimplySkills.warriorConfig.passiveWarriorRebukeChance;
         int rebukeWeaknessDuration = SimplySkills.warriorConfig.passiveWarriorRebukeWeaknessDuration;
         int rebukeWeaknessAmplifier = SimplySkills.warriorConfig.passiveWarriorRebukeWeaknessAmplifier;
-        if (player.getRandom().nextInt(100) < rebukeChance) {
-            attacker.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS,
+        int roll = player.getRandom().nextInt(100);
+        if (roll < rebukeChance) {
+            attacker.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,
                     rebukeWeaknessDuration, rebukeWeaknessAmplifier, false, false, true));
         }
     }
 
-    public static void passiveWarriorTwinstrike(PlayerEntity player, LivingEntity target) {
+    public static void passiveWarriorTwinstrike(Player player, LivingEntity target) {
         int effectChance = SimplySkills.warriorConfig.passiveWarriorTwinstrikeChance;
-        int effectDamage = (int) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-        DamageSource damageSource = player.getDamageSources().playerAttack(player);
-        if (player.hasStatusEffect(StatusEffects.HEALTH_BOOST))
+        int effectDamage = (int) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        DamageSource damageSource = player.damageSources().playerAttack(player);
+        if (player.hasEffect(MobEffects.HEALTH_BOOST))
             effectChance = effectChance * 2;
-        if (player.getRandom().nextInt(100) < effectChance) {
-            target.damage(damageSource, effectDamage);
-            target.timeUntilRegen = 0;
+        int roll = player.getRandom().nextInt(100);
+        if (roll < effectChance) {
+            target.hurt(damageSource, effectDamage);
+            target.invulnerableTime = 0;
         }
     }
 
-    public static void passiveWarriorSwordfall(PlayerEntity player, LivingEntity target) {
-        if (player.getMainHandStack().getItem() instanceof SwordItem || player.getMainHandStack().getItem() instanceof AxeItem) {
+    public static void passiveWarriorSwordfall(Player player, LivingEntity target) {
+        if (player.getMainHandItem().getItem() instanceof SwordItem || player.getMainHandItem().getItem() instanceof AxeItem) {
             int effectChance = SimplySkills.warriorConfig.passiveWarriorSwordfallChance;
-            if (FabricLoader.getInstance().isModLoaded("prominent") && player.hasStatusEffect(EffectRegistry.TITANSGRIP))
+            if (player.hasEffect(EffectRegistry.MIGHT))
                 effectChance = effectChance * 2;
-            else if (!FabricLoader.getInstance().isModLoaded("prominent") && player.hasStatusEffect(EffectRegistry.MIGHT))
-                effectChance = effectChance * 2;
-            if (player.getRandom().nextInt(100) < effectChance) {
-                if (FabricLoader.getInstance().isModLoaded("prominent"))
-                    SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:physical_eldritch_hammers", 32, target, null);
-                else
-                    SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:physical_swordfall", 32, target, null);
+            int roll = player.getRandom().nextInt(100);
+            if (roll < effectChance) {
+                SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:physical_swordfall", 32, target, null);
             }
         }
     }

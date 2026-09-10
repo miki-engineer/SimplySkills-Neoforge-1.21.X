@@ -1,37 +1,38 @@
 package net.sweenus.simplyskills.abilities;
 
-import io.netty.buffer.Unpooled;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.spell_engine.internals.SpellHelper;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.spell_engine.api.spell.registry.SpellRegistry;
+import net.spell_engine.api.spell.fx.PlayerAnimation;
+import net.spell_engine.Platform;
+import net.spell_engine.utils.AnimationHelper;
+import net.spell_engine.internals.SpellExecution;
 import net.spell_engine.internals.casting.SpellCast;
+import net.spell_engine.internals.casting.SpellCaster;
+import net.spell_engine.internals.delivery.SpellDelivery;
+import net.spell_engine.internals.target.SpellIntents;
+import net.spell_engine.internals.target.SpellTarget;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchools;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
-import net.sweenus.simplyskills.network.CooldownPacket;
 import net.sweenus.simplyskills.network.KeybindPacket;
+import net.sweenus.simplyskills.network.ModPacketHandler;
 import net.sweenus.simplyskills.registry.EntityRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
@@ -42,7 +43,35 @@ import java.util.List;
 
 public class SignatureAbilities {
 
-    public static void signatureAbilityManager(PlayerEntity player, String abilityType) {
+    private static void performSpell(Player player, ResourceLocation spellId, List<Entity> targets,
+                                     SpellCast.Action action, float progress) {
+        SpellRegistry.from(player.level()).getHolder(spellId).ifPresent(spell -> {
+            SpellExecution.ImpactContext impactContext = new SpellExecution.ImpactContext(
+                    1, 1, null,
+                    SpellPower.getSpellPower(spell.value().school, player),
+                    SpellIntents.focusMode(spell.value()), 0);
+            SpellDelivery.resolveAndDeliver(player.level(), player, spell,
+                    new SpellTarget.SearchResult(targets, null), impactContext, completion -> {
+                        // Direct delivery bypasses SpellExecution's release-animation callback.
+                        if (completion.success() && action == SpellCast.Action.RELEASE
+                                && spell.value().release != null && !player.level().isClientSide()) {
+                            AnimationHelper.sendAnimation(player, Platform.tracking(player),
+                                    SpellCast.Animation.RELEASE, spell.value().release.animation, 1.0F);
+                        }
+                    });
+            AbilityLogic.onSpellCastEffects(player, targets, spellId, null);
+        });
+    }
+
+    /** Release gesture for direct-effect abilities, called once on successful activation. */
+    public static void playCastingGesture(Player player, String animationId) {
+        if (!player.level().isClientSide()) {
+            AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                    PlayerAnimation.of(animationId), 1.0F);
+        }
+    }
+
+    public static void signatureAbilityManager(Player player, String abilityType) {
 
         String wizardSkillTree = "simplyskills:wizard";
         String berserkerSkillTree = "simplyskills:berserker";
@@ -56,10 +85,6 @@ public class SignatureAbilities {
         String ascendancyTree = "simplyskills:ascendancy";
         boolean ability_success = false;
         String ability = "none";
-
-        if (FabricLoader.getInstance().isModLoaded("prominent"))
-            ascendancyTree = "puffish_skills:prom";
-
 
 
         // - WIZARD -
@@ -186,7 +211,7 @@ public class SignatureAbilities {
 
             // - Crusader -
             if (HelperMethods.isUnlocked(crusaderSkillTree, null, player)
-                    && FabricLoader.getInstance().isModLoaded("paladins")) {
+                    && ModList.get().isLoaded("paladins")) {
 
                 // Heavensmith's Call
                 if (HelperMethods.isUnlocked(crusaderSkillTree,
@@ -210,7 +235,7 @@ public class SignatureAbilities {
 
             // - Cleric -
             if (HelperMethods.isUnlocked(clericSkillTree, null, player)
-                    && FabricLoader.getInstance().isModLoaded("paladins")) {
+                    && ModList.get().isLoaded("paladins")) {
 
                 // Divine Intervention
                 if (HelperMethods.isUnlocked(clericSkillTree,
@@ -253,9 +278,7 @@ public class SignatureAbilities {
                 }
                 if (HelperMethods.isUnlocked(ascendancyTree,
                         SkillReferencePosition.ascendancyBoneArmor, player)) {
-                    if (FabricLoader.getInstance().isModLoaded("prominent"))
-                        ability_success = ProminenceAbilities.boneArmor(player);
-                    else ability_success = AscendancyAbilities.boneArmor(player);
+                    ability_success = AscendancyAbilities.boneArmor(player);
                     ability = "BoneArmor";
                 }
                 if (HelperMethods.isUnlocked(ascendancyTree,
@@ -310,22 +333,19 @@ public class SignatureAbilities {
                 }
                 if (HelperMethods.isUnlocked(ascendancyTree,
                         SkillReferencePosition.ascendancyChainbreaker, player)) {
-                    if (ascendancyTree.equals("puffish_skills:prom")) {
-                        ability_success = ProminenceAbilities.promDissonance(player);
-                    }
-                    else {ability_success = AscendancyAbilities.chainbreaker(player);}
+                    ability_success = AscendancyAbilities.chainbreaker(player);
                     ability = "Chainbreaker";
                 }
             }
         }
 
         // Trigger bonus gem effects
-        if (ability_success && FabricLoader.getInstance().isModLoaded("simplyswords"))
+        if (ability_success && ModList.get().isLoaded("simplyswords"))
             SimplySwordsGemEffects.doGenericAbilityGemEffects(player);
 
 
         //Return cooldown to client
-        if (!player.getWorld().isClient) {
+        if (!player.level().isClientSide) {
             SignatureAbilities.signatureAbilityCooldownManager(ability, ability_success, player);
             //System.out.println("Using ability: " + ability);
         }
@@ -335,7 +355,7 @@ public class SignatureAbilities {
 
     // COOLDOWN MANAGEMENT
 
-    public static void signatureAbilityCooldownManager(String ability, boolean useSuccess, PlayerEntity player) {
+    public static void signatureAbilityCooldownManager(String ability, boolean useSuccess, Player player) {
         float spellHasteCDReduce = SimplySkills.generalConfig.spellHasteCooldownReductionModifier;
         int minimumCD = SimplySkills.generalConfig.minimumAchievableCooldown * 1000;
         int useDelay = (int) SimplySkills.generalConfig.minimumTimeBetweenAbilityUse * 1000;
@@ -466,9 +486,7 @@ public class SignatureAbilities {
                 cooldownType = "ascendancy";
             }
             case "BoneArmor" -> {
-                if (FabricLoader.getInstance().isModLoaded("prominent"))
-                    cooldown = 40 * 1000;
-                else cooldown = 70 * 1000;
+                cooldown = 70 * 1000;
                 type = "physical, buff, recovery";
                 cooldownType = "ascendancy";
             }
@@ -530,15 +548,16 @@ public class SignatureAbilities {
         }
 
         // Do Gem Effects
-        if (FabricLoader.getInstance().isModLoaded("simplyswords")) {
+        if (ModList.get().isLoaded("simplyswords")) {
             cooldown = SimplySwordsGemEffects.renewed(player, cooldown, minimumCD);
             cooldown = SimplySwordsGemEffects.accelerant(player, cooldown, minimumCD);
         }
 
 
         // Calculations
-        double spellHaste = SpellPower.getHaste(player);
-        sendCooldown = cooldown - (spellHaste * (2000 * spellHasteCDReduce));
+        double spellHaste = SpellPower.getHaste(player, SpellSchools.ARCANE);
+        // Spell Power returns a multiplier: 1.0 is normal haste, not a bonus.
+        sendCooldown = cooldown - (Math.max(0.0, spellHaste - 1.0) * (2000 * spellHasteCDReduce));
 
         if (sendCooldown < (minimumCD) && useSuccess) sendCooldown = minimumCD;
         if (!useSuccess) sendCooldown = useDelay;
@@ -547,90 +566,84 @@ public class SignatureAbilities {
         //System.out.println(cooldownType);
         //System.out.println(cooldown);
         //System.out.println(sendCooldown);
-        sendCooldownPacket((ServerPlayerEntity) player, (int) sendCooldown, cooldownType);
+        sendCooldownPacket((ServerPlayer) player, (int) sendCooldown, cooldownType);
     }
-
 
 
     // -- SPELL CASTING --
 
-    public static void castSpellEngineDumbFire(PlayerEntity player, String spellIdentifier) {
+    public static void castSpellEngineDumbFire(Player player, String spellIdentifier) {
 
         // -- Cast spell at a target we are looking at --
 
         //Entity target = HelperMethods.getTargetedEntity(player, range);
         SpellCast.Action action = SpellCast.Action.RELEASE;
-        Identifier spellID      = new Identifier(spellIdentifier);
+        ResourceLocation spellID      = ResourceLocation.parse(spellIdentifier);
         List<Entity> list       = new ArrayList<Entity>();
         //list.add(target);
 
-        SpellHelper.performSpell(
-                player.getWorld(),
-                player,
-                spellID,
-                list,
-                action,
-                20);
+        performSpell(player, spellID, list, action, 20);
     }
 
-    public static void castSpellEngine(PlayerEntity player, String spellIdentifier) {
+    public static void castSpellEngine(Player player, String spellIdentifier) {
 
-        ItemStack itemStack     = player.getMainHandStack();
-        Identifier spellID      = new Identifier(spellIdentifier);
+        ItemStack itemStack     = player.getMainHandItem();
+        ResourceLocation spellID      = ResourceLocation.parse(spellIdentifier);
 
-        SpellHelper.attemptCasting(player, itemStack, spellID, false);
+        ((SpellCaster.Player) player).getInteractor().requestCast(spellID, SpellCast.TargetSnapshot.EMPTY);
     }
 
-    public static void castSpellEngineIndirectTarget(PlayerEntity player, String spellIdentifier, int range,@Nullable Entity target,@Nullable BlockPos blockpos) {
+    public static void castSpellEngineIndirectTarget(Player player, String spellIdentifier, int range,@Nullable Entity target,@Nullable BlockPos blockpos) {
         if (target == null && blockpos != null) {
-            target = EntityRegistry.SPELL_TARGET_ENTITY.spawn( (ServerWorld) player.getWorld(),
+            target = EntityRegistry.SPELL_TARGET_ENTITY.spawn( (ServerLevel) player.level(),
                     blockpos,
-                    SpawnReason.TRIGGERED);
+                    MobSpawnType.TRIGGERED);
         } else if (target == null && blockpos == null) {
             blockpos = HelperMethods.getBlockLookingAt(player, range);
             if (blockpos != null) {
-                target = EntityRegistry.SPELL_TARGET_ENTITY.spawn((ServerWorld) player.getWorld(),
+                target = EntityRegistry.SPELL_TARGET_ENTITY.spawn((ServerLevel) player.level(),
                         blockpos,
-                        SpawnReason.TRIGGERED);
+                        MobSpawnType.TRIGGERED);
             }
         }
 
         // -- Cast spell at specified target --
         if (target != null) {
-            ItemStack itemStack     = player.getMainHandStack();
-            Hand hand               = player.getActiveHand();
+            ItemStack itemStack     = player.getMainHandItem();
+            InteractionHand hand               = player.getUsedItemHand();
             SpellCast.Action action = SpellCast.Action.RELEASE;
-            Identifier spellID      = new Identifier(spellIdentifier);
+            ResourceLocation spellID      = ResourceLocation.parse(spellIdentifier);
             List<Entity> list       = new ArrayList<Entity>();
             list.add(target);
 
-            SpellHelper.performSpell(
-                    player.getWorld(),
-                    player,
-                    spellID,
-                    list,
-                    action,
-                    1);
+            performSpell(player, spellID, list, action, 1);
         }
     }
 
-    public static boolean castSpellEngineAOE(PlayerEntity player, String spellIdentifier, int radius, int chance, boolean singleTarget, boolean ignorePassive) {
+    public static void castSpellEngineIndirectTargets(Player player, String spellIdentifier, List<Entity> targets) {
+        if (!targets.isEmpty()) {
+            ResourceLocation spellID = ResourceLocation.parse(spellIdentifier);
+            performSpell(player, spellID, targets, SpellCast.Action.RELEASE, 1);
+        }
+    }
+
+    public static boolean castSpellEngineAOE(Player player, String spellIdentifier, int radius, int chance, boolean singleTarget, boolean ignorePassive) {
 
         // -- Cast spell at nearby targets --
 
-        ItemStack itemStack     = player.getMainHandStack();
-        Hand hand               = player.getActiveHand();
+        ItemStack itemStack     = player.getMainHandItem();
+        InteractionHand hand               = player.getUsedItemHand();
         SpellCast.Action action = SpellCast.Action.RELEASE;
-        Identifier spellID      = new Identifier(spellIdentifier);
+        ResourceLocation spellID      = ResourceLocation.parse(spellIdentifier);
         List<Entity> list       = new ArrayList<Entity>();
 
 
-        Box box = HelperMethods.createBox(player, radius);
-        for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+        AABB box = HelperMethods.createBox(player, radius);
+        for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
             if (entities != null) {
-                if (entities instanceof PassiveEntity && ignorePassive)
+                if (entities instanceof AgeableMob && ignorePassive)
                     continue; // Skip passive entities if ignorePassive is true
-                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                     if (player.getRandom().nextInt(100) < chance)
                         list.add(le);
@@ -642,13 +655,7 @@ public class SignatureAbilities {
         }
 
         if (!list.isEmpty()) {
-            SpellHelper.performSpell(
-                    player.getWorld(),
-                    player,
-                    spellID,
-                    list,
-                    action,
-                    20);
+            performSpell(player, spellID, list, action, 20);
 
             return true;
         }
@@ -656,24 +663,14 @@ public class SignatureAbilities {
     }
 
 
-
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void sendKeybindPacket(String type) {
-
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeString(type);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(KeybindPacket.ABILITY1_PACKET, buf);
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
+        PacketDistributor.sendToServer(new KeybindPacket(type));
 
     }
 
-    public static void sendCooldownPacket(ServerPlayerEntity player, int cooldown, String cooldownType) {
-
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(cooldown);
-        buf.writeString(cooldownType);
-        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(CooldownPacket.COOLDOWN_PACKET, buf);
-        ServerPlayNetworking.send(player, CooldownPacket.COOLDOWN_PACKET , packet.getData());
+    public static void sendCooldownPacket(ServerPlayer player, int cooldown, String cooldownType) {
+        ModPacketHandler.sendCooldown(player, cooldown, cooldownType);
 
     }
 

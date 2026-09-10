@@ -1,16 +1,16 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
@@ -21,11 +21,11 @@ public class WayfarerAbilities {
 
     public static void passiveWayfarerBreakStealth(
             Entity target,
-            PlayerEntity player,
+            Player player,
             Boolean brokenByDamage,
             Boolean backstabBonus) {
 
-        if (player.hasStatusEffect(EffectRegistry.STEALTH)) {
+        if (player.hasEffect(EffectRegistry.STEALTH)) {
 
             if (brokenByDamage) {
 
@@ -37,13 +37,16 @@ public class WayfarerAbilities {
 
                 if (HelperMethods.isUnlocked("simplyskills:rogue",
                         SkillReferencePosition.rogueFleetfooted, player))
-                    HelperMethods.incrementStatusEffect(player, StatusEffects.SPEED,
+                    HelperMethods.incrementStatusEffect(player, MobEffects.MOVEMENT_SPEED,
                             speedDuration, speedStacks, speedMaxStacks);
                 if (HelperMethods.isUnlocked("simplyskills:tree",
-                        SkillReferencePosition.wayfarerReflexive, player)
-                        && player.getRandom().nextInt(100) < evasionChance)
-                    HelperMethods.incrementStatusEffect(player, EffectRegistry.EVASION,
-                            evasionDuration, 1, 1);
+                        SkillReferencePosition.wayfarerReflexive, player)) {
+                    int roll = player.getRandom().nextInt(100);
+                    if (roll < evasionChance) {
+                        HelperMethods.incrementStatusEffect(player, EffectRegistry.EVASION,
+                                evasionDuration, 1, 1);
+                    }
+                }
 
             }
 
@@ -76,70 +79,71 @@ public class WayfarerAbilities {
                     }
                 }
             }
-            player.removeStatusEffect(EffectRegistry.STEALTH);
-            player.getWorld().playSoundFromEntity(
+            player.removeEffect(EffectRegistry.STEALTH);
+            player.level().playSound(
                     null, player, SoundRegistry.SOUNDEFFECT36,
-                    SoundCategory.PLAYERS, 0.7f, 1.4f);
-            if (player.hasStatusEffect(StatusEffects.INVISIBILITY))
-                player.removeStatusEffect(StatusEffects.INVISIBILITY);
-            player.addStatusEffect(new StatusEffectInstance(EffectRegistry.REVEALED, 180, 5, false, false, true));
+                    SoundSource.PLAYERS, 0.7f, 1.4f);
+            if (player.hasEffect(MobEffects.INVISIBILITY))
+                player.removeEffect(MobEffects.INVISIBILITY);
+            player.addEffect(new MobEffectInstance(EffectRegistry.REVEALED, 180, 5, false, false, true));
         }
     }
 
-    public static void passiveWayfarerGuarding(PlayerEntity player) {
+    public static void passiveWayfarerGuarding(Player player) {
         int barrierFrequency = SimplySkills.wayfarerConfig.passiveWayfarerGuardingBarrierFrequency;
         int barrierDuration = SimplySkills.wayfarerConfig.passiveWayfarerGuardingBarrierDuration;
         int barrierStacks = SimplySkills.wayfarerConfig.passiveWayfarerGuardingBarrierStacks;
         int barrierMaxStacks = SimplySkills.wayfarerConfig.passiveWayfarerGuardingBarrierMaxStacks;
-        if (player.getOffHandStack().getItem() instanceof CrossbowItem
-                && player.age % barrierFrequency == 0) {
+        if (player.getOffhandItem().getItem() instanceof CrossbowItem
+                && player.tickCount % barrierFrequency == 0) {
             HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, barrierDuration, barrierStacks, barrierMaxStacks);
         }
     }
 
-    public static void passiveWayfarerSlender(PlayerEntity player) {
+    public static void passiveWayfarerSlender(Player player) {
 
         int slenderArmorThreshold = SimplySkills.wayfarerConfig.passiveWayfarerSlenderArmorThreshold;
         int frailArmorThreshold = SimplySkills.initiateConfig.passiveInitiateFrailArmorThreshold;
 
-        if (player.age % 20 == 0) {
+        if (player.tickCount % 20 == 0) {
 
-            int armorValue = player.getArmor();
+            int armorValue = player.getArmorValue();
 
             if (armorValue < slenderArmorThreshold) {
                 if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.roguePath, player)
                         || HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.rangerPath, player)) {
 
                     int buffAmplifier = (slenderArmorThreshold - armorValue) / 5;
-                    player.addStatusEffect(new StatusEffectInstance(EffectRegistry.AGILE,
+                    player.addEffect(new MobEffectInstance(EffectRegistry.AGILE,
                             25, buffAmplifier, false, false, false));
                 }
             }
             if (armorValue < frailArmorThreshold) {
                 if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.wizardPath, player)) {
                     int buffAmplifier = (frailArmorThreshold - armorValue) / 5;
-                    player.addStatusEffect(new StatusEffectInstance(EffectRegistry.AGILE,
+                    player.addEffect(new MobEffectInstance(EffectRegistry.AGILE,
                             25, buffAmplifier, false, false, false));
                 }
             }
         }
     }
 
-    public static boolean passiveWayfarerStealth(PlayerEntity player) {
-        return HelperMethods.isUnlocked("simplyskills:tree",
+    public static boolean passiveWayfarerStealth(Player player) {
+        boolean active = HelperMethods.isUnlocked("simplyskills:tree",
                 SkillReferencePosition.wayfarerStealth, player)
-                && player.isSneaking()
-                && !player.hasStatusEffect(EffectRegistry.REVEALED) && !isPlayerTargeted(player, 20);
+                && player.isShiftKeyDown()
+                && !player.hasEffect(EffectRegistry.REVEALED) && !isPlayerTargeted(player, 20);
+        return active;
     }
 
-    public static boolean isPlayerTargeted(PlayerEntity player, int radius) {
-        World world = player.getWorld();
-        Box box = new Box(player.getX() - radius, player.getY() - radius, player.getZ() - radius,
+    public static boolean isPlayerTargeted(Player player, int radius) {
+        Level world = player.level();
+        AABB box = new AABB(player.getX() - radius, player.getY() - radius, player.getZ() - radius,
                 player.getX() + radius, player.getY() + radius, player.getZ() + radius);
 
         // Check if any MobEntity has the player targeted
-        for (Entity entity : world.getOtherEntities(player, box, entity -> entity instanceof MobEntity)) {
-            if (entity instanceof MobEntity mobEntity) {
+        for (Entity entity : world.getEntities(player, box, entity -> entity instanceof Mob)) {
+            if (entity instanceof Mob mobEntity) {
                 LivingEntity target = mobEntity.getTarget();
                 if (target == player) {
                     return true;
@@ -148,8 +152,8 @@ public class WayfarerAbilities {
         }
 
         // Check if any PlayerEntity has the player in their viewing angle
-        for (Entity entity : world.getOtherEntities(player, box, entity -> entity instanceof PlayerEntity)) {
-            if (entity instanceof PlayerEntity otherPlayer && otherPlayer != player) {
+        for (Entity entity : world.getEntities(player, box, entity -> entity instanceof Player)) {
+            if (entity instanceof Player otherPlayer && otherPlayer != player) {
                 if (isInViewingAngle(otherPlayer, player)) {
                     return true;
                 }
@@ -159,13 +163,13 @@ public class WayfarerAbilities {
         return false;
     }
 
-    private static boolean isInViewingAngle(PlayerEntity viewer, PlayerEntity target) {
-        Vec3d viewerPos = viewer.getPos();
-        Vec3d targetPos = target.getPos();
-        Vec3d directionToTarget = targetPos.subtract(viewerPos).normalize();
-        Vec3d viewerLookVec = viewer.getRotationVec(1.0F).normalize();
+    private static boolean isInViewingAngle(Player viewer, Player target) {
+        Vec3 viewerPos = viewer.position();
+        Vec3 targetPos = target.position();
+        Vec3 directionToTarget = targetPos.subtract(viewerPos).normalize();
+        Vec3 viewerLookVec = viewer.getViewVector(1.0F).normalize();
 
-        double dotProduct = viewerLookVec.dotProduct(directionToTarget);
+        double dotProduct = viewerLookVec.dot(directionToTarget);
         double threshold = Math.cos(Math.toRadians(90)); // 90 degrees viewing angle
 
         return dotProduct > threshold;

@@ -1,33 +1,30 @@
 package net.sweenus.simplyskills.client.effects;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 import net.spell_engine.api.effect.CustomParticleStatusEffect;
-import net.spell_engine.api.spell.ParticleBatch;
-import net.spell_engine.particle.ParticleHelper;
+import net.spell_engine.api.spell.fx.ParticleGroup;
+import net.spell_engine.api.spell.fx.ParticleGroupBuilder;
+import net.spell_engine.fx.ParticleHelper;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 
 public class BarrierParticles implements CustomParticleStatusEffect.Spawner {
 
-    private final ParticleBatch particles;
+    private final ParticleGroup particles;
 
     public BarrierParticles(int particleCount) {
-        this.particles = new ParticleBatch(
-                "spell_engine:arcane_spell",
-                ParticleBatch.Shape.PIPE,
-                ParticleBatch.Origin.FEET,
-                null,
-                particleCount,
-                0.1F,
-                0.4F,
-                0);
+        this.particles = ParticleGroupBuilder.of("spell_engine:arcane_spell")
+                .batch(batch -> batch.shape(ParticleGroup.Shape.PIPE)
+                        .verticalOrigin(ParticleGroupBuilder.Batches.FEET)
+                        .count(particleCount)
+                        .speed(0.1F, 0.4F));
     }
 
     @Override
     public void spawnParticles(LivingEntity livingEntity, int amplifier) {
-        if (livingEntity.getHeight() > 1 && !livingEntity.hasStatusEffect(EffectRegistry.STEALTH)) {
-            var scaledParticles = new ParticleBatch(particles);
-            scaledParticles.count *= (float) ((amplifier * 0.15) + 1);
-            ParticleHelper.play(livingEntity.getWorld(), livingEntity, scaledParticles);
+        if (livingEntity.getBbHeight() > 1 && !livingEntity.hasEffect(EffectRegistry.STEALTH)) {
+            var scaledParticles = particles.copy();
+            scaledParticles.batch.count *= (float) ((amplifier * 0.15) + 1);
+            ParticleHelper.play(livingEntity.level(), livingEntity, scaledParticles);
         }
     }
 

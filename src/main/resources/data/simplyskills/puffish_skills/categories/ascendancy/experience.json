@@ -1,5 +1,4 @@
 {
-	"enabled": true,
 	"experience_per_level": {
 		"type": "expression",
 		"data": {
@@ -14,28 +13,23 @@
 					"dropped_xp": {
 						"operations": [
 							{
-								"type": "dropped_experience"
+								"type": "get_dropped_experience"
 							}
 						]
 					},
 					"max_health": {
 						"operations": [
 							{
-								"type": "killed_living_entity"
+								"type": "get_killed_living_entity"
 							},
 							{
-								"type": "max_health"
+								"type": "get_max_health"
 							}
 						]
 					}
 				},
-				"experience": [
-					{
-						"expression": "dropped_xp + max_health / 40"
-					}
-				],
+				"experience": "dropped_xp + max_health / 40",
 				"anti_farming": {
-					"enabled": true,
 					"limit_per_chunk": 15,
 					"reset_after_seconds": 300
 				}

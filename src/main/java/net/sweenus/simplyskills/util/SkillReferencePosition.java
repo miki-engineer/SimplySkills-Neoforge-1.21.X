@@ -95,9 +95,6 @@ public class SkillReferencePosition {
     public static String initiateOverload = "l6ijdwtqcxegm1if";
 
 
-
-
-
     // -- Paths --
     public static String wizardPath = "amtacp7z2f28pvtl";
     public static String spellbladePath = "cxtj5vjpi93xqqal";
@@ -109,7 +106,6 @@ public class SkillReferencePosition {
     public static String clericPath = "seovhlfjsltfbyp7";
     public static String necromancerPath = "avppi98lihji7kr3";
     public static String shamanPath = "ad89uxl6gnwb2xa5";
-
 
 
     // -- Specialisations --
@@ -228,7 +224,7 @@ public class SkillReferencePosition {
     public static String rogueSpecialisationEvasionFanOfBladesAssault = "1b9ydjr1at5hhjy7";
     public static String rogueSpecialisationEvasionFanOfBladesRenewal = "l3bhn14oz1ex8opa";
     public static String rogueSpecialisationPreparation = "kp8uei8ppni71b5x";
-    public static String rogueSpecialisationPreparationShadowstrike = "kp8uei8ppni71b5x";
+    public static String rogueSpecialisationPreparationShadowstrike = "m2fqj7bmtsh33fvs";
     public static String rogueSpecialisationPreparationShadowstrikeShield = "z00pa0lut7phuhmg";
     public static String rogueSpecialisationPreparationShadowstrikeVampire = "j18t77qu8eryc741";
     public static String rogueSpecialisationSiphoningStrikes = "a3ns9xl58ixdg2lo";
@@ -297,14 +293,7 @@ public class SkillReferencePosition {
     public static String ascendancyChainbreaker = "c97wxgqn3utj7y01"; // Also used for Prom Bard active
 
 
-
-
-
     // -- PROM COMPAT --
-    public static String promTwinstrike = "v7hqganjx5ftv14x";
-    public static String promFocus = "9909dkhylopdfpk7";
-    public static String promWarriorsDevotion = "bdqexitrgpz9phaw";
-    public static String promBardPassive = "sh0mgsrhdh16jls7";
 
 
 }

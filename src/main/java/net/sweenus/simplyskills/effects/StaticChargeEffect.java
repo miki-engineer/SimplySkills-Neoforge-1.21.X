@@ -1,61 +1,61 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.spell_engine.client.particle.GenericSpellParticle;
-import net.spell_engine.particle.Particles;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.spell_engine.fx.SpellEngineParticles;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.abilities.SignatureAbilities;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
-public class StaticChargeEffect extends StatusEffect {
+public class StaticChargeEffect extends MobEffect {
 
-    public PlayerEntity ownerEntity;
-    public StaticChargeEffect(StatusEffectCategory statusEffectCategory, int color) {
+    public Player ownerEntity;
+    public StaticChargeEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
             int leapFrequency = SimplySkills.wizardConfig.signatureWizardStaticChargeLeapFrequency;
             int leapChance = SimplySkills.wizardConfig.signatureWizardStaticChargeLeapChance;
             int weaknessDuration = SimplySkills.wizardConfig.signatureWizardStaticChargeWeaknessDuration;
             int weaknessAmplifier = SimplySkills.wizardConfig.signatureWizardStaticChargeWeaknessAmplifier;
 
-            if (livingEntity.age % leapFrequency == 0) {
+            if (livingEntity.tickCount % leapFrequency == 0) {
 
 
-                Box box = HelperMethods.createBox(livingEntity, 9);
-                for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                AABB box = HelperMethods.createBox(livingEntity, 9);
+                for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null && ownerEntity != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, ownerEntity)
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, ownerEntity)
                         && le.getRandom().nextInt(100) < leapChance) {
                             SignatureAbilities.castSpellEngineIndirectTarget(ownerEntity,
                                     "simplyskills:static_charge",
                                     3, le, null);
-                            HelperMethods.spawnWaistHeightParticles((ServerWorld) livingEntity.getWorld(), Particles.electric_arc_A.particleType, livingEntity, le, 6);
-                            le.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, weaknessDuration, weaknessAmplifier, false, false, true));
-                            StatusEffect sc = EffectRegistry.STATICCHARGE;
+                            HelperMethods.spawnWaistHeightParticles((ServerLevel) livingEntity.level(), SpellEngineParticles.lightning_arc_A.type(), livingEntity, le, 6);
+                            le.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, weaknessDuration, weaknessAmplifier, false, false, true));
+                            Holder<MobEffect> sc = EffectRegistry.STATICCHARGE;
                             HelperMethods.decrementStatusEffect(livingEntity, sc);
-                            if (livingEntity.hasStatusEffect(sc)) {
-                                le.addStatusEffect(new StatusEffectInstance(sc,
-                                        livingEntity.getStatusEffect(sc).getDuration(),
-                                        livingEntity.getStatusEffect(sc).getAmplifier(), false, false, true));
-                                livingEntity.removeStatusEffect(sc);
+                            if (livingEntity.hasEffect(sc)) {
+                                le.addEffect(new MobEffectInstance(sc,
+                                        livingEntity.getEffect(sc).getDuration(),
+                                        livingEntity.getEffect(sc).getAmplifier(), false, false, true));
+                                livingEntity.removeEffect(sc);
                             }
                             onHitEffects(ownerEntity, calculateSpeedChance(ownerEntity), le);
 
@@ -65,26 +65,27 @@ public class StaticChargeEffect extends StatusEffect {
                 }
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
+        super.applyEffectTick(livingEntity, amplifier);
+            return true;
     }
 
-    public static int calculateSpeedChance(PlayerEntity ownerEntity) {
+    public static int calculateSpeedChance(Player ownerEntity) {
 
         int speedBaseChance = SimplySkills.wizardConfig.signatureWizardStaticDischargeBaseSpeedChance;
         int speedChancePerTier = SimplySkills.wizardConfig.signatureWizardStaticDischargeSpeedChancePerTier;
 
         int speedChance = speedBaseChance;
         if (HelperMethods.isUnlocked("simplyskills:wizard",
-                SkillReferencePosition.wizardSpecialisationStaticDischargeSpeedTwo, ownerEntity))
-            speedChance = speedChance + speedChancePerTier;
-        else if (HelperMethods.isUnlocked("simplyskills:wizard",
                 SkillReferencePosition.wizardSpecialisationStaticDischargeSpeedThree, ownerEntity))
             speedChance = speedChance + (speedChancePerTier * 2);
+        else if (HelperMethods.isUnlocked("simplyskills:wizard",
+                SkillReferencePosition.wizardSpecialisationStaticDischargeSpeedTwo, ownerEntity))
+            speedChance = speedChance + speedChancePerTier;
 
         return speedChance;
     }
 
-    public static void onHitEffects(PlayerEntity ownerEntity, int speedChance, LivingEntity le) {
+    public static void onHitEffects(Player ownerEntity, int speedChance, LivingEntity le) {
 
         int dischargeSpeedDuration = SimplySkills.wizardConfig.signatureWizardStaticDischargeSpeedDuration;
         int staticDischargeSpeedStacks = SimplySkills.wizardConfig.signatureWizardStaticDischargeSpeedStacks;
@@ -93,7 +94,7 @@ public class StaticChargeEffect extends StatusEffect {
         if (HelperMethods.isUnlocked("simplyskills:wizard",
                 SkillReferencePosition.wizardSpecialisationStaticDischargeSpeed, ownerEntity)
                 && ownerEntity.getRandom().nextInt(100) < speedChance)
-            HelperMethods.incrementStatusEffect(ownerEntity, StatusEffects.SPEED,
+            HelperMethods.incrementStatusEffect(ownerEntity, MobEffects.MOVEMENT_SPEED,
                     dischargeSpeedDuration,
                     staticDischargeSpeedStacks,
                     staticDischargeSpeedMaxAmplifier);
@@ -104,15 +105,13 @@ public class StaticChargeEffect extends StatusEffect {
                     "simplyskills:lightning_ball_homing",
                     3, le, HelperMethods.getBlockLookingAt(ownerEntity, 256));
     }
-
-    @Override
-    public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        if (!entity.getWorld().isClient()) {
-            Box box = HelperMethods.createBox(entity, 80);
-            for (Entity entities : entity.getWorld().getOtherEntities(entity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+    public void onEffectAddedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        if (!entity.level().isClientSide()) {
+            AABB box = HelperMethods.createBox(entity, 80);
+            for (Entity entities : entity.level().getEntities(entity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                 if (entities != null) {
-                    if (entities instanceof PlayerEntity pe) {
+                    if (entities instanceof Player pe) {
                         if (HelperMethods.isUnlocked("simplyskills:wizard",
                                 SkillReferencePosition.wizardSpecialisationStaticDischargeLeap, pe)) {
                             ownerEntity = pe;
@@ -126,7 +125,7 @@ public class StaticChargeEffect extends StatusEffect {
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

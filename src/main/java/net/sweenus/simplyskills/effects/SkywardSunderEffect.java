@@ -1,18 +1,18 @@
 package net.sweenus.simplyskills.effects;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.Box;
+import net.neoforged.fml.ModList;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.abilities.AscendancyAbilities;
 import net.sweenus.simplyskills.abilities.SignatureAbilities;
 import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
@@ -20,20 +20,20 @@ import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class SkywardSunderEffect extends StatusEffect {
-    public SkywardSunderEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class SkywardSunderEffect extends MobEffect {
+    public SkywardSunderEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity instanceof ServerPlayerEntity player && player.hasStatusEffect(EffectRegistry.SKYWARDSUNDER)) {
-                StatusEffectInstance skywardSunder = player.getStatusEffect(EffectRegistry.SKYWARDSUNDER);
+            if (livingEntity instanceof ServerPlayer player && player.hasEffect(EffectRegistry.SKYWARDSUNDER)) {
+                MobEffectInstance skywardSunder = player.getEffect(EffectRegistry.SKYWARDSUNDER);
                 if (skywardSunder == null)
-                    return;
+                    return true;
 
                 double bullrushVelocity = 0.1 * ( 46 - skywardSunder.getDuration());
                 int bullrushRadius = 2;
@@ -42,113 +42,106 @@ public class SkywardSunderEffect extends StatusEffect {
                 int slash_2 = 5+10;
 
                 if (skywardSunder.getDuration() > slash_1) {
-                    player.setVelocity(livingEntity.getRotationVector().multiply(+bullrushVelocity));
-                    player.setVelocity(livingEntity.getVelocity().x, 0, livingEntity.getVelocity().z);
-                    player.velocityModified = true;
+                    player.setDeltaMovement(livingEntity.getLookAngle().scale(+bullrushVelocity));
+                    player.setDeltaMovement(livingEntity.getDeltaMovement().x, 0, livingEntity.getDeltaMovement().z);
+                    player.hurtMarked = true;
                 }
                 if (skywardSunder.getDuration() == slash_1 + 12) {
                     SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:skyward_sunder", 3, player, null);
-                    player.getWorld().playSoundFromEntity(null, player, SoundRegistry.OBJECT_IMPACT_THUD_REPEAT,
-                            SoundCategory.PLAYERS, 0.6f, 1.0f);
+                    player.level().playSound(null, player, SoundRegistry.OBJECT_IMPACT_THUD_REPEAT,
+                            SoundSource.PLAYERS, 0.6f, 1.0f);
                 }
                 if (skywardSunder.getDuration() == slash_1) {
-                    player.setVelocity(0, 1.2, 0);
-                    player.velocityModified = true;
+                    player.setDeltaMovement(0, 1.2, 0);
+                    player.hurtMarked = true;
                 }
                 if (skywardSunder.getDuration() == slash_2) {
-                    player.setVelocity(0, -1.2, 0);
-                    player.velocityModified = true;
+                    player.setDeltaMovement(0, -1.2, 0);
+                    player.hurtMarked = true;
                 }
                 if (skywardSunder.getDuration() == slash_2 + 5) {
                     SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:skyward_sunder_slam", 3, player, null);
-                    if (FabricLoader.getInstance().isModLoaded("prominent")) // iframes for fall dmg
-                        HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, 60, 0, 1);
+
                 }
                 if (skywardSunder.getDuration() == slash_2 - 2) {
-                    player.getWorld().playSoundFromEntity(null, player, SoundRegistry.DAMAGE_03,
-                            SoundCategory.PLAYERS, 0.8f, 1.0f);
+                    player.level().playSound(null, player, SoundRegistry.DAMAGE_03,
+                            SoundSource.PLAYERS, 0.8f, 1.0f);
                 }
                 if (skywardSunder.getDuration() == 12) {
-                    player.getWorld().playSoundFromEntity(null, player, SoundRegistry.SPELL_EARTH_PUNCH,
-                            SoundCategory.PLAYERS, 0.6f, 1.0f);
+                    player.level().playSound(null, player, SoundRegistry.SPELL_EARTH_PUNCH,
+                            SoundSource.PLAYERS, 0.6f, 1.0f);
                 }
                 if (skywardSunder.getDuration() == 2) {
                     HelperMethods.spawnParticlesPlane(
-                            player.getWorld(),
+                            player.level(),
                             ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
-                            player.getBlockPos(),
+                            player.blockPosition(),
                             bullrushRadius, 0, 1, 0);
                     HelperMethods.spawnParticlesPlane(
-                            player.getWorld(),
+                            player.level(),
                             ParticleTypes.POOF,
-                            player.getBlockPos(),
+                            player.blockPosition(),
                             bullrushRadius, 0, 1, 0);
                 }
 
 
                 double damage = (HelperMethods.getHighestAttributeValue(player) * damageModifier);
 
-                Box box = new Box(player.getX() + bullrushRadius, player.getY() + (float) bullrushRadius, player.getZ() + bullrushRadius,
+                AABB box = new AABB(player.getX() + bullrushRadius, player.getY() + (float) bullrushRadius, player.getZ() + bullrushRadius,
                         player.getX() - bullrushRadius, player.getY() - (float) bullrushRadius, player.getZ() - bullrushRadius);
-                for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player) && (skywardSunder.getDuration() == 1 || skywardSunder.getDuration() == slash_2 || skywardSunder.getDuration() == slash_1)) {
-                            le.timeUntilRegen = 0;
-                            le.damage(player.getDamageSources().playerAttack(player), (float) damage);
-                            le.timeUntilRegen = 0;
-                            le.setVelocity(player.getVelocity().x, player.getVelocity().y, player.getVelocity().z);
-                            le.velocityModified = true;
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player) && (skywardSunder.getDuration() == 1 || skywardSunder.getDuration() == slash_2 || skywardSunder.getDuration() == slash_1)) {
+                            le.invulnerableTime = 0;
+                            le.hurt(player.damageSources().playerAttack(player), (float) damage);
+                            le.invulnerableTime = 0;
+                            le.setDeltaMovement(player.getDeltaMovement().x, player.getDeltaMovement().y, player.getDeltaMovement().z);
+                            le.hurtMarked = true;
 
                             HelperMethods.spawnParticlesPlane(
-                                    player.getWorld(),
+                                    player.level(),
                                     ParticleTypes.CLOUD,
-                                    player.getBlockPos(),
+                                    player.blockPosition(),
                                     bullrushRadius - 1, 0, 1, 0);
                         }
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)
                                 && skywardSunder.getDuration() > slash_1 && skywardSunder.getDuration() % 2 == 0) {
 
-                            if (AscendancyAbilities.getAscendancyPoints(player) > 30 && le.isAlive())
-                                le.addStatusEffect(new StatusEffectInstance(EffectRegistry.DEATHMARK, 60, 0));
+                            if (AscendancyAbilities.getAscendancyPoints(player) >= 30 && le.isAlive())
+                                le.addEffect(new MobEffectInstance(EffectRegistry.DEATHMARK, 60, 0));
 
-                            le.timeUntilRegen = 0;
-                            le.damage(player.getDamageSources().playerAttack(player), 0.5f);
-                            le.timeUntilRegen = 0;
-                            le.setVelocity(player.getVelocity().x, player.getVelocity().y, player.getVelocity().z);
-                            le.velocityModified = true;
+                            le.invulnerableTime = 0;
+                            le.hurt(player.damageSources().playerAttack(player), 0.5f);
+                            le.invulnerableTime = 0;
+                            le.setDeltaMovement(player.getDeltaMovement().x, player.getDeltaMovement().y, player.getDeltaMovement().z);
+                            le.hurtMarked = true;
                         }
                     }
                 }
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
+        super.applyEffectTick(livingEntity, amplifier);
+            return true;
     }
-
-    @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        if (entity instanceof PlayerEntity player && FabricLoader.getInstance().isModLoaded("simplyswords"))
+    public void onEffectRemovedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        if (entity instanceof Player player && ModList.get().isLoaded("simplyswords"))
             SimplySwordsGemEffects.warStandard(player);
-
-        super.onRemoved(entity, attributes, amplifier);
     }
-
-    @Override
-    public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        if (!entity.getWorld().isClient() && entity instanceof  PlayerEntity player) {
-            if (player.hasStatusEffect(EffectRegistry.MIGHT)) {
-                StatusEffectInstance mightEffect = player.getStatusEffect(EffectRegistry.MIGHT);
+    public void onEffectAddedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        if (!entity.level().isClientSide() && entity instanceof  Player player) {
+            if (player.hasEffect(EffectRegistry.MIGHT)) {
+                MobEffectInstance mightEffect = player.getEffect(EffectRegistry.MIGHT);
                 if (mightEffect !=null) {
-                    HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, mightEffect.getDuration(), mightEffect.getAmplifier(), 9);
+                    HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, mightEffect.getDuration(), mightEffect.getAmplifier() + 1, 9);
                 }
             }
         }
-        super.onApplied(entity, attributes, amplifier);
     }
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

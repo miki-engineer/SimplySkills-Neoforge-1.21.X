@@ -1,46 +1,41 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.sweenus.simplyskills.effects.instance.SimplyStatusEffectInstance;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 
-public class TauntedEffect extends StatusEffect {
+public class TauntedEffect extends MobEffect {
 
-    public LivingEntity target;
-
-    public TauntedEffect(StatusEffectCategory statusEffectCategory, int color) {
+    public TauntedEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
-    }
-
-    public void setTarget(LivingEntity livingEntity) {
-        target = livingEntity;
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
-
-            if (livingEntity.getStatusEffect(EffectRegistry.TAUNTED) instanceof SimplyStatusEffectInstance statusEffect) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
+            LivingEntity target = null;
+            if (livingEntity.getEffect(EffectRegistry.TAUNTED) instanceof SimplyStatusEffectInstance statusEffect) {
                 target = statusEffect.getSourceEntity();
             }
 
 
-            if (target != null && (livingEntity instanceof MobEntity mobEntity)) {
+            if (target != null && (livingEntity instanceof Mob mobEntity)) {
                 if (mobEntity.getTarget() != target)
                     mobEntity.setTarget(target);
             }
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

@@ -1,81 +1,84 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.Box;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
-public class EarthshakerEffect extends StatusEffect {
-    public EarthshakerEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class EarthshakerEffect extends MobEffect {
+    public EarthshakerEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
     private float fallDistance;
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
             int radius = 3;
             float damageIncrease = SimplySkills.warriorConfig.passiveWarriorHeavyWeightDamageIncreasePerTick;
             double damage_multiplier = 0.5;
-            double damage = 1 + (livingEntity.getArmor() * damage_multiplier);
-            DamageSource damageSource = livingEntity.getDamageSources().generic();
+            double baseDamage = 1 + (livingEntity.getArmorValue() * damage_multiplier);
+            DamageSource damageSource = livingEntity.damageSources().generic();
             fallDistance += damageIncrease;
 
-            if (livingEntity.isOnGround()) {
+            if (livingEntity.onGround()) {
 
-                Box box = HelperMethods.createBox(livingEntity, radius);
-                for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                AABB box = HelperMethods.createBox(livingEntity, radius);
+                for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
-                        if ((entities instanceof LivingEntity le) && !livingEntity.hasStatusEffect(StatusEffects.SLOW_FALLING)){
-                            if (livingEntity instanceof PlayerEntity player) {
-                                damageSource = player.getDamageSources().playerAttack(player);
-                                if (HelperMethods.isUnlocked("simplyskills:tree",
-                                        SkillReferencePosition.warriorHeavyWeight, player))
+                        if ((entities instanceof LivingEntity le) && !livingEntity.hasEffect(MobEffects.SLOW_FALLING)){
+                            double damage = baseDamage;
+                            if (livingEntity instanceof Player player) {
+                                damageSource = player.damageSources().playerAttack(player);
+                                boolean heavyWeight = HelperMethods.isUnlocked("simplyskills:tree",
+                                        SkillReferencePosition.warriorHeavyWeight, player);
+                                if (heavyWeight)
                                     damage +=fallDistance;
-                                if (!HelperMethods.checkFriendlyFire(le, player))
-                                    break;
+                                if (!HelperMethods.checkFriendlyFireAOE(le, player))
+                                    continue;
                             }
 
-                            le.setVelocity((le.getX() - livingEntity.getX()) /4,  (le.getY() - livingEntity.getY()) /4, (le.getZ() - livingEntity.getZ()) /4);
-                            le.timeUntilRegen = 0;
-                            le.damage(damageSource, (float) damage);
-                            le.timeUntilRegen = 0;
+                            le.setDeltaMovement((le.getX() - livingEntity.getX()) /4,  (le.getY() - livingEntity.getY()) /4, (le.getZ() - livingEntity.getZ()) /4);
+                            le.invulnerableTime = 0;
+                            le.hurt(damageSource, (float) damage);
+                            le.invulnerableTime = 0;
                         }
                     }
                 }
-                livingEntity.getWorld().playSoundFromEntity(null, livingEntity, SoundRegistry.SOUNDEFFECT14,
-                        SoundCategory.PLAYERS, 0.3f, 1.1f);
+                livingEntity.level().playSound(null, livingEntity, SoundRegistry.SOUNDEFFECT14,
+                        SoundSource.PLAYERS, 0.3f, 1.1f);
                 fallDistance = 0;
                 HelperMethods.spawnParticlesPlane(
-                        livingEntity.getWorld(),
+                        livingEntity.level(),
                         ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                        livingEntity.getBlockPos(),
+                        livingEntity.blockPosition(),
                         radius, 0, 1, 0 );
-                livingEntity.removeStatusEffect(EffectRegistry.EARTHSHAKER);
+                livingEntity.removeEffect(EffectRegistry.EARTHSHAKER);
             }
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

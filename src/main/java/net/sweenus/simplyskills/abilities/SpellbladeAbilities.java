@@ -1,8 +1,8 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
@@ -10,12 +10,12 @@ import net.sweenus.simplyskills.util.SkillReferencePosition;
 
 public class SpellbladeAbilities {
 
-    public static void effectSpellbladeWeaponExpert(PlayerEntity player) {
+    public static void effectSpellbladeWeaponExpert(Player player) {
         if (HelperMethods.isUnlocked("simplyskills:spellblade",
                 SkillReferencePosition.spellbladeWeaponExpert, player)) {
             int chance = 5;
             HelperMethods.incrementStatusEffect(player, EffectRegistry.MIGHT, 60, 1, 3);
-            if (player.getRandom().nextInt(100) > chance)
+            if (player.getRandom().nextInt(100) < chance)
                 HelperMethods.incrementStatusEffect(player, EffectRegistry.SPELLFORGED, 80, 1, 3);
         }
     }
@@ -24,35 +24,38 @@ public class SpellbladeAbilities {
 
 
     // Elemental Surge
-    public static boolean signatureSpellbladeElementalSurge(String spellbladeSkillTree, PlayerEntity player) {
+    public static boolean signatureSpellbladeElementalSurge(String spellbladeSkillTree, Player player) {
         int elementalSurgeDuration = SimplySkills.spellbladeConfig.signatureSpellbladeElementalSurgeDuration;
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.ELEMENTALSURGE,
+        player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALSURGE,
                 elementalSurgeDuration, 0, false, false, true));
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_area_release");
         return true;
     }
     // Elemental Impact
-    public static boolean signatureSpellbladeElementalImpact(String spellbladeSkillTree, PlayerEntity player) {
+    public static boolean signatureSpellbladeElementalImpact(String spellbladeSkillTree, Player player) {
         int elementalImpactDuration = SimplySkills.spellbladeConfig.signatureSpellbladeElementalImpactDuration;
         int elementalImpactResistanceAmplifier = SimplySkills.spellbladeConfig.signatureSpellbladeElementalImpactResistanceAmplifier;
 
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.ELEMENTALIMPACT,
+        player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALIMPACT,
                 elementalImpactDuration, 0, false, false, true));
 
         if (HelperMethods.isUnlocked(spellbladeSkillTree,
                 SkillReferencePosition.spellbladeSpecialisationElementalImpactResistance, player))
-            player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE,
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,
                     elementalImpactDuration + 15, elementalImpactResistanceAmplifier, false, false, true));
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_projectile_release");
         return true;
     }
     // Spellweaver
-    public static boolean signatureSpellbladeSpellweaver(String spellbladeSkillTree, PlayerEntity player) {
+    public static boolean signatureSpellbladeSpellweaver(String spellbladeSkillTree, Player player) {
         int spellweaverDuration = SimplySkills.spellbladeConfig.signatureSpellbladeSpellweaverDuration;
         int spellweaverStacks = SimplySkills.spellbladeConfig.signatureSpellbladeSpellweaverStacks;
 
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.SPELLWEAVER,
+        player.addEffect(new MobEffectInstance(EffectRegistry.SPELLWEAVER,
                 spellweaverDuration, spellweaverStacks - 1, false, false, true));
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:dual_handed_weapon_cross");
         return true;
     }
 

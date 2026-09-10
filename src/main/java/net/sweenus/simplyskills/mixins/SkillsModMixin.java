@@ -1,9 +1,9 @@
 package net.sweenus.simplyskills.mixins;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.puffish.skillsmod.SkillsMod;
 import net.puffish.skillsmod.api.SkillsAPI;
 import net.puffish.skillsmod.server.network.packets.in.SkillClickInPacket;
@@ -24,7 +24,7 @@ import java.util.List;
 public class SkillsModMixin {
 
     @Inject(at = @At("HEAD"), method = "tryUnlockSkill")
-    public void simplyskills$tryUnlockSkill(ServerPlayerEntity player, Identifier categoryId, String skillId, boolean force, CallbackInfo ci) {
+    public void simplyskills$tryUnlockSkill(ServerPlayer player, ResourceLocation categoryId, String skillId, boolean force, CallbackInfo ci) {
 
         //Sound Event on skill unlock
         var category = SkillsAPI.getCategory(categoryId).orElseThrow();
@@ -39,11 +39,11 @@ public class SkillsModMixin {
             sounds.add(SoundRegistry.PLACE_STONE_10);
             SoundEvent sound = sounds.get(player.getRandom().nextInt(sounds.size()));
 
-            player.getWorld().playSoundFromEntity(null, player, sound,
-                    SoundCategory.PLAYERS, 0.3f, (float) choose_pitch);
+            player.level().playSound(null, player, sound,
+                    SoundSource.PLAYERS, 0.3f, (float) choose_pitch);
 
-            if (category.streamUnlockedSkills(player).count() > 40 && categoryId.equals(new Identifier("simplyskills:tree"))) {
-                SkillsAPI.getCategory(new Identifier(SimplySkills.MOD_ID, "ascendancy"))
+            if (category.streamUnlockedSkills(player).count() > 40 && categoryId.equals(ResourceLocation.parse("simplyskills:tree"))) {
+                SkillsAPI.getCategory(ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "ascendancy"))
                         .ifPresent(ascendancy -> ascendancy.unlock(player));
             }
 
@@ -52,25 +52,25 @@ public class SkillsModMixin {
     }
 
     @Inject(at = @At("TAIL"), method = "tryUnlockSkill")
-    public void simplyskills$tryUnlockSkillTail(ServerPlayerEntity player, Identifier categoryId, String skillId, boolean force, CallbackInfo ci) {
+    public void simplyskills$tryUnlockSkillTail(ServerPlayer player, ResourceLocation categoryId, String skillId, boolean force, CallbackInfo ci) {
         ModPacketHandler.sendSignatureAbility(player);
     }
     @Inject(at = @At("TAIL"), method = "resetSkills")
-    public void simplyskills$resetSkills(ServerPlayerEntity player, Identifier categoryId, CallbackInfo ci) {
+    public void simplyskills$resetSkills(ServerPlayer player, ResourceLocation categoryId, CallbackInfo ci) {
         ModPacketHandler.sendSignatureAbility(player);
     }
     @Inject(at = @At("TAIL"), method = "eraseCategory")
-    public void simplyskills$eraseCategory(ServerPlayerEntity player, Identifier categoryId, CallbackInfo ci) {
+    public void simplyskills$eraseCategory(ServerPlayer player, ResourceLocation categoryId, CallbackInfo ci) {
         ModPacketHandler.sendSignatureAbility(player);
     }
 
     @Inject(at = @At("TAIL"), method = "onSkillClickPacket")
-    public void simplyskills$onSkillClickPacket(ServerPlayerEntity player, SkillClickInPacket packet, CallbackInfo ci) {
+    public void simplyskills$onSkillClickPacket(ServerPlayer player, SkillClickInPacket packet, CallbackInfo ci) {
         AbilityLogic.performJunctionLogic(player, packet.getSkillId(), packet.getCategoryId());
     }
 
     @Inject(at = @At("HEAD"), method = "unlockCategory", cancellable = true)
-    public void simplyskills$unlockCategory(ServerPlayerEntity player, Identifier categoryIdentifier, CallbackInfo ci) {
+    public void simplyskills$unlockCategory(ServerPlayer player, ResourceLocation categoryIdentifier, CallbackInfo ci) {
         String categoryId = categoryIdentifier.toString();
         if (AbilityLogic.skillTreeUnlockManager(player, categoryId))
             ci.cancel();

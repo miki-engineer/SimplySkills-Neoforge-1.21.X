@@ -86,7 +86,7 @@
 "effect.simplyskills.rage":                           "Fureur",
 "effect.simplyskills.rage.desc":                      "Gagnez 0,5% de dégats d'attaque, de vitesse d'attaque et de dégats reçus par pile.",
 "effect.simplyskills.overload":                       "Surcharge",
-"effect.simplyskills.overload.desc":                  "Accorde 75% de dégats critiques de sort et 10% de chance critique de sort par pile.\nLorsque vous dépassez 5 piles, vous surchargez, infligeant des dégats significatifs à vous-même et aux ennemis proches.\n\nLes dégats infligés aux ennemis sont échelonnés en fonction de votre PV maximum et de votre Puissance de Sort de l'ame.",
+"effect.simplyskills.overload.desc":                  "Accorde 45% de dégats critiques de sort et 10% de chance critique de sort par pile.\nLorsque vous dépassez 5 piles, vous surchargez, infligeant des dégats significatifs à vous-même et aux ennemis proches.\n\nLes dégats infligés aux ennemis sont échelonnés en fonction de votre PV maximum et de votre Puissance de Sort de l'ame.",
 "effect.simplyskills.bladestorm":                     "Tempête de Lames",
 "effect.simplyskills.bladestorm.desc":                "Fait tourner des dagues autour de vous, infligeant des dégats aux ennemis proches. Chaque pile de Tempête de Lames augmente sa fréquence d'attaque et vous accorde 1% de chance supplémentaire d'évasion.",
 "effect.simplyskills.anointed":                       "Adoubement",
@@ -121,8 +121,6 @@
 "effect.simplyskills.righteous_shield.desc":          "Effectue un Bouclier Juste.",
 "effect.simplyskills.shadow_aura":                    "Aura d'Ombre",
 "effect.simplyskills.shadow_aura.desc":               "Lance des attaques sur les ennemis proches, mais draine les PV de l'utilisateur.",
-"effect.simplyskills.focus":                          "Concentration",
-"effect.simplyskills.focus.desc":                     "Votre prochaine attaque d'arc se charge plus lentement et inflige plus de dégats.",
 "effect.simplyskills.warriors_devotion":              "Dévotion du Guerrier",
 "effect.simplyskills.warriors_devotion.desc":         "Attaquez plus lentement et infligez plus de dégats lorsque vous utilisez une seule arme.",
 
@@ -189,8 +187,6 @@
   "text.autoconfig.simplyskills.option.client.enableBuildSharing.@Tooltip" :                                  "Enables players to use Skill Chronicles made\nby other players.",
   "text.autoconfig.simplyskills.option.client.skillChronicleCooldown":                                        "Skill Chronicle Cooldown",
   "text.autoconfig.simplyskills.option.client.skillChronicleCooldown.@Tooltip":                               "The cooldown time for the Skill Chronicle item, in ticks (20 ticks = 1 second).",
-  "text.autoconfig.simplyskills.option.client.removeUnlockRestrictions" :                                     "Remove unlock restrictions",
-  "text.autoconfig.simplyskills.option.client.removeUnlockRestrictions.@Tooltip" :                            "Allows Specialisations to be unlocked without \npathing to them in the skill tree.\nAlso allows unlocking more than one specialisation.\n\nNot recommended, except for very particular use-cases.",
   "text.autoconfig.simplyskills.option.client.spellHasteCooldownReductionModifier" :                          "Spell Haste Cooldown Reduction Modifier",
   "text.autoconfig.simplyskills.option.client.spellHasteCooldownReductionModifier.@Tooltip" :                 "Controls how heavily Spell Haste impacts cooldowns.\nA higher value means Spell Haste will further reduce cooldowns.",
   "text.autoconfig.simplyskills.option.client.minimumAchievableCooldown" :                                    "Minimum achievable cooldown (in seconds)",
@@ -1165,7 +1161,7 @@
 "text.skills.crusaderExhaustiveRecovery.description": "§7Chance sur bloc de bouclier de lancer un Flash Heal instantané sur vous-même et gagner plusieurs piles de fatigue.\n\n§f(Fatigue)§7 réduit votre Attaque en Melee, Vitesse de Déplacement et Vitesse d'Attaque de §c1% §f[x]§7 par pile.",
 
 "text.skills.crusaderSignatureConsecration.title": "Abilité Signature: §6[Consecration]§7",
-"text.skills.crusaderSignatureConsecration.description": "§7\nGagnez une Consécration pendant 15s.\n\n§f(Consécration)§7 consacre le sol sous vos pieds, infligeant des dégats aux ennemis tandis qu'elle guérit les alliés. Dégats & Guérison échelonnés avec le Pouvoir de Guérison des Sorts.\n\n§a30s Cooldown§7",
+"text.skills.crusaderSignatureConsecration.description": "§7\nGagnez une Consécration pendant 15s.\n\n§f(Consécration)§7 consacre le sol sous vos pieds, infligeant des dégats aux ennemis tandis qu'elle guérit les alliés. Dégats & Guérison échelonnés avec le Pouvoir de Guérison des Sorts.\n\n§a60s Cooldown§7",
 
 "text.skills.crusaderSignatureConsecrationDuration.title": "§f[Duration]",
 "text.skills.crusaderSignatureConsecrationDuration.description": "Votre §6[Consécration]§7 maintenant dure plus longtemps.",

@@ -1,14 +1,15 @@
 package net.sweenus.simplyskills.effects.instance;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.core.Holder;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 
-public class SimplyStatusEffectInstance extends StatusEffectInstance {
+public class SimplyStatusEffectInstance extends MobEffectInstance {
 
     public LivingEntity sourceEntity;
 
-    public SimplyStatusEffectInstance(StatusEffect type, int duration, int amplifier, boolean ambient, boolean showParticles, boolean showIcon) {
+    public SimplyStatusEffectInstance(Holder<MobEffect> type, int duration, int amplifier, boolean ambient, boolean showParticles, boolean showIcon) {
         super(type, duration, amplifier, ambient, showParticles, showIcon);
     }
 

@@ -1,16 +1,16 @@
 package net.sweenus.simplyskills.client;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.spell_engine.api.effect.CustomModelStatusEffect;
 import net.spell_engine.api.effect.CustomParticleStatusEffect;
 import net.spell_engine.api.render.CustomModels;
@@ -30,26 +30,38 @@ import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.EntityRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
 import org.lwjgl.glfw.GLFW;
-
+import com.mojang.blaze3d.platform.InputConstants;
 import java.util.List;
 
-public class SimplySkillsClient implements ClientModInitializer {
+public class SimplySkillsClient {
 
     public static int abilityCooldown = 500;
     public static int abilityCooldown2 = 500;
     public static long lastUseTime;
     public static long lastUseTime2;
+    private static long cooldownTime = System.currentTimeMillis();
     public static int unspentPoints = 0;
-    public static KeyBinding bindingAbility1 = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.simplyskills.ability1", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, "key.category.simplyskills"));
-    public static KeyBinding bindingAbility2 = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.simplyskills.ability2", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "key.category.simplyskills"));
+    public static KeyMapping bindingAbility1 = new KeyMapping("key.simplyskills.ability1", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, "key.category.simplyskills");
+    public static KeyMapping bindingAbility2 = new KeyMapping("key.simplyskills.ability2", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "key.category.simplyskills");
 
-    public static EntityModelLayer SPELLTARGETENTITY_MODEL = new EntityModelLayer(new Identifier("spell_target_entity", "cube"), "main");
-    public static EntityModelLayer DREADGLARE_MODEL = new EntityModelLayer(new Identifier("dreadglare", "cube"), "main");
-    public static EntityModelLayer GREATER_DREADGLARE_MODEL = new EntityModelLayer(new Identifier("greater_dreadglare", "cube"), "main");
-    public static EntityModelLayer WRAITH_MODEL = new EntityModelLayer(new Identifier("wraith", "cube"), "main");
+    public static ModelLayerLocation SPELLTARGETENTITY_MODEL = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("spell_target_entity", "cube"), "main");
+    public static ModelLayerLocation DREADGLARE_MODEL = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("dreadglare", "cube"), "main");
+    public static ModelLayerLocation GREATER_DREADGLARE_MODEL = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("greater_dreadglare", "cube"), "main");
+    public static ModelLayerLocation WRAITH_MODEL = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("wraith", "cube"), "main");
 
-    @Override
-    public void onInitializeClient() {
+    public static void register(IEventBus modEventBus) {
+        modEventBus.addListener(SimplySkillsClient::registerKeyMappings);
+        modEventBus.addListener(SimplySkillsClient::registerEntityRenderers);
+        modEventBus.addListener(SimplySkillsClient::registerLayerDefinitions);
+        modEventBus.addListener(ClientEvents::registerClientEvents);
+        modEventBus.addListener(SimplySkillsClient::clientSetup);
+        NeoForge.EVENT_BUS.addListener(SimplySkillsClient::clientTick);
+        NeoForge.EVENT_BUS.addListener(FirstPersonHammersRenderer::render);
+
+    }
+
+    private static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
 
         CustomModels.registerModelIds(List.of(
                 BladestormRenderer.modelId_base,
@@ -73,61 +85,65 @@ public class SimplySkillsClient implements ClientModInitializer {
         ));
 
 
-        CustomModelStatusEffect.register(EffectRegistry.BLADESTORM, new BladestormRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.ARCANEVOLLEY, new ArcaneVolleyRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.FROSTVOLLEY, new FrostVolleyRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.VITALITYBOND, new VitalityBondRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.UNDYING, new UndyingRenderer());
-        CustomParticleStatusEffect.register(EffectRegistry.UNDYING, new UndyingParticles(2));
-        CustomModelStatusEffect.register(EffectRegistry.BARRIER, new BarrierRenderer());
-        CustomParticleStatusEffect.register(EffectRegistry.BARRIER, new BarrierParticles(1));
-        CustomParticleStatusEffect.register(EffectRegistry.RAGE, new RageParticles(1));
-        CustomParticleStatusEffect.register(EffectRegistry.EVASION, new EvasionParticles(1));
-        CustomModelStatusEffect.register(EffectRegistry.IMMOBILIZE, new ImmobilizeRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.DEATHMARK, new DeathMarkRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.TAUNTED, new TauntedRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.MARKSMANSHIP, new MarksmanshipRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.RIGHTEOUSHAMMERS, new RighteousHammersRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.BONEARMOR, new BoneArmorRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.MAGICCIRCLE, new MagicCircleRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.AGONY, new CurseRenderer());
-        CustomModelStatusEffect.register(EffectRegistry.TORMENT, new CurseRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.BLADESTORM.value(), new BladestormRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.ARCANEVOLLEY.value(), new ArcaneVolleyRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.FROSTVOLLEY.value(), new FrostVolleyRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.VITALITYBOND.value(), new VitalityBondRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.UNDYING.value(), new UndyingRenderer());
+        CustomParticleStatusEffect.register(EffectRegistry.UNDYING.value(), new UndyingParticles(2));
+        CustomModelStatusEffect.register(EffectRegistry.BARRIER.value(), new BarrierRenderer());
+        CustomParticleStatusEffect.register(EffectRegistry.BARRIER.value(), new BarrierParticles(1));
+        CustomParticleStatusEffect.register(EffectRegistry.RAGE.value(), new RageParticles(1));
+        CustomParticleStatusEffect.register(EffectRegistry.EVASION.value(), new EvasionParticles(1));
+        CustomModelStatusEffect.register(EffectRegistry.IMMOBILIZE.value(), new ImmobilizeRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.DEATHMARK.value(), new DeathMarkRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.TAUNTED.value(), new TauntedRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.MARKSMANSHIP.value(), new MarksmanshipRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.RIGHTEOUSHAMMERS.value(), new RighteousHammersRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.BONEARMOR.value(), new BoneArmorRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.MAGICCIRCLE.value(), new MagicCircleRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.AGONY.value(), new CurseRenderer());
+        CustomModelStatusEffect.register(EffectRegistry.TORMENT.value(), new CurseRenderer());
+        });
+    }
 
-        CooldownPacket.init();
-        registerEntityModels();
-        ModPacketHandler.registerClient();
-        ClientEvents.registerClientEvents();
+    private static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(bindingAbility1);
+        event.register(bindingAbility2);
+    }
 
-        //Keybindings
-        //KeyBinding bindingAbility2 = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.simplyskills.ability2", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "key.category.simplyskills"));
-        //KeyBinding bindingAbility3 = KeyBindingHelper.registerKeyBinding(new StickyKeyBinding("key.simplyskills.ability3", GLFW.GLFW_KEY_V, "key.category.simplyskills", () -> true));
+    private static void clientTick(ClientTickEvent.Post event) {
+        var client = net.minecraft.client.Minecraft.getInstance();
+        if (client.player == null || client.isPaused())
+            return;
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (bindingAbility1.wasPressed()) {
-                if (System.currentTimeMillis() > (lastUseTime + abilityCooldown)) {
+            cooldownTime += 50;
+
+            while (bindingAbility1.consumeClick()) {
+                if (cooldownTime >= (lastUseTime + abilityCooldown)) {
 
                     SignatureAbilities.sendKeybindPacket("signature");
 
-                    lastUseTime = System.currentTimeMillis();
-                    client.player.getWorld().playSound(client.player, client.player.getBlockPos(), SoundRegistry.SOUNDEFFECT7, SoundCategory.PLAYERS, 0.4f, 1.5f);
+                    lastUseTime = cooldownTime;
+                    client.player.level().playSound(client.player, client.player.blockPosition(), SoundRegistry.SOUNDEFFECT7, SoundSource.PLAYERS, 0.4f, 1.5f);
 
                 } else {
-                    client.player.sendMessage(Text.literal("Ability can be used again in " + (((lastUseTime + abilityCooldown) - System.currentTimeMillis()) / 1000) + "s"), true);
-                    client.player.getWorld().playSound(client.player, client.player.getBlockPos(), SoundRegistry.GONG_WARBLY, SoundCategory.PLAYERS, 0.1f, 1.5f);
+                    client.player.displayClientMessage(Component.literal("Ability can be used again in " + (((lastUseTime + abilityCooldown) - cooldownTime) / 1000) + "s"), true);
+                    client.player.level().playSound(client.player, client.player.blockPosition(), SoundRegistry.GONG_WARBLY, SoundSource.PLAYERS, 0.1f, 1.5f);
                 }
             }
 
-            while (bindingAbility2.wasPressed()) {
-                if (System.currentTimeMillis() > (lastUseTime2 + abilityCooldown2)) {
+            while (bindingAbility2.consumeClick()) {
+                if (cooldownTime >= (lastUseTime2 + abilityCooldown2)) {
 
                     SignatureAbilities.sendKeybindPacket("ascendancy");
 
-                    lastUseTime2 = System.currentTimeMillis();
-                    client.player.getWorld().playSound(client.player, client.player.getBlockPos(), SoundRegistry.SOUNDEFFECT7, SoundCategory.PLAYERS, 0.4f, 1.5f);
+                    lastUseTime2 = cooldownTime;
+                    client.player.level().playSound(client.player, client.player.blockPosition(), SoundRegistry.SOUNDEFFECT7, SoundSource.PLAYERS, 0.4f, 1.5f);
 
                 } else {
-                    client.player.sendMessage(Text.literal("Ability can be used again in " + (((lastUseTime2 + abilityCooldown2) - System.currentTimeMillis()) / 1000) + "s"), true);
-                    client.player.getWorld().playSound(client.player, client.player.getBlockPos(), SoundRegistry.GONG_WARBLY, SoundCategory.PLAYERS, 0.1f, 1.5f);
+                    client.player.displayClientMessage(Component.literal("Ability can be used again in " + (((lastUseTime2 + abilityCooldown2) - cooldownTime) / 1000) + "s"), true);
+                    client.player.level().playSound(client.player, client.player.blockPosition(), SoundRegistry.GONG_WARBLY, SoundSource.PLAYERS, 0.1f, 1.5f);
                 }
             }
 
@@ -138,18 +154,23 @@ public class SimplySkillsClient implements ClientModInitializer {
             }
             */
 
-        });
     }
 
-    public static void registerEntityModels() {
-            EntityRendererRegistry.register(EntityRegistry.SPELL_TARGET_ENTITY, SpellTargetEntityRenderer::new);
-            EntityRendererRegistry.register(EntityRegistry.DREADGLARE, DreadglareRenderer::new);
-            EntityModelLayerRegistry.registerModelLayer(DREADGLARE_MODEL, DreadglareModel::getTexturedModelData);
-            EntityRendererRegistry.register(EntityRegistry.WRAITH, WraithRenderer::new);
-            EntityModelLayerRegistry.registerModelLayer(WRAITH_MODEL, WraithModel::getTexturedModelData);
-            EntityRendererRegistry.register(EntityRegistry.GREATER_DREADGLARE, GreaterDreadglareRenderer::new);
-            EntityModelLayerRegistry.registerModelLayer(GREATER_DREADGLARE_MODEL, GreaterDreadglareModel::getTexturedModelData);
+    public static long getCooldownTime() {
+        return cooldownTime;
+    }
 
+    private static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(EntityRegistry.SPELL_TARGET_ENTITY, SpellTargetEntityRenderer::new);
+        event.registerEntityRenderer(EntityRegistry.DREADGLARE, DreadglareRenderer::new);
+        event.registerEntityRenderer(EntityRegistry.WRAITH, WraithRenderer::new);
+        event.registerEntityRenderer(EntityRegistry.GREATER_DREADGLARE, GreaterDreadglareRenderer::new);
+    }
+
+    private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(DREADGLARE_MODEL, DreadglareModel::getTexturedModelData);
+        event.registerLayerDefinition(WRAITH_MODEL, WraithModel::getTexturedModelData);
+        event.registerLayerDefinition(GREATER_DREADGLARE_MODEL, GreaterDreadglareModel::getTexturedModelData);
     }
 
 }

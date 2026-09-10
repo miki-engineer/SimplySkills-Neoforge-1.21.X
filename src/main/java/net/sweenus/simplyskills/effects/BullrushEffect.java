@@ -1,18 +1,18 @@
 package net.sweenus.simplyskills.effects;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.Box;
+import net.neoforged.fml.ModList;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
 import net.sweenus.simplyskills.registry.EffectRegistry;
@@ -20,17 +20,17 @@ import net.sweenus.simplyskills.registry.SoundRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
-public class BullrushEffect extends StatusEffect {
-    public BullrushEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class BullrushEffect extends MobEffect {
+    public BullrushEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity.isOnGround() && (livingEntity instanceof PlayerEntity player)) {
+            if (livingEntity.onGround() && (livingEntity instanceof Player player)) {
 
                 int bullrushVelocity = SimplySkills.berserkerConfig.signatureBerserkerBullrushVelocity;
                 int bullrushRadius = SimplySkills.berserkerConfig.signatureBerserkerBullrushRadius;
@@ -40,39 +40,39 @@ public class BullrushEffect extends StatusEffect {
                 int bullrushStrengthDuration = SimplySkills.berserkerConfig.signatureBerserkerBullrushRelentlessDuration;
                 int bullrushExhaustionPerStrength = SimplySkills.berserkerConfig.signatureBerserkerBullrushRelentlessExhaustPerStrength;
 
-                player.setVelocity(livingEntity.getRotationVector().multiply(+bullrushVelocity));
-                player.setVelocity(livingEntity.getVelocity().x, 0, livingEntity.getVelocity().z);
-                player.velocityModified = true;
+                player.setDeltaMovement(livingEntity.getLookAngle().scale(+bullrushVelocity));
+                player.setDeltaMovement(livingEntity.getDeltaMovement().x, 0, livingEntity.getDeltaMovement().z);
+                player.hurtMarked = true;
                 int radius = bullrushRadius;
                 double damage_multiplier = bullrushDamageModifier;
-                double damage = (HelperMethods.getAttackDamage(livingEntity.getMainHandStack()) * damage_multiplier);
+                double damage = (HelperMethods.getAttackDamage(livingEntity.getMainHandItem()) * damage_multiplier);
 
-                Box box = HelperMethods.createBox(player, radius*2);
-                for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                AABB box = HelperMethods.createBox(player, radius*2);
+                for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
-                            le.setVelocity((player.getX() - le.getX()) /4,  (player.getY() - le.getY()) /4, (player.getZ() - le.getZ()) /4);
-                            if (player.age % bullrushHitFrequency == 0) {
-                                le.damage(player.getDamageSources().playerAttack(player), (float) damage);
-                                player.getWorld().playSoundFromEntity(null, player, SoundRegistry.SOUNDEFFECT32,
-                                        SoundCategory.PLAYERS, 0.6f, 1.0f);
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
+                            le.setDeltaMovement((player.getX() - le.getX()) /4,  (player.getY() - le.getY()) /4, (player.getZ() - le.getZ()) /4);
+                            if (player.tickCount % bullrushHitFrequency == 0) {
+                                le.hurt(player.damageSources().playerAttack(player), (float) damage);
+                                player.level().playSound(null, player, SoundRegistry.SOUNDEFFECT32,
+                                        SoundSource.PLAYERS, 0.6f, 1.0f);
                                 if (HelperMethods.isUnlocked("simplyskills:berserker",
                                         SkillReferencePosition.berserkerSpecialisationRampageChargeImmob, player))
-                                    le.addStatusEffect(new StatusEffectInstance(EffectRegistry.IMMOBILIZE, bullrushImmobilizeDuration, 0, false, false, true));
+                                    le.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZE, bullrushImmobilizeDuration, 0, false, false, true));
 
                                 if (HelperMethods.isUnlocked("simplyskills:berserker",
                                         SkillReferencePosition.berserkerSignatureRampageChargeRelentless, player)
-                                        &&player.hasStatusEffect(EffectRegistry.EXHAUSTION)) {
-                                    int stacks = player.getStatusEffect(EffectRegistry.EXHAUSTION).getAmplifier();
-                                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.STRENGTH,
+                                        &&player.hasEffect(EffectRegistry.EXHAUSTION)) {
+                                    int stacks = player.getEffect(EffectRegistry.EXHAUSTION).getAmplifier();
+                                    player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
                                             bullrushStrengthDuration, stacks / bullrushExhaustionPerStrength, false, false, true));
-                                    player.removeStatusEffect(EffectRegistry.EXHAUSTION);
+                                    player.removeEffect(EffectRegistry.EXHAUSTION);
                                 }
                                 HelperMethods.spawnParticlesPlane(
-                                        player.getWorld(),
+                                        player.level(),
                                         ParticleTypes.CLOUD,
-                                        player.getBlockPos(),
+                                        player.blockPosition(),
                                         radius-2, 0, 1, 0 );
                             }
                         }
@@ -80,20 +80,17 @@ public class BullrushEffect extends StatusEffect {
                 }
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
+        super.applyEffectTick(livingEntity, amplifier);
+            return true;
     }
-
-    @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        if (entity instanceof PlayerEntity player && FabricLoader.getInstance().isModLoaded("simplyswords"))
+    public void onEffectRemovedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        if (entity instanceof Player player && ModList.get().isLoaded("simplyswords"))
             SimplySwordsGemEffects.warStandard(player);
-
-        super.onRemoved(entity, attributes, amplifier);
     }
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

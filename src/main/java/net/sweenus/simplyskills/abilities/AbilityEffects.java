@@ -1,21 +1,23 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.entities.SimplySkillsArrowEntity;
 import net.sweenus.simplyskills.registry.EffectRegistry;
@@ -24,39 +26,69 @@ import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 
 public class AbilityEffects {
 
+    private static final Map<UUID, ArrowRainVolley> pendingArrowRainVolleys = new HashMap<>();
 
-    public static void effectBerserkerBerserking(Entity target, PlayerEntity player) {
+    private static class ArrowRainVolley {
+        private final Vec3 position;
+        private final int radius;
+        private final int density;
+        private final int volleys;
+        private final boolean elemental;
+        private final int projectileLimit;
+        private final List<List<BlockPos>> normalArrowVolleys = new ArrayList<>();
+        private int remainingVolleys;
+        private int elementalProjectiles;
+        private int nextVolleyTick;
 
-        if ((target instanceof LivingEntity livingTarget) && player.hasStatusEffect(EffectRegistry.BERSERKING)) {
+        private ArrowRainVolley(Vec3 position, int radius, int density, int volleys,
+                                boolean elemental, int projectileLimit, int nextVolleyTick) {
+            this.position = position;
+            this.radius = radius;
+            this.density = density;
+            this.volleys = volleys;
+            this.elemental = elemental;
+            this.projectileLimit = projectileLimit;
+            this.remainingVolleys = volleys;
+            this.nextVolleyTick = nextVolleyTick;
+        }
+    }
+
+
+    public static void effectBerserkerBerserking(Entity target, Player player) {
+
+        if ((target instanceof LivingEntity livingTarget) && player.hasEffect(EffectRegistry.BERSERKING)) {
             int berserkingSubEffectDuration = SimplySkills.berserkerConfig.signatureBerserkerBerserkingSubEffectDuration;
             int berserkingSubEffectMaxAmplifier = SimplySkills.berserkerConfig.signatureBerserkerBerserkingSubEffectMaxAmplifier;
-            HelperMethods.incrementStatusEffect(player, StatusEffects.HASTE, berserkingSubEffectDuration,
+            HelperMethods.incrementStatusEffect(player, MobEffects.DIG_SPEED, berserkingSubEffectDuration,
                     1, berserkingSubEffectMaxAmplifier);
-            HelperMethods.incrementStatusEffect(player, StatusEffects.STRENGTH, berserkingSubEffectDuration,
+            HelperMethods.incrementStatusEffect(player, MobEffects.DAMAGE_BOOST, berserkingSubEffectDuration,
                     1, berserkingSubEffectMaxAmplifier);
-            HelperMethods.incrementStatusEffect(player, StatusEffects.SPEED, berserkingSubEffectDuration,
+            HelperMethods.incrementStatusEffect(player, MobEffects.MOVEMENT_SPEED, berserkingSubEffectDuration,
                     1, berserkingSubEffectMaxAmplifier);
         }
     }
 
-    public static void effectBerserkerBloodthirsty(PlayerEntity player) {
+    public static void effectBerserkerBloodthirsty(Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.BLOODTHIRSTY)) {
+        if (player.hasEffect(EffectRegistry.BLOODTHIRSTY)) {
             float bloodthirstyHealPercent = SimplySkills.berserkerConfig.signatureBerserkerBloodthirstyHealPercent;
             float healAmount = player.getMaxHealth() * bloodthirstyHealPercent;
             player.heal(healAmount);
         }
     }
 
-    public static void effectBerserkerBloodthirstyTireless(PlayerEntity player) {
+    public static void effectBerserkerBloodthirstyTireless(Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.BLOODTHIRSTY)) {
+        if (player.hasEffect(EffectRegistry.BLOODTHIRSTY)) {
             int bloodthirstyTirelessChance = SimplySkills.berserkerConfig.signatureBerserkerBloodthirstyTirelessChance;
             if (player.getRandom().nextInt(100) < bloodthirstyTirelessChance) {
                 HelperMethods.decrementStatusEffect(player, EffectRegistry.EXHAUSTION);
@@ -64,9 +96,9 @@ public class AbilityEffects {
         }
     }
 
-    public static void effectBerserkerBloodthirstyTremor(PlayerEntity player) {
+    public static void effectBerserkerBloodthirstyTremor(Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.BLOODTHIRSTY)) {
+        if (player.hasEffect(EffectRegistry.BLOODTHIRSTY)) {
             int bloodthirstyTremoreChance = SimplySkills.berserkerConfig.signatureBerserkerBloodthirstyTremorChance;
             if (player.getRandom().nextInt(100) < bloodthirstyTremoreChance) {
                 HelperMethods.incrementStatusEffect(player, EffectRegistry.EARTHSHAKER, 30,
@@ -75,41 +107,41 @@ public class AbilityEffects {
         }
     }
 
-    public static void effectBerserkerRampage(PlayerEntity player) {
+    public static void effectBerserkerRampage(Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.RAMPAGE)) {
+        if (player.hasEffect(EffectRegistry.RAMPAGE)) {
             int rampageSubEffectDuration = SimplySkills.berserkerConfig.signatureBerserkerRampageSubEffectDuration;
             int rampageSubEffectMaxAmplifier = SimplySkills.berserkerConfig.signatureBerserkerRampageSubEffectMaxAmplifier;
 
-            List<StatusEffect> list = new ArrayList<>();
-            list.add(StatusEffects.STRENGTH);
-            list.add(StatusEffects.SPEED);
-            list.add(StatusEffects.RESISTANCE);
-            list.add(StatusEffects.HASTE);
+            List<Holder<MobEffect>> list = new ArrayList<>();
+            list.add(MobEffects.DAMAGE_BOOST);
+            list.add(MobEffects.MOVEMENT_SPEED);
+            list.add(MobEffects.DAMAGE_RESISTANCE);
+            list.add(MobEffects.DIG_SPEED);
 
             Random rand = new Random();
-            StatusEffect randomStatus = list.get(rand.nextInt(list.size()));
+            Holder<MobEffect> randomStatus = list.get(rand.nextInt(list.size()));
             HelperMethods.incrementStatusEffect(player, randomStatus, rampageSubEffectDuration, 1,
                     rampageSubEffectMaxAmplifier);
         }
     }
 
-    public static void effectRogueSiphoningStrikes(Entity target, PlayerEntity player) {
+    public static void effectRogueSiphoningStrikes(Entity target, Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.SIPHONINGSTRIKES)) {
+        if (player.hasEffect(EffectRegistry.SIPHONINGSTRIKES)) {
             if (target instanceof LivingEntity livingTarget) {
                 double leechMultiplier = SimplySkills.rogueConfig.signatureRogueSiphoningStrikesLeechMultiplier;
 
                 double attackValue = Objects.requireNonNull(
-                        player.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE)).getValue();
+                        player.getAttribute(Attributes.ATTACK_DAMAGE)).getValue();
                 float healAmount = (float) (attackValue * leechMultiplier);
                 player.heal(healAmount);
 
                 HelperMethods.decrementStatusEffect(player, EffectRegistry.SIPHONINGSTRIKES);
 
-                for (StatusEffectInstance statusEffect : livingTarget.getStatusEffects()) {
-                    if (statusEffect != null && statusEffect.getEffectType().isBeneficial()) {
-                        livingTarget.removeStatusEffect(statusEffect.getEffectType());
+                for (MobEffectInstance statusEffect : livingTarget.getActiveEffects()) {
+                    if (statusEffect != null && statusEffect.getEffect().value().isBeneficial()) {
+                        livingTarget.removeEffect(statusEffect.getEffect());
                         break;
                     }
                 }
@@ -122,32 +154,32 @@ public class AbilityEffects {
         }
     }
 
-    public static void effectRogueFanOfBlades(PlayerEntity player) {
+    public static void effectRogueFanOfBlades(Player player) {
         int fobFrequency = SimplySkills.rogueConfig.signatureRogueFanOfBladesBaseFrequency;
         if (HelperMethods.isUnlocked("simplyskills:rogue",
                 SkillReferencePosition.rogueSpecialisationEvasionFanOfBladesAssault, player))
             fobFrequency = SimplySkills.rogueConfig.signatureRogueFanOfBladesEnhancedFrequency;
         if (HelperMethods.isUnlocked("simplyskills:rogue",
                 SkillReferencePosition.rogueSpecialisationEvasionFanOfBlades, player) &&
-                player.hasStatusEffect(EffectRegistry.FANOFBLADES) && player.age % fobFrequency == 0) {
+                player.hasEffect(EffectRegistry.FANOFBLADES) && player.tickCount % fobFrequency == 0) {
             int fobRange = SimplySkills.rogueConfig.signatureRogueFanOfBladesRange;
             int fobRadius = SimplySkills.rogueConfig.signatureRogueFanOfBladesRadius;
             int disenchantDuration = SimplySkills.rogueConfig.signatureRogueFanOfBladesDisenchantDuration;
 
-            BlockPos blockPos = player.getBlockPos().offset(player.getMovementDirection(), fobRange);
-            BlockState blockstate = player.getWorld().getBlockState(blockPos);
-            BlockState blockstateUp = player.getWorld().getBlockState(blockPos.up(1));
+            BlockPos blockPos = player.blockPosition().relative(player.getMotionDirection(), fobRange);
+            BlockState blockstate = player.level().getBlockState(blockPos);
+            BlockState blockstateUp = player.level().getBlockState(blockPos.above(1));
             for (int i = fobRange; i > 0; i--) {
                 if (blockstate.isAir() && blockstateUp.isAir())
                     break;
-                blockPos = player.getBlockPos().offset(player.getMovementDirection(), i);
+                blockPos = player.blockPosition().relative(player.getMotionDirection(), i);
             }
 
-            Box box = HelperMethods.createBoxBetween(player.getBlockPos(), blockPos, fobRadius);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBoxBetween(player.blockPosition(), blockPos, fobRadius);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                         if (HelperMethods.isUnlocked("simplyskills:rogue",
                                 SkillReferencePosition.rogueSpecialisationEvasionFanOfBladesAssault, player))
@@ -157,31 +189,32 @@ public class AbilityEffects {
 
                         if (HelperMethods.isUnlocked("simplyskills:rogue",
                                 SkillReferencePosition.rogueSpecialisationEvasionFanOfBladesDisenchantment, player))
-                            le.addStatusEffect(new StatusEffectInstance(EffectRegistry.DISENCHANTMENT, disenchantDuration, 0, false ,false));
+                            le.addEffect(new MobEffectInstance(EffectRegistry.DISENCHANTMENT, disenchantDuration, 0, false ,false));
+
+                        if (HelperMethods.isUnlocked("simplyskills:rogue",
+                                SkillReferencePosition.rogueBladestorm, player))
+                            HelperMethods.incrementStatusEffect(player, EffectRegistry.BLADESTORM, 400, 1, 20);
 
                     }
                 }
             }
-            if (HelperMethods.isUnlocked("simplyskills:rogue",
-                    SkillReferencePosition.rogueBladestorm, player) && player.getRandom().nextInt(100) < 35 + fobFrequency)
-                HelperMethods.incrementStatusEffect(player, EffectRegistry.BLADESTORM, 400, 1, 20);
             HelperMethods.decrementStatusEffect(player, EffectRegistry.FANOFBLADES);
         }
     }
 
-    public static void effectRogueSiphoningStrikesVanish(PlayerEntity player) {
+    public static void effectRogueSiphoningStrikesVanish(Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.SIPHONINGSTRIKES)) {
-            if (player.hasStatusEffect(EffectRegistry.REVEALED))
-                player.removeStatusEffect(EffectRegistry.REVEALED);
+        if (player.hasEffect(EffectRegistry.SIPHONINGSTRIKES)) {
+            if (player.hasEffect(EffectRegistry.REVEALED))
+                player.removeEffect(EffectRegistry.REVEALED);
         }
     }
 
 
 
-    public static boolean effectRangerElementalArrows(PlayerEntity player) {
+    public static boolean effectRangerElementalArrows(Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.ELEMENTALARROWS)) {
+        if (player.hasEffect(EffectRegistry.ELEMENTALARROWS)) {
 
 
             BlockPos blockpos = null;
@@ -191,14 +224,14 @@ public class AbilityEffects {
             int arrowCount = 1;
             int increasedArrowCount = 6;
             if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusOne, player))
-                radius = radius + increase;
+                    SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusThree, player))
+                radius = radius + (increase * 3);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
                     SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusTwo, player))
                 radius = radius + (increase * 2);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusThree, player))
-                radius = radius + (increase * 3);
+                    SkillReferencePosition.rangerSpecialisationElementalArrowsRadiusOne, player))
+                radius = radius + increase;
 
             List<String> list = new ArrayList<>();
             list.add("simplyskills:frost_arrow_rain");
@@ -224,7 +257,7 @@ public class AbilityEffects {
             HelperMethods.decrementStatusEffect(player, EffectRegistry.ELEMENTALARROWS);
             
             if (HelperMethods.getTargetedEntity(player, targetingRange) !=null)
-                blockpos = HelperMethods.getTargetedEntity(player, targetingRange).getBlockPos();
+                blockpos = HelperMethods.getTargetedEntity(player, targetingRange).blockPosition();
 
             if (blockpos == null)
                 blockpos = HelperMethods.getBlockLookingAt(player, targetingRange);
@@ -234,17 +267,17 @@ public class AbilityEffects {
                 int ypos = (int) blockpos.getY();
                 int zpos = (int) blockpos.getZ();
                 BlockPos searchArea = new BlockPos(xpos, ypos, zpos);
-                Box box = HelperMethods.createBoxAtBlock(searchArea, radius);
-                for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                AABB box = HelperMethods.createBoxAtBlock(searchArea, radius);
+                for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
-                    if (player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY).size() == 1)
+                    if (player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE).size() == 1)
                         arrowCount = increasedArrowCount;
 
                     for (int i = arrowCount; i > 0; i--) {
                         if (entities != null) {
                             Random rand = new Random();
                             String randomSpell = list.get(rand.nextInt(list.size()));
-                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                                 SignatureAbilities.castSpellEngineIndirectTarget(player,
                                         randomSpell,
                                         512, le, HelperMethods.getBlockLookingAt(player, 256));
@@ -263,9 +296,9 @@ public class AbilityEffects {
         return false;
     }
 
-    public static boolean effectRangerMarksman(PlayerEntity player) {
+    public static boolean effectRangerMarksman(Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.MARKSMAN)) {
+        if (player.hasEffect(EffectRegistry.MARKSMAN)) {
             Entity target = null;
             int targetingRange = SimplySkills.rangerConfig.effectRangerElementalArrowsTargetingRange;
 
@@ -287,9 +320,9 @@ public class AbilityEffects {
     }
 
 
-    public static boolean effectRangerArrowRain(PlayerEntity player) {
+    public static boolean effectRangerArrowRain(Player player) {
 
-        if (player.hasStatusEffect(EffectRegistry.ARROWRAIN)) {
+        if (player.hasEffect(EffectRegistry.ARROWRAIN)) {
 
             int arrowRainRadius = SimplySkills.rangerConfig.effectRangerArrowRainRadius;
             int arrowRainRadiusIncrease = SimplySkills.rangerConfig.effectRangerArrowRainRadiusIncreasePerTier;
@@ -297,109 +330,62 @@ public class AbilityEffects {
             int arrowRainVolleys = SimplySkills.rangerConfig.effectRangerArrowRainVolleys;
             int arrowRainVolleyIncrease = SimplySkills.rangerConfig.effectRangerArrowRainVolleyIncreasePerTier;
             int arrowRainRange = SimplySkills.rangerConfig.effectRangerArrowRainRange;
-            boolean preventShotgun = false;
-            int projectileLimiter = 0;
-            int projectileLimiterCap = 30;
+            int projectileLimiterCap = Integer.MAX_VALUE;
 
             if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationArrowRainRadiusOne, player))
-                arrowRainRadius = arrowRainRadius + arrowRainRadiusIncrease;
+                    SkillReferencePosition.rangerSpecialisationArrowRainRadiusThree, player))
+                arrowRainRadius = arrowRainRadius + (arrowRainRadiusIncrease * 3);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
                     SkillReferencePosition.rangerSpecialisationArrowRainRadiusTwo, player))
                 arrowRainRadius = arrowRainRadius + (arrowRainRadiusIncrease * 2);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationArrowRainRadiusThree, player))
-                arrowRainRadius = arrowRainRadius + (arrowRainRadiusIncrease * 3);
+                    SkillReferencePosition.rangerSpecialisationArrowRainRadiusOne, player))
+                arrowRainRadius = arrowRainRadius + arrowRainRadiusIncrease;
 
             if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationArrowRainVolleyOne, player))
-                arrowRainVolleys = arrowRainVolleys + arrowRainVolleyIncrease;
+                    SkillReferencePosition.rangerSpecialisationArrowRainVolleyThree, player))
+                arrowRainVolleys = arrowRainVolleys + (arrowRainVolleyIncrease * 3);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
                     SkillReferencePosition.rangerSpecialisationArrowRainVolleyTwo, player))
                 arrowRainVolleys = arrowRainVolleys + (arrowRainVolleyIncrease * 2);
             else if (HelperMethods.isUnlocked("simplyskills:ranger",
-                    SkillReferencePosition.rangerSpecialisationArrowRainVolleyThree, player))
-                arrowRainVolleys = arrowRainVolleys + (arrowRainVolleyIncrease * 3);
+                    SkillReferencePosition.rangerSpecialisationArrowRainVolleyOne, player))
+                arrowRainVolleys = arrowRainVolleys + arrowRainVolleyIncrease;
 
 
             BlockPos blockpos2;
             Entity target;
-            Vec3d blockpos = HelperMethods.getPositionLookingAt(player, arrowRainRange);
+            Vec3 blockpos = HelperMethods.getPositionLookingAt(player, arrowRainRange);
             if (blockpos == null) {
                 blockpos2 = HelperMethods.getBlockLookingAt(player, arrowRainRange);
                 if (blockpos2 != null) {
-                    target = EntityRegistry.SPELL_TARGET_ENTITY.spawn((ServerWorld) player.getWorld(),
+                    target = EntityRegistry.SPELL_TARGET_ENTITY.spawn((ServerLevel) player.level(),
                             blockpos2,
-                            SpawnReason.TRIGGERED);
+                            MobSpawnType.TRIGGERED);
                     if (target !=null)
-                        blockpos = target.getPos();
+                        blockpos = target.position();
                 }
             }
 
             if (blockpos != null) {
-                int xpos = (int) blockpos.getX() - arrowRainRadius;
-                int ypos = (int) blockpos.getY();
-                int zpos = (int) blockpos.getZ() - arrowRainRadius;
-
-
-                for (int x = arrowRainRadius * 2; x > 0; x--) {
-                    for (int z = arrowRainRadius * 2; z > 0; z--) {
-                        for (int i = arrowRainVolleys; i > 0; i--) {
-                            BlockPos spawnPosition = new BlockPos(xpos + x,
-                                    ypos + 25 + (player.getRandom().nextInt(15) * arrowRainVolleys + 1),
-                                    zpos + z);
-
-                            if (player.getRandom().nextInt(100) < arrowRainChance
-                                    && player.getWorld().getBlockState(spawnPosition).isAir()) {
-                                SimplySkillsArrowEntity arrowEntity = new SimplySkillsArrowEntity(EntityType.ARROW,
-                                        player.getWorld());
-                                arrowEntity.updatePosition(spawnPosition.getX(),
-                                        spawnPosition.getY(),
-                                        spawnPosition.getZ());
-                                arrowEntity.setOwner(player);
-                                arrowEntity.pickupType = PersistentProjectileEntity.PickupPermission.CREATIVE_ONLY;
-                                arrowEntity.setVelocity(0, -0.5, 0);
-                                player.getWorld().spawnEntity(arrowEntity);
-
-                                if (HelperMethods.isUnlocked("simplyskills:ranger",
-                                        SkillReferencePosition.rangerSpecialisationArrowRainElemental, player)) {
-
-                                    BlockPos blockPos = player.getBlockPos().offset(player.getMovementDirection(), 3);
-                                    Box box = HelperMethods.createBoxBetween(player.getBlockPos(), blockPos, 3);
-                                    for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
-
-                                        if (entities != null) {
-                                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
-                                                preventShotgun = true;
-                                                projectileLimiterCap = 4;
-                                            }
-                                        }
-                                    }
-
-                                    arrowEntity.addEffect(new StatusEffectInstance((StatusEffects.SLOWNESS)));
-                                    if (!preventShotgun || projectileLimiter < projectileLimiterCap) {
-                                        if (player.getRandom().nextInt(100) < 5) {
-                                            SignatureAbilities.castSpellEngineIndirectTarget(player,
-                                                    "simplyskills:fire_arrow_rain", 512, arrowEntity, null);
-                                            arrowEntity.setInvisible(true);
-                                            projectileLimiter++;
-                                        } else if (player.getRandom().nextInt(100) < 15) {
-                                            SignatureAbilities.castSpellEngineIndirectTarget(player,
-                                                    "simplyskills:frost_arrow_rain", 512, arrowEntity, null);
-                                            arrowEntity.setInvisible(true);
-                                            projectileLimiter++;
-                                        } else if (player.getRandom().nextInt(100) < 25) {
-                                            SignatureAbilities.castSpellEngineIndirectTarget(player,
-                                                    "simplyskills:lightning_arrow_rain", 512, arrowEntity, null);
-                                            arrowEntity.setInvisible(true);
-                                            projectileLimiter++;
-                                        }
-                                    }
-                                }
-                            }
+                boolean elemental = HelperMethods.isUnlocked("simplyskills:ranger",
+                        SkillReferencePosition.rangerSpecialisationArrowRainElemental, player);
+                if (elemental) {
+                    BlockPos blockPos = player.blockPosition().relative(player.getMotionDirection(), 3);
+                    AABB box = HelperMethods.createBoxBetween(player.blockPosition(), blockPos, 3);
+                    for (Entity entity : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
+                        if (entity instanceof LivingEntity livingEntity && HelperMethods.checkFriendlyFireAOE(livingEntity, player)) {
+                            projectileLimiterCap = 4;
+                            break;
                         }
                     }
                 }
+
+                ArrowRainVolley volley = new ArrowRainVolley(blockpos, arrowRainRadius, arrowRainChance,
+                        arrowRainVolleys, elemental, projectileLimiterCap, player.tickCount);
+                pendingArrowRainVolleys.put(player.getUUID(), volley);
+                prepareArrowRain((ServerPlayer) player, volley);
+                spawnArrowRainVolley((ServerPlayer) player, volley);
                 HelperMethods.decrementStatusEffect(player, EffectRegistry.ARROWRAIN);
             }
             return true;
@@ -407,12 +393,89 @@ public class AbilityEffects {
         return false;
     }
 
-    public static void effectWizardFrostVolley(PlayerEntity player) {
+    public static void tickRangerArrowRain(ServerPlayer player) {
+        ArrowRainVolley volley = pendingArrowRainVolleys.get(player.getUUID());
+        if (volley == null || player.tickCount < volley.nextVolleyTick)
+            return;
+
+        spawnArrowRainVolley(player, volley);
+    }
+
+    public static void clearRangerArrowRain(ServerPlayer player) {
+        pendingArrowRainVolleys.remove(player.getUUID());
+    }
+
+    private static void prepareArrowRain(ServerPlayer player, ArrowRainVolley volley) {
+        int xpos = (int) volley.position.x() - volley.radius;
+        int ypos = (int) volley.position.y();
+        int zpos = (int) volley.position.z() - volley.radius;
+
+        for (int i = volley.volleys; i > 0; i--) {
+            List<BlockPos> normalArrows = new ArrayList<>();
+            for (int x = volley.radius * 2; x > 0; x--) {
+                for (int z = volley.radius * 2; z > 0; z--) {
+                    BlockPos spawnPosition = new BlockPos(xpos + x,
+                            ypos + 25 + (player.getRandom().nextInt(15) * volley.volleys + 1),
+                            zpos + z);
+
+                    if (player.getRandom().nextInt(100) < volley.density
+                            && player.level().getBlockState(spawnPosition).isAir()) {
+                        String elementalSpell = null;
+                        if (volley.elemental && volley.elementalProjectiles < volley.projectileLimit)
+                            elementalSpell = getArrowRainElement(player);
+
+                        if (elementalSpell != null) {
+                            SimplySkillsArrowEntity arrowEntity = spawnArrowRainArrow(player, spawnPosition);
+                            arrowEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN));
+                            SignatureAbilities.castSpellEngineIndirectTarget(player,
+                                    elementalSpell, 512, arrowEntity, null);
+                            arrowEntity.setInvisible(true);
+                            volley.elementalProjectiles++;
+                        } else normalArrows.add(spawnPosition);
+                    }
+                }
+            }
+            volley.normalArrowVolleys.add(normalArrows);
+        }
+    }
+
+    private static void spawnArrowRainVolley(ServerPlayer player, ArrowRainVolley volley) {
+        int volleyNumber = volley.volleys - volley.remainingVolleys;
+        for (BlockPos spawnPosition : volley.normalArrowVolleys.get(volleyNumber))
+            spawnArrowRainArrow(player, spawnPosition);
+
+        volley.remainingVolleys--;
+        if (volley.remainingVolleys > 0)
+            volley.nextVolleyTick = player.tickCount + 4;
+        else pendingArrowRainVolleys.remove(player.getUUID());
+    }
+
+    private static SimplySkillsArrowEntity spawnArrowRainArrow(ServerPlayer player, BlockPos position) {
+        SimplySkillsArrowEntity arrowEntity = new SimplySkillsArrowEntity(EntityType.ARROW, player.level());
+        arrowEntity.absMoveTo(position.getX(), position.getY(), position.getZ());
+        arrowEntity.setOwner(player);
+        arrowEntity.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+        arrowEntity.setDeltaMovement(0, -0.5, 0);
+        player.level().addFreshEntity(arrowEntity);
+        return arrowEntity;
+    }
+
+    private static String getArrowRainElement(Player player) {
+        if (player.getRandom().nextInt(100) < 5)
+            return "simplyskills:fire_arrow_rain";
+        else if (player.getRandom().nextInt(100) < 15)
+            return "simplyskills:frost_arrow_rain";
+        else if (player.getRandom().nextInt(100) < 25)
+            return "simplyskills:lightning_arrow_rain";
+        return null;
+    }
+
+    public static void effectWizardFrostVolley(Player player) {
         int frequency = SimplySkills.wizardConfig.signatureWizardIceCometVolleyFrequency;
 
         if (HelperMethods.isUnlocked("simplyskills:wizard",
                 SkillReferencePosition.wizardSpecialisationIceCometVolley, player) &&
-        player.hasStatusEffect(EffectRegistry.FROSTVOLLEY) && player.age % frequency == 0) {
+        player.hasEffect(EffectRegistry.FROSTVOLLEY) && player.tickCount % frequency == 0) {
             Entity target = null;
             int volleyRange = SimplySkills.wizardConfig.signatureWizardIceCometVolleyRange;
 
@@ -428,12 +491,12 @@ public class AbilityEffects {
             HelperMethods.decrementStatusEffect(player, EffectRegistry.FROSTVOLLEY);
         }
     }
-    public static void effectWizardArcaneVolley(PlayerEntity player) {
+    public static void effectWizardArcaneVolley(Player player) {
         int volleyFrequency = SimplySkills.wizardConfig.signatureWizardArcaneBoltVolleyFrequency;
 
         if (HelperMethods.isUnlocked("simplyskills:wizard",
                 SkillReferencePosition.wizardSpecialisationArcaneBoltVolley, player) &&
-                player.hasStatusEffect(EffectRegistry.ARCANEVOLLEY) && player.age % volleyFrequency == 0) {
+                player.hasEffect(EffectRegistry.ARCANEVOLLEY) && player.tickCount % volleyFrequency == 0) {
             Entity target = null;
             int volleyRange = SimplySkills.wizardConfig.signatureWizardArcaneBoltVolleyRange;
 
@@ -449,12 +512,12 @@ public class AbilityEffects {
             HelperMethods.decrementStatusEffect(player, EffectRegistry.ARCANEVOLLEY);
         }
     }
-    public static void effectWizardMeteoricWrath(PlayerEntity player) {
+    public static void effectWizardMeteoricWrath(Player player) {
         int frequency = SimplySkills.wizardConfig.signatureWizardMeteoricWrathFrequency;
 
         if (HelperMethods.isUnlocked("simplyskills:wizard",
                 SkillReferencePosition.wizardSpecialisationMeteorShowerWrath, player) &&
-                player.hasStatusEffect(EffectRegistry.METEORICWRATH) && player.age % frequency == 0) {
+                player.hasEffect(EffectRegistry.METEORICWRATH) && player.tickCount % frequency == 0) {
             int chance = SimplySkills.wizardConfig.signatureWizardMeteoricWrathChance;
             int radius = SimplySkills.wizardConfig.signatureWizardMeteoricWrathRadius;
             int baseRenewalChance = SimplySkills.wizardConfig.signatureWizardMeteoricWrathRenewalBaseChance;
@@ -465,22 +528,22 @@ public class AbilityEffects {
             if (SignatureAbilities.castSpellEngineAOE(player, spellIdentifier, radius, chance, true, false)) {
                 int renewalChance = 0;
                 if (HelperMethods.isUnlocked("simplyskills:wizard",
-                        SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrath, player))
-                    renewalChance = baseRenewalChance;
+                        SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrathThree, player))
+                    renewalChance = baseRenewalChance + (renewalChancePerTier * 2);
                 else if (HelperMethods.isUnlocked("simplyskills:wizard",
                         SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrathTwo, player))
                     renewalChance = baseRenewalChance + renewalChancePerTier;
                 else if (HelperMethods.isUnlocked("simplyskills:wizard",
-                        SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrathThree, player))
-                    renewalChance = baseRenewalChance + (renewalChancePerTier * 2);
-                if (player.getRandom().nextInt(100) > renewalChance)
+                        SkillReferencePosition.wizardSpecialisationMeteorShowerRenewingWrath, player))
+                    renewalChance = baseRenewalChance;
+                if (player.getRandom().nextInt(100) >= renewalChance)
                     HelperMethods.decrementStatusEffect(player, EffectRegistry.METEORICWRATH);
             }
         }
 
     }
 
-    public static void effectSpellbladeSpellweaving(Entity target, PlayerEntity player) {
+    public static void effectSpellbladeSpellweaving(Entity target, Player player) {
         int chance = SimplySkills.spellbladeConfig.passiveSpellbladeSpellweavingChance;
         int spellweaverHasteDuration = SimplySkills.spellbladeConfig.signatureSpellbladeSpellweaverHasteDuration;
         int spellweaverHasteStacks = SimplySkills.spellbladeConfig.signatureSpellbladeSpellweaverHasteStacks;
@@ -490,7 +553,7 @@ public class AbilityEffects {
         int spellweaverRegenerationMaxStacks = SimplySkills.spellbladeConfig.signatureSpellbladeSpellweaverRegenerationMaxStacks;
         int spellweaverRegenerationChance = SimplySkills.spellbladeConfig.signatureSpellbladeSpellweaverRegenerationChance;
 
-        if (player.hasStatusEffect(EffectRegistry.SPELLWEAVER) &&
+        if (player.hasEffect(EffectRegistry.SPELLWEAVER) &&
                 (HelperMethods.isUnlocked("simplyskills:spellblade",
                         SkillReferencePosition.spellbladeSpecialisationSpellweaver, player)))
             chance = SimplySkills.spellbladeConfig.signatureSpellbladeSpellweaverChance;
@@ -505,7 +568,7 @@ public class AbilityEffects {
         list.add("simplyskills:fire_meteor_small");
         list.add("simplyskills:static_discharge");
 
-        if (player.hasStatusEffect(EffectRegistry.SPELLWEAVER)) {
+        if (player.hasEffect(EffectRegistry.SPELLWEAVER)) {
             list.add("simplyskills:physical_swordrain");
             list.add("simplyskills:arcane_slash_projectile");
             list.add("simplyskills:righteous_hammer_projectile");
@@ -521,18 +584,19 @@ public class AbilityEffects {
 
             if (HelperMethods.isUnlocked("simplyskills:spellblade",
                     SkillReferencePosition.spellbladeSpecialisationSpellweaverHaste, player))
-                HelperMethods.incrementStatusEffect(player, StatusEffects.HASTE, spellweaverHasteDuration,
+                HelperMethods.incrementStatusEffect(player, MobEffects.DIG_SPEED, spellweaverHasteDuration,
                         spellweaverHasteStacks, spellweaverHasteMaxStacks);
             if (HelperMethods.isUnlocked("simplyskills:spellblade",
                     SkillReferencePosition.spellbladeSpecialisationSpellweaverRegeneration, player) &&
                     player.getRandom().nextInt(100) < spellweaverRegenerationChance)
-                HelperMethods.incrementStatusEffect(player, StatusEffects.REGENERATION, spellweaverRegenerationDuration,
+                HelperMethods.incrementStatusEffect(player, MobEffects.REGENERATION, spellweaverRegenerationDuration,
                         spellweaverRegenerationStacks, spellweaverRegenerationMaxStacks);
         }
     }
 
-    public static void effectRagingJavelin(PlayerEntity player) {
-        if (player.age % 8 == 0 && !player.getMainHandStack().isEmpty()) {
+    public static void effectRagingJavelin(Player player) {
+        int frequency = SimplySkills.warriorConfig.passiveWarriorRagingJavelinFrequency;
+        if (player.tickCount % frequency == 0 && !player.getMainHandItem().isEmpty()) {
 
             String spellIdentifier = "simplyskills:passive_throw";
             int radius = 10;

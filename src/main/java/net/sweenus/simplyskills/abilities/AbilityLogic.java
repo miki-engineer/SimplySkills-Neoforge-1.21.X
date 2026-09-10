@@ -1,20 +1,18 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.neoforged.fml.ModList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.puffish.skillsmod.api.Category;
 import net.puffish.skillsmod.api.SkillsAPI;
-import net.spell_engine.internals.SpellRegistry;
+import net.spell_engine.api.spell.registry.SpellRegistry;
 import net.spell_power.api.SpellSchool;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
@@ -33,11 +31,11 @@ public class AbilityLogic {
 
     // -- Unlock Manager --
 
-    public static boolean skillTreeUnlockManager(PlayerEntity player, String categoryID) {
+    public static boolean skillTreeUnlockManager(Player player, String categoryID) {
 
         if (net.sweenus.simplyskills.util.HelperMethods.stringContainsAny(categoryID, SimplySkills.getSpecialisations())) {
 
-            if (SimplySkills.generalConfig.removeUnlockRestrictions || (player.getMainHandStack().getItem() instanceof GraciousManuscript))
+            if (player.getMainHandItem().getItem() instanceof GraciousManuscript)
                 return false;
 
             //Prevent unlocking multiple specialisations (kinda cursed ngl)
@@ -46,7 +44,7 @@ public class AbilityLogic {
                 //System.out.println("Comparing " + categoryID + " against " + s);
                 if (categoryID.contains(s)) {
 
-                    for (Category value : (Iterable<Category>) SkillsAPI.streamUnlockedCategories((ServerPlayerEntity) player)::iterator) {
+                    for (Category value : (Iterable<Category>) SkillsAPI.streamUnlockedCategories((ServerPlayer) player)::iterator) {
                         if (net.sweenus.simplyskills.util.HelperMethods.stringContainsAny(value.getId().toString(), SimplySkills.getSpecialisations())) {
                             //System.out.println(player + " attempted to unlock a second specialisation. Denied.");
                             return true;
@@ -62,64 +60,64 @@ public class AbilityLogic {
                     && !net.sweenus.simplyskills.util.HelperMethods.isUnlocked("simplyskills:wizard", null, player)) {
                 if (SimplySkills.wizardConfig.enableWizardSpecialisation) {
                     playUnlockSound(player);
-                    player.sendMessage(Text.translatable("system.simplyskills.unlock"));
+                    player.sendSystemMessage(Component.translatable("system.simplyskills.unlock"));
                     return false;
                 }
             } else if (categoryID.contains("simplyskills:berserker")
                     && !HelperMethods.isUnlocked("simplyskills:berserker", null, player)) {
                 if (SimplySkills.berserkerConfig.enableBerserkerSpecialisation) {
                     playUnlockSound(player);
-                    player.sendMessage(Text.translatable("system.simplyskills.unlock"));
+                    player.sendSystemMessage(Component.translatable("system.simplyskills.unlock"));
                     return false;
                 }
             } else if (categoryID.contains("simplyskills:rogue")
                     && !HelperMethods.isUnlocked("simplyskills:rogue", null, player)) {
                 if (SimplySkills.rogueConfig.enableRogueSpecialisation) {
                     playUnlockSound(player);
-                    player.sendMessage(Text.translatable("system.simplyskills.unlock"));
+                    player.sendSystemMessage(Component.translatable("system.simplyskills.unlock"));
                     return false;
                 }
             } else if (categoryID.contains("simplyskills:ranger")
                     && !HelperMethods.isUnlocked("simplyskills:ranger", null, player)) {
                 if (SimplySkills.rangerConfig.enableRangerSpecialisation) {
                     playUnlockSound(player);
-                    player.sendMessage(Text.translatable("system.simplyskills.unlock"));
+                    player.sendSystemMessage(Component.translatable("system.simplyskills.unlock"));
                     return false;
                 }
             } else if (categoryID.contains("simplyskills:spellblade")
                     && !HelperMethods.isUnlocked("simplyskills:spellblade", null, player)) {
                 if (SimplySkills.spellbladeConfig.enableSpellbladeSpecialisation) {
                     playUnlockSound(player);
-                    player.sendMessage(Text.translatable("system.simplyskills.unlock"));
+                    player.sendSystemMessage(Component.translatable("system.simplyskills.unlock"));
                     return false;
                 }
             } else if (categoryID.contains("simplyskills:crusader")
                     && !HelperMethods.isUnlocked("simplyskills:crusader", null, player)) {
 
-                if (!FabricLoader.getInstance().isModLoaded("paladins"))
+                if (!ModList.get().isLoaded("paladins"))
                     return true;
 
                 if (SimplySkills.crusaderConfig.enableCrusaderSpecialisation) {
                     playUnlockSound(player);
-                    player.sendMessage(Text.translatable("system.simplyskills.unlock"));
+                    player.sendSystemMessage(Component.translatable("system.simplyskills.unlock"));
                     return false;
                 }
             } else if (categoryID.contains("simplyskills:cleric")
                     && !HelperMethods.isUnlocked("simplyskills:cleric", null, player)) {
 
-                if (!FabricLoader.getInstance().isModLoaded("paladins"))
+                if (!ModList.get().isLoaded("paladins"))
                     return true;
 
                 if (SimplySkills.clericConfig.enableClericSpecialisation) {
                     playUnlockSound(player);
-                    player.sendMessage(Text.translatable("system.simplyskills.unlock"));
+                    player.sendSystemMessage(Component.translatable("system.simplyskills.unlock"));
                     return false;
                 }
             } else if (categoryID.contains("simplyskills:necromancer")
                     && !HelperMethods.isUnlocked("simplyskills:necromancer", null, player)) {
                 if (SimplySkills.necromancerConfig.enableNecromancerSpecialisation) {
                     playUnlockSound(player);
-                    player.sendMessage(Text.translatable("system.simplyskills.unlock"));
+                    player.sendSystemMessage(Component.translatable("system.simplyskills.unlock"));
                     return false;
                 }
             } else if (categoryID.contains("simplyskills:ascendancy")
@@ -135,14 +133,14 @@ public class AbilityLogic {
         return false;
     }
 
-    static void playUnlockSound(PlayerEntity player) {
-        if (player.getMainHandStack().getItem() != ItemRegistry.GRACIOUSMANUSCRIPT)
-            player.getWorld().playSoundFromEntity(null, player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE,
-                    SoundCategory.PLAYERS, 1, 1);
+    static void playUnlockSound(Player player) {
+        if (player.getMainHandItem().getItem() != ItemRegistry.GRACIOUSMANUSCRIPT)
+            player.level().playSound(null, player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE,
+                    SoundSource.PLAYERS, 1, 1);
     }
 
     // Unlocks junction nodes of the corresponding type
-    public static void performJunctionLogic(ServerPlayerEntity player, String skillId, Identifier categoryId) {
+    public static void performJunctionLogic(ServerPlayer player, String skillId, ResourceLocation categoryId) {
         List<String> sapphire = new ArrayList<>();
         sapphire.add(SkillReferencePosition.sapphire_portal_1);
         sapphire.add(SkillReferencePosition.sapphire_portal_2);
@@ -168,7 +166,7 @@ public class AbilityLogic {
         }
     }
 
-    public static void performTagEffects(PlayerEntity player, String tags) {
+    public static void performTagEffects(Player player, String tags) {
 
         if (tags.contains("magic")) {
 
@@ -185,28 +183,26 @@ public class AbilityLogic {
 
     }
 
-    public static void onSpellCastEffects(PlayerEntity player, @Nullable List<Entity> targets,@Nullable Identifier spellId, @Nullable Set<? extends SpellSchool> schools) {
+    public static void onSpellCastEffects(Player player, @Nullable List<Entity> targets,@Nullable ResourceLocation spellId, @Nullable Set<? extends SpellSchool> schools) {
         SpellSchool school = null;
         if (spellId !=null)
-            school = SpellRegistry.getSpell(spellId).school;
+            school = SpellRegistry.from(player.level()).get(spellId).school;
 
         if (HelperMethods.isUnlocked("simplyskills:tree",
-                SkillReferencePosition.initiateEmpower, player)
-                || (FabricLoader.getInstance().isModLoaded("prominent")
-                && HelperMethods.isUnlocked("puffish_skills:prom",
-                SkillReferencePosition.initiateEmpower, player)))
+                SkillReferencePosition.initiateEmpower, player))
             InitiateAbilities.passiveInitiateEmpower(player, school, schools);
 
-        if (player.hasStatusEffect(EffectRegistry.STEALTH)) {
+        if (player.hasEffect(EffectRegistry.STEALTH)) {
             WayfarerAbilities.passiveWayfarerBreakStealth(null, player, false, false);
-            if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.initiateWhisperedWizardry, player))
+            if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.initiateWhisperedWizardry, player)) {
                 HelperMethods.incrementStatusEffect(player, EffectRegistry.SPELLFORGED, 80, 1, 5);
+            }
         } else if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.initiateSpellcloak, player)
-                && !player.hasStatusEffect(EffectRegistry.REVEALED)) {
-            player.addStatusEffect(new StatusEffectInstance(EffectRegistry.STEALTH, 40, 0 , false, false, true));
+                && !player.hasEffect(EffectRegistry.REVEALED)) {
+            player.addEffect(new MobEffectInstance(EffectRegistry.STEALTH, 40, 0 , false, false, true));
         }
 
-        if (FabricLoader.getInstance().isModLoaded("simplyswords")) {
+        if (ModList.get().isLoaded("simplyswords")) {
             SimplySwordsGemEffects.spellshield(player);
             SimplySwordsGemEffects.spellStandard(player);
         }
@@ -219,8 +215,9 @@ public class AbilityLogic {
             SpellbladeAbilities.effectSpellbladeWeaponExpert(player);
         }
 
-        if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.initiateOverload, player))
+        if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.initiateOverload, player)) {
             HelperMethods.incrementStatusEffect(player, EffectRegistry.OVERLOAD, 160, 1, 9);
+        }
 
         if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.initiateEldritchEnfeeblement, player) && targets != null) {
             InitiateAbilities.passiveInitiateEldritchEnfeeblement(player, targets);
@@ -234,44 +231,28 @@ public class AbilityLogic {
 
         // Not Amethyst Imbuement safe (Anything that requires Spell Engine spellId)
         if (spellId !=null) {
-            if (FabricLoader.getInstance().isModLoaded("prominent")) {
-                ProminenceAbilities.focusEffect(player, spellId);
 
-                // Make S'kellak's Call deal hybrid phys/fire damage
-                if (spellId.toString().contains("physical_eldritch_hammers") && targets != null) {
-                    for (Entity target : targets) {
-                        if (target instanceof LivingEntity) {
-                            DamageSource damageSource = player.getDamageSources().playerAttack(player);
-                            double multi = SimplySkills.miscConfig.promSkellaksCallPhysDmgMulti;
-                            double amount = player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) * multi;
-                            target.timeUntilRegen = 0;
-                            target.damage(damageSource, (float) amount);
-                            target.timeUntilRegen = 0;
-                        }
-                    }
-                }
-
-            }
 
             if (HelperMethods.isUnlocked("simplyskills:cleric", SkillReferencePosition.clericMutualMending, player)
-                    && FabricLoader.getInstance().isModLoaded("paladins")) {
+                    && ModList.get().isLoaded("paladins")) {
                 ClericAbilities.passiveClericMutualMending(player, spellId, targets);
             }
             if (HelperMethods.isUnlocked("simplyskills:cleric", SkillReferencePosition.clericHealingWard, player)
-                    && FabricLoader.getInstance().isModLoaded("paladins")) {
+                    && ModList.get().isLoaded("paladins")) {
                 ClericAbilities.passiveClericHealingWard(player, targets, spellId);
             }
 
             if (school.id.toString().contains("physical_ranged")) {
-                if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.wayfarerQuickfire, player))
+                if (HelperMethods.isUnlocked("simplyskills:tree", SkillReferencePosition.wayfarerQuickfire, player)) {
                     HelperMethods.incrementStatusEffect(player, EffectRegistry.MARKSMANSHIP, 40, 1, 6);
+                }
                 AbilityEffects.effectRangerElementalArrows(player);
             }
 
             if (school.id.toString().contains("physical_melee") && targets != null) {
                 for (Entity target : targets) {
                     if (target instanceof LivingEntity) {
-                        doMeleeOnHit((ServerPlayerEntity) player, target);
+                        doMeleeOnHit((ServerPlayer) player, target);
                     }
                 }
             }
@@ -280,7 +261,7 @@ public class AbilityLogic {
         }
     }
 
-    public static void doMeleeOnHit(ServerPlayerEntity player, Entity target) {
+    public static void doMeleeOnHit(ServerPlayer player, Entity target) {
         if (target.equals(player))
             return;
         //Passive Rogue Backstab
@@ -291,7 +272,8 @@ public class AbilityLogic {
 
         //Passive Rogue Opportunistic Mastery
         if (HelperMethods.isUnlocked("simplyskills:rogue",
-                SkillReferencePosition.rogueOpportunisticMastery, player)) {
+                SkillReferencePosition.rogueOpportunisticMastery, player)
+                && player.hasEffect(EffectRegistry.STEALTH)) {
             RogueAbilities.passiveRogueOpportunisticMastery(target, player);
         }
 
@@ -312,10 +294,14 @@ public class AbilityLogic {
         //Signature Passive Elemental Surge Renewal
         if (HelperMethods.isUnlocked("simplyskills:spellblade",
                 SkillReferencePosition.spellbladeSpecialisationElementalSurgeRenewal, player)) {
-            if (player.hasStatusEffect(EffectRegistry.ELEMENTALSURGE)) {
-                int surgeDuration = player.getStatusEffect(EffectRegistry.ELEMENTALSURGE).getDuration();
-                player.removeStatusEffect(EffectRegistry.ELEMENTALSURGE);
-                player.addStatusEffect(new StatusEffectInstance(EffectRegistry.ELEMENTALSURGE, surgeDuration+3, 0, false, false, true));
+            int renewalChance = SimplySkills.spellbladeConfig.signatureSpellbladeElementalSurgeRenewalChance;
+            int renewalDuration = SimplySkills.spellbladeConfig.signatureSpellbladeElementalSurgeRenewalDuration;
+            if (player.hasEffect(EffectRegistry.ELEMENTALSURGE) &&
+                    player.getRandom().nextInt(100) < renewalChance) {
+                int surgeDuration = player.getEffect(EffectRegistry.ELEMENTALSURGE).getDuration();
+                player.removeEffect(EffectRegistry.ELEMENTALSURGE);
+                player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALSURGE,
+                        surgeDuration + renewalDuration, 0, false, false, true));
             }
         }
 
@@ -356,7 +342,7 @@ public class AbilityLogic {
         }
 
         //Effect Stealth
-        if (player.hasStatusEffect(EffectRegistry.STEALTH)) {
+        if (player.hasEffect(EffectRegistry.STEALTH)) {
             WayfarerAbilities.passiveWayfarerBreakStealth(target, player, false, true);
         }
 
@@ -378,27 +364,19 @@ public class AbilityLogic {
                 && target instanceof LivingEntity livingTarget) {
             WarriorAbilities.passiveWarriorTwinstrike(player, livingTarget);
         }
-        //Passive Prom Twinstrike
-        if (FabricLoader.getInstance().isModLoaded("prominent")
-                && HelperMethods.isUnlocked("puffish_skills:prom",
-                SkillReferencePosition.promTwinstrike, player)
-                && target instanceof LivingEntity livingTarget) {
-            ProminenceAbilities.promTwinstrike(player, livingTarget);
-        }
+
+
 
         //Passive Warrior Swordfall
         if (target instanceof LivingEntity livingTarget) {
             if (HelperMethods.isUnlocked("simplyskills:tree",
-                    SkillReferencePosition.warriorSwordfall, player)
-                    || (FabricLoader.getInstance().isModLoaded("prominent")
-                    && HelperMethods.isUnlocked("puffish_skills:prom",
-                    SkillReferencePosition.warriorSwordfall, player)))
+                    SkillReferencePosition.warriorSwordfall, player))
                 WarriorAbilities.passiveWarriorSwordfall(player, livingTarget);
         }
 
         //Signature Cleric Anoint Weapon
-        if (player.hasStatusEffect(EffectRegistry.ANOINTED)
-                && FabricLoader.getInstance().isModLoaded("paladins")) {
+        if (player.hasEffect(EffectRegistry.ANOINTED)
+                && ModList.get().isLoaded("paladins")) {
             ClericAbilities.signatureClericAnointWeaponEffect(player);
         }
 

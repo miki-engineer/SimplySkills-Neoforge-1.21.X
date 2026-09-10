@@ -1,17 +1,18 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
+    id 'java-library'
     id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.144'
+    id 'idea'
 }
 
-version = project.mod_version
-group = project.maven_group
+version = mod_version
+group = mod_group_id
 
 repositories {
-
     maven {
-        url "https://www.cursemaven.com"
+        url 'https://www.cursemaven.com'
         content {
-            includeGroup "curse.maven"
+            includeGroup 'curse.maven'
         }
     }
     maven {
@@ -21,124 +22,106 @@ repositories {
             includeGroup 'maven.modrinth'
         }
     }
-    maven { url "https://maven.shedaniel.me/" }
-    maven { url "https://maven.terraformersmc.com/releases/" }
-    maven { url 'https://jitpack.io' }
-
+    maven { url 'https://maven.shedaniel.me/' }
 }
 
-dependencies {
-    // To change the versions see the gradle.properties file
-    modCompileOnly("com.terraformersmc:modmenu:${rootProject.mod_menu_version}") { transitive false }
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+base {
+    archivesName = mod_id
+}
 
-        // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+sourceSets.main.java.exclude 'net/sweenus/simplyskills/events/AmethystImbuementEvent.java'
 
-    modImplementation "curse.maven:puffish-skills-835091:${project.puffish_skills_version}"
-    modImplementation "curse.maven:puffish-attributes-991341:${project.puffish_attributes_version}"
-    modImplementation "maven.modrinth:spell-power:${project.spellpower_version}-fabric"
-    modImplementation("maven.modrinth:spell-engine:${project.spell_engine_version}-fabric")
-    //modImplementation files("build/libs/dependencies/spell_engine-0.12.01.20.1.jar")
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-    //modImplementation "curse.maven:simply-swords-659887:${project.simplyswords_version}"
-    modImplementation files("build/libs/dependencies/simplyswords-1.55.0-1.20.1.jar")
+neoForge {
+    version = project.neo_version
 
-    modImplementation "curse.maven:paladins-and-priests-856548:${project.paladins_version}"
-    //modImplementation files("build/libs/dependencies/paladins-1.0.21.20.1.jar")
-
-    modImplementation "curse.maven:immersive-melodies-904471:${project.immersive_melodies_version}"
-
-    modImplementation "curse.maven:open-parties-and-claims-636608:${project.openpac_version}"
-
-    modImplementation files("build/libs/dependencies/amethyst_core-1.4.101.20.1.jar")
-
-    modImplementation "curse.maven:archers-932359:${project.archers_version}"
-
-    implementation("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
-    annotationProcessor("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
-    implementation include("com.github.ZsoltMolnarrr:TinyConfig:${project.tiny_config_version}")
-
-    modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
-        exclude(group: "net.fabricmc.fabric-api")
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
     }
 
-}
+    runs {
+        client {
+            client()
+        }
 
-processResources {
-    inputs.property "mod_id", project.mod_id
-    inputs.property "mod_name", project.mod_name
-    inputs.property "license", project.license
-    inputs.property "version", project.version
-    inputs.property "mod_authors", project.mod_authors
-    inputs.property "mod_description", project.mod_description
-    inputs.property "contact_homepage", project.contact_homepage
-    inputs.property "contact_sources", project.contact_sources
-    inputs.property "contact_issues", project.contact_issues
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-    filteringCharset "UTF-8"
+        server {
+            server()
+            programArgument '--nogui'
+        }
 
-    filesMatching("fabric.mod.json") {
-        expand "mod_id": project.mod_id,
-                "mod_name": project.name,
-                "license": project.license,
-                "version": project.version,
-                "mod_authors": project.mod_authors,
-                "mod_description": project.mod_description,
-                "contact_homepage": project.contact_homepage,
-                "contact_sources": project.contact_sources,
-                "contact_issues": project.contact_issues,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
-    }
-}
-
-def targetJavaVersion = 17
-tasks.withType(JavaCompile).configureEach {
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    // If Javadoc is generated, this must be specified in that task too.
-    it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        it.options.release = targetJavaVersion
-    }
-}
-
-java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
-    archivesBaseName = project.archives_base_name
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
-    withSourcesJar()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}"}
-    }
-}
-
-// configure the maven publication
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.INFO
         }
     }
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    implementation "curse.maven:puffish-skills-835091:${puffish_skills_file}"
+    implementation "curse.maven:puffish-attributes-991341:${puffish_attributes_file}"
+
+    implementation "maven.modrinth:spell-engine:${spell_engine_version}"
+    implementation "maven.modrinth:spell-power:${spell_power_version}"
+    implementation "maven.modrinth:paladins-and-priests:${paladins_version}"
+    implementation "maven.modrinth:archers:${archers_version}"
+    localRuntime "maven.modrinth:wizards:${wizards_version}"
+    implementation "maven.modrinth:simply-swords:${simply_swords_version}"
+    implementation "maven.modrinth:open-parties-and-claims:${openpac_version}"
+
+    implementation "maven.modrinth:curios:${curios_version}"
+    implementation "maven.modrinth:playeranimator:${player_animator_version}"
+    implementation "maven.modrinth:structure-pool-api:${structure_pool_api_version}"
+    implementation "maven.modrinth:shield-api:${shield_api_version}"
+    implementation "maven.modrinth:runes:${runes_version}"
+    implementation "maven.modrinth:armor-model-api:${armor_model_api_version}"
+    implementation "maven.modrinth:ranged-weapon-api:${ranged_weapon_api_version}"
+    implementation "maven.modrinth:fzzy-config:${fzzy_config_version}"
+    implementation "maven.modrinth:kotlin-for-forge:${kotlin_for_forge_version}"
+    implementation "maven.modrinth:architectury-api:${architectury_version}"
+    implementation "maven.modrinth:simply-tooltips:${simply_tooltips_version}"
+
+    implementation "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
+}
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version       : minecraft_version,
+            minecraft_version_range : minecraft_version_range,
+            neo_version             : neo_version,
+            loader_version_range    : loader_version_range,
+            mod_id                  : mod_id,
+            mod_name                : mod_name,
+            mod_license             : mod_license,
+            mod_version             : mod_version,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
     }
 }

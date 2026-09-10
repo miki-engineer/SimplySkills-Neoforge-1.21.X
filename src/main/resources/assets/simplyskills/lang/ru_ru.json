@@ -161,8 +161,8 @@
 "effect.simplyskills.rage.description": "Прирост 0.5% к урону атаки/скорости и получения урона за каждый заряд.",
 
 "effect.simplyskills.overload": "Перегрузка",
-"effect.simplyskills.overload.desc": "Предоставляет на 75% повышенный критический урон от заклинания и 10% к шансу критического урона заклинания за каждый заряд.\nВ момент превышения 5 суммировании (заряда), Вы перегрузитесь, нанося значительный урон себе и близлежащим врагам.\n\nУрон, наносимый врагам измеряется Вашим максимальным здоровьем и силе заклинания души.",
-"effect.simplyskills.overload.description": "Предоставляет на 75% повышенный критический урон от заклинания и 10% к шансу критического урона заклинания за каждый заряд.\nВ момент превышения 5 суммировании (заряда), Вы перегрузитесь, нанося значительный урон себе и близлежащим врагам.\n\nУрон, наносимый врагам измеряется Вашим максимальным здоровьем и силе заклинания души.",
+"effect.simplyskills.overload.desc": "Предоставляет на 45% повышенный критический урон от заклинания и 10% к шансу критического урона заклинания за каждый заряд.\nВ момент превышения 5 суммировании (заряда), Вы перегрузитесь, нанося значительный урон себе и близлежащим врагам.\n\nУрон, наносимый врагам измеряется Вашим максимальным здоровьем и силе заклинания души.",
+"effect.simplyskills.overload.description": "Предоставляет на 45% повышенный критический урон от заклинания и 10% к шансу критического урона заклинания за каждый заряд.\nВ момент превышения 5 суммировании (заряда), Вы перегрузитесь, нанося значительный урон себе и близлежащим врагам.\n\nУрон, наносимый врагам измеряется Вашим максимальным здоровьем и силе заклинания души.",
 
 "effect.simplyskills.bladestorm": "Вихрь клинков",
 "effect.simplyskills.bladestorm.desc": "Вызывает кинжалы, что вращаются вокруг Вас, нанося урон близлежащим врагам. Каждый заряд Вихря клинков повышает частоту его атак, и предоставляет Вам 1% дополнительного шанса Уклонения.",
@@ -232,37 +232,13 @@
 "effect.simplyskills.shadow_aura.desc": "Обрушивается на близлежащих врагов, но истощает здоровье пользователя.",
 "effect.simplyskills.shadow_aura.description": "Обрушивается на близлежащих врагов, но истощает здоровье пользователя.",
 
-"effect.simplyskills.focus": "Фокусировка",
-"effect.simplyskills.focus.desc": "Следующая Ваша атака из лука заряжается медленнее, но наносит больше урона.",
-"effect.simplyskills.focus.description": "Следующая Ваша атака из лука заряжается медленнее, но наносит больше урона.",
 
-"effect.simplyskills.titans_grip": "Хватка титана",
-"effect.simplyskills.titans_grip.desc": "Более медленная атака и нанесение повышенного урона при удерживании одного вида оружия.",
-"effect.simplyskills.titans_grip.description": "Более медленная атака и нанесение повышенного урона при удерживании одного вида оружия.",
 
-"effect.simplyskills.melody_of_war": "Мелодия войны",
-"effect.simplyskills.melody_of_war.desc": "Получение повышенного урона и регенерации.",
-"effect.simplyskills.melody_of_war.description": "Получение повышенного урона и регенерации.",
 
-"effect.simplyskills.melody_of_swiftness": "Мелодия стремительности",
-"effect.simplyskills.melody_of_swiftness.desc": "Получение повышенной скорости передвижения и Грации дельфина.",
-"effect.simplyskills.melody_of_swiftness.description": "Получение повышенной скорости передвижения и Грации дельфина.",
 
-"effect.simplyskills.melody_of_protection": "Мелодия защиты",
-"effect.simplyskills.melody_of_protection.desc": "Получение Силы и принятие на 10% меньше урона.",
-"effect.simplyskills.melody_of_protection.description": "Получение Силы и принятие на 10% меньше урона.",
 
-"effect.simplyskills.melody_of_safety": "Мелодия безопасности",
-"effect.simplyskills.melody_of_safety.desc": "Возврат 10% от максимального здоровья в секунду.",
-"effect.simplyskills.melody_of_safety.description": "Возврат 10% от максимального здоровья в секунду.",
 
-"effect.simplyskills.melody_of_concentration": "Мелодия сосредоточенности",
-"effect.simplyskills.melody_of_concentration.desc": "Получение повышенной скорости атаки/передвижения.",
-"effect.simplyskills.melody_of_concentration.description": "Получение повышенной скорости атаки/передвижения.",
 
-"effect.simplyskills.melody_of_bloodlust": "Мелодия кровожадности",
-"effect.simplyskills.melody_of_bloodlust.desc": "Получение повышенной скорости атаки и урона.",
-"effect.simplyskills.melody_of_bloodlust.description": "Получение повышенной скорости атаки и урона.",
 
 "effect.simplyskills.raging_javelin": "Яростное метательное копьё",
 "effect.simplyskills.raging_javelin.desc": "Периодически бросайте удерживаемый предмет на своих врагов.",
@@ -319,7 +295,6 @@
 "text.autoconfig.simplyskills.category.crusader": "Крестоносец",
 "text.autoconfig.simplyskills.category.cleric": "Жрец",
 "text.autoconfig.simplyskills.category.necromancer": "Некромант",
-"text.autoconfig.simplyskills.category.misc": "Прочее",
 
 "text.skills.berserker_category.title": "§7§bСпециализация: Берсерк",
 "text.skills.wizard_category.title": "§7§bСпециализация: Чародей",
@@ -918,7 +893,7 @@
 "text.skills.crusaderExhaustiveRecovery.description": "§7При блокировании щитом есть шанс мгновенно исполнить на себе «Быстрое исцеление» и получить несколько заряда «Изнеможения».\n\n§f(Изнеможение)§7 — понижает Вам: урон в ближнем бою, скорость передвижения и скорость атаки на §c1%§f[x]§7 за каждый заряд.\n\nВы теряете некоторое количество заряда «Изнеможения» в секунду, зависящее от Вашего атрибута «Выносливости».",
 
 "text.skills.crusaderSignatureConsecration.title": "§6Характерное умение: [Освящение]",
-"text.skills.crusaderSignatureConsecration.description": "§7Получение «Освящения» на 15 секунд.\n\n§f(Освещение)§7 — освещает землю под ногами, нанося урон врагам во время исцеления союзников. Урон и Исцеление увеличивается в зависимости от Силы исцеления заклинания.\n\nПерезарядка: §a30 секунд.",
+"text.skills.crusaderSignatureConsecration.description": "§7Получение «Освящения» на 15 секунд.\n\n§f(Освещение)§7 — освещает землю под ногами, нанося урон врагам во время исцеления союзников. Урон и Исцеление увеличивается в зависимости от Силы исцеления заклинания.\n\nПерезарядка: §a60 секунд.",
 
 "text.skills.crusaderSignatureConsecrationDuration.title": "§f[Продолжительность]",
 "text.skills.crusaderSignatureConsecrationDuration.description": "§7Теперь §6[Освящение]§7 длится дольше.",
@@ -1167,8 +1142,6 @@
 "text.autoconfig.simplyskills.option.client.enableBuildSharing.@Tooltip": "Позволяет игрокам использовать Летопись умений, созданную\nдругими игроками.",
 "text.autoconfig.simplyskills.option.client.skillChronicleCooldown": "Перезарядка Летописи умений",
 "text.autoconfig.simplyskills.option.client.skillChronicleCooldown.@Tooltip": "Время перезарядки для Летописи умений (в тактах), (20 тактов = 1 секунда.).",
-"text.autoconfig.simplyskills.option.client.removeUnlockRestrictions": "Убрать ограничения для разблокировки",
-"text.autoconfig.simplyskills.option.client.removeUnlockRestrictions.@Tooltip": "Позволяет разблокировать Специализации без необходимости\nследовать по ним в древе навыков.\nКроме того, позволяет разблокировать несколько специализаций.\n\nНе рекомендуется, за исключением самых особых сценариев использования.",
 "text.autoconfig.simplyskills.option.client.spellHasteCooldownReductionModifier": "Модификатор снижения перезарядки к Скорости заклинания",
 "text.autoconfig.simplyskills.option.client.spellHasteCooldownReductionModifier.@Tooltip": "Управляет, как сильно отразится перезарядка на «Скорости заклинания».\nВысокие значение означает, что у «Скорости заклинания» будет ещё больше снижена перезарядка.",
 "text.autoconfig.simplyskills.option.client.minimumAchievableCooldown": "Минимальная доступная перезарядка (в секундах)",
@@ -1607,14 +1580,5 @@
 "text.autoconfig.simplyskills.option.necromancer.enableNecromancerSpecialisation.@Tooltip": "Вкл./выкл. возможность разблокирования этой специализации.\nНе блокирует специализацию в случае ранней разблокировки.",
 "text.autoconfig.simplyskills.option.necromancer.enableNecromancerSpecialisation.@PrefixText": "§aИзменение этих значений приведёт к нестабильности игры/сбоям. Используйте на свой страх и риск.",
 
-"text.autoconfig.simplyskills.option.necromancer.signatureNecromancerSummoningRitualCooldown": "Перезарядка §6[Характерное умение]:§7 Набор призыва",
-
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackMulti": "Множитель урона атаки «Хватка титана»",
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackMulti.@Tooltip": "Атрибут generic_attack_damage умножается на это число.\n1.0 = +100%",
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackMulti.@PrefixText": "§aНастройки совместимости Prominence§7",
-
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackSpeedMulti": "Множитель скорости урона «Хватка титана»",
-"text.autoconfig.simplyskills.option.misc.promWarriorsDevotionAttackSpeedMulti.@Tooltip": "Атрибут generic_attack_speed отрицательно умножается на это число.\n0.9 = -90% ПРИМЕЧАНИЕ: Свыше 0.9 вероятнее всего, сломает атаки из Better Combat.",
-"text.autoconfig.simplyskills.option.misc.promSkellaksCallPhysDmgMulti": "Множитель физического урона S'kellak's Call",
-"text.autoconfig.simplyskills.option.misc.promSkellaksCallPhysDmgMulti.@Tooltip": "Количество generic_attack_damage используется в качестве физического урона при использовании S'kellak's Call.\nВ дополнение этой настройки, умение также наносит не настраиваемый урон от огненного заклинания."
+"text.autoconfig.simplyskills.option.necromancer.signatureNecromancerSummoningRitualCooldown": "Перезарядка §6[Характерное умение]:§7 Набор призыва"
 }

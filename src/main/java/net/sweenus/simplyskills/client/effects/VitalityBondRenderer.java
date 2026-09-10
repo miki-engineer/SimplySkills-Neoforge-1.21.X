@@ -1,8 +1,8 @@
 package net.sweenus.simplyskills.client.effects;
 
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
 import net.spell_engine.api.render.CustomLayers;
 import net.spell_engine.api.render.LightEmission;
 import net.sweenus.simplyskills.SimplySkills;
@@ -10,12 +10,12 @@ import net.sweenus.simplyskills.SimplySkills;
 import java.util.List;
 
 public class VitalityBondRenderer extends OrbitingEffectRenderer {
-    public static final Identifier modelId_base = new Identifier(SimplySkills.MOD_ID, "effect/vitality_bond");
-    public static final Identifier modelId_overlay = new Identifier(SimplySkills.MOD_ID, "effect/vitality_bond");
+    public static final ResourceLocation modelId_base = ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spell_effect/vitality_bond");
+    public static final ResourceLocation modelId_overlay = ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spell_effect/vitality_bond");
 
-    private static final RenderLayer BASE_RENDER_LAYER =
-            RenderLayer.getEntityTranslucent(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
-    private static final RenderLayer GLOWING_RENDER_LAYER =
+    private static final RenderType BASE_RENDER_LAYER =
+            RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS);
+    private static final RenderType GLOWING_RENDER_LAYER =
             CustomLayers.spellEffect(LightEmission.RADIATE, false);
 
 

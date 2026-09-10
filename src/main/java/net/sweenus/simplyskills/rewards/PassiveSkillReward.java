@@ -1,6 +1,6 @@
 package net.sweenus.simplyskills.rewards;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.puffish.skillsmod.SkillsMod;
 import net.puffish.skillsmod.api.SkillsAPI;
 import net.puffish.skillsmod.api.json.JsonElement;
@@ -15,7 +15,7 @@ import net.puffish.skillsmod.api.util.Result;
 import java.util.ArrayList;
 
 public class PassiveSkillReward implements Reward {
-    public static final Identifier ID = SkillsMod.createIdentifier("passive_skill");
+    public static final ResourceLocation ID = SkillsMod.createIdentifier("passive_skill");
 
     private final String passiveSkillId;
 

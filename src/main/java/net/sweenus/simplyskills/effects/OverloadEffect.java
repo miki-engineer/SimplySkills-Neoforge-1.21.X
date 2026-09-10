@@ -1,74 +1,75 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.Box;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchools;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class OverloadEffect extends StatusEffect {
-    public OverloadEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class OverloadEffect extends MobEffect {
+    public OverloadEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
             int radius = 3;
             double damage = Math.min((livingEntity.getMaxHealth() / 6) * (1 + SpellPower.getSpellPower(SpellSchools.SOUL, livingEntity).randomValue()), livingEntity.getMaxHealth());
-            DamageSource damageSource = livingEntity.getDamageSources().generic();
-            DamageSource damageSourceMagic = livingEntity.getDamageSources().indirectMagic(livingEntity, livingEntity);
+            DamageSource damageSource = livingEntity.damageSources().generic();
+            DamageSource damageSourceMagic = livingEntity.damageSources().indirectMagic(livingEntity, livingEntity);
 
-            if (livingEntity.getStatusEffect(EffectRegistry.OVERLOAD).getAmplifier() >= 5) {
+            if (livingEntity.getEffect(EffectRegistry.OVERLOAD).getAmplifier() >= 5) {
 
-                Box box = HelperMethods.createBox(livingEntity, radius);
-                for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                AABB box = HelperMethods.createBox(livingEntity, radius);
+                for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
                         if (entities instanceof LivingEntity le){
-                            if (livingEntity instanceof PlayerEntity player) {
-                                damageSource = player.getDamageSources().playerAttack(player);
-                                if (!HelperMethods.checkFriendlyFire(le, player))
-                                    break;
+                            if (livingEntity instanceof Player player) {
+                                damageSource = player.damageSources().playerAttack(player);
+                                if (!HelperMethods.checkFriendlyFireAOE(le, player))
+                                    continue;
                             }
 
-                            le.setVelocity((le.getX() - livingEntity.getX()) /4,  (le.getY() - livingEntity.getY()) /4, (le.getZ() - livingEntity.getZ()) /4);
-                            le.timeUntilRegen = 0;
-                            le.damage(damageSourceMagic, (float) damage);
-                            le.timeUntilRegen = 0;
+                            le.setDeltaMovement((le.getX() - livingEntity.getX()) /4,  (le.getY() - livingEntity.getY()) /4, (le.getZ() - livingEntity.getZ()) /4);
+                            le.invulnerableTime = 0;
+                            le.hurt(damageSourceMagic, (float) damage);
+                            le.invulnerableTime = 0;
                         }
                     }
                 }
-                livingEntity.damage(damageSourceMagic, (livingEntity.getMaxHealth() - 2));
-                livingEntity.getWorld().playSoundFromEntity(null, livingEntity, SoundRegistry.SOUNDEFFECT14,
-                        SoundCategory.PLAYERS, 0.8f, 0.9f);
+                livingEntity.hurt(damageSourceMagic, (livingEntity.getMaxHealth() - 2));
+                livingEntity.level().playSound(null, livingEntity, SoundRegistry.SOUNDEFFECT14,
+                        SoundSource.PLAYERS, 0.8f, 0.9f);
                 HelperMethods.spawnParticlesPlane(
-                        livingEntity.getWorld(),
+                        livingEntity.level(),
                         ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                        livingEntity.getBlockPos(),
+                        livingEntity.blockPosition(),
                         radius, 0, 1, 0 );
-                livingEntity.removeStatusEffect(EffectRegistry.OVERLOAD);
+                livingEntity.removeEffect(EffectRegistry.OVERLOAD);
             }
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

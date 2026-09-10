@@ -1,31 +1,28 @@
 package net.sweenus.simplyskills.client.effects;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 import net.spell_engine.api.effect.CustomParticleStatusEffect;
-import net.spell_engine.api.spell.ParticleBatch;
-import net.spell_engine.particle.ParticleHelper;
+import net.spell_engine.api.spell.fx.ParticleGroup;
+import net.spell_engine.api.spell.fx.ParticleGroupBuilder;
+import net.spell_engine.fx.ParticleHelper;
 
 public class UndyingParticles implements CustomParticleStatusEffect.Spawner {
 
-    private final ParticleBatch particles;
+    private final ParticleGroup particles;
 
     public UndyingParticles(int particleCount) {
-        this.particles = new ParticleBatch(
-                "spell_engine:holy_spark_mini",
-                ParticleBatch.Shape.PIPE,
-                ParticleBatch.Origin.FEET,
-                null,
-                particleCount,
-                0.1F,
-                0.7F,
-                0);
+        this.particles = ParticleGroupBuilder.of("spell_engine:holy_spark_mini")
+                .batch(batch -> batch.shape(ParticleGroup.Shape.PIPE)
+                        .verticalOrigin(ParticleGroupBuilder.Batches.FEET)
+                        .count(particleCount)
+                        .speed(0.1F, 0.7F));
     }
 
     @Override
     public void spawnParticles(LivingEntity livingEntity, int amplifier) {
-        var scaledParticles = new ParticleBatch(particles);
-        scaledParticles.count *= (amplifier + 1);
-        ParticleHelper.play(livingEntity.getWorld(), livingEntity, scaledParticles);
+        var scaledParticles = particles.copy();
+        scaledParticles.batch.count *= (amplifier + 1);
+        ParticleHelper.play(livingEntity.level(), livingEntity, scaledParticles);
     }
 
 }

@@ -1,14 +1,14 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.util.math.Box;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.abilities.SignatureAbilities;
 import net.sweenus.simplyskills.util.HelperMethods;
@@ -18,22 +18,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ElementalImpactEffect extends StatusEffect {
-    public ElementalImpactEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class ElementalImpactEffect extends MobEffect {
+    public ElementalImpactEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity.isOnGround() && (livingEntity instanceof PlayerEntity player)) {
+            if (livingEntity.onGround() && (livingEntity instanceof Player player)) {
                 int velocity = SimplySkills.spellbladeConfig.signatureSpellbladeElementalImpactVelocity;
 
-                player.setVelocity(livingEntity.getRotationVector().multiply(+velocity));
-                player.setVelocity(livingEntity.getVelocity().x, 0, livingEntity.getVelocity().z);
-                player.velocityModified = true;
+                player.setDeltaMovement(livingEntity.getLookAngle().scale(+velocity));
+                player.setDeltaMovement(livingEntity.getDeltaMovement().x, 0, livingEntity.getDeltaMovement().z);
+                player.hurtMarked = true;
                 List<String> list = new ArrayList<>();
                 list.add("simplyskills:frost_arrow_rain");
                 list.add("simplyskills:fire_arrow_rain");
@@ -55,25 +55,26 @@ public class ElementalImpactEffect extends StatusEffect {
 
                 if (HelperMethods.isUnlocked("simplyskills:spellblade",
                         SkillReferencePosition.spellbladeSpecialisationElementalImpactMagnet, player)){
-                    Box box = HelperMethods.createBox(player, radius*2);
-                    for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                    AABB box = HelperMethods.createBox(player, radius*2);
+                    for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                         if (entities != null) {
-                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player) && !le.hasStatusEffect(StatusEffects.SLOWNESS)) {
-                                le.setVelocity((player.getX() - le.getX()) /4,  (player.getY() - le.getY()) /4, (player.getZ() - le.getZ()) /4);
-                                le.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, slownessDuration, slownessAmplifier, false, false, true));
+                            if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player) && !le.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
+                                le.setDeltaMovement((player.getX() - le.getX()) /4,  (player.getY() - le.getY()) /4, (player.getZ() - le.getZ()) /4);
+                                le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, slownessDuration, slownessAmplifier, false, false, true));
                             }
                         }
                     }
                 }
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

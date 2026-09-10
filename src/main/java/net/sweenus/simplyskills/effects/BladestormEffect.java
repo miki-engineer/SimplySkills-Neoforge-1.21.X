@@ -1,41 +1,41 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Box;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
 import java.util.Objects;
 
-public class BladestormEffect extends StatusEffect {
-    public BladestormEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class BladestormEffect extends MobEffect {
+    public BladestormEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient() && livingEntity.age % Math.max((22 - amplifier), 1) == 0) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide() && livingEntity.tickCount % Math.max((22 - amplifier), 1) == 0) {
             int radius = 2;
-            Box box = HelperMethods.createBox(livingEntity, radius);
+            AABB box = HelperMethods.createBox(livingEntity, radius);
 
-            livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY).stream()
+            livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE).stream()
                     .filter(Objects::nonNull)
                     .filter(entity -> entity instanceof LivingEntity)
-                    .filter(entity -> livingEntity instanceof ServerPlayerEntity)
+                    .filter(entity -> livingEntity instanceof ServerPlayer)
                     .forEach(entity -> {
                         LivingEntity le = (LivingEntity) entity;
-                        ServerPlayerEntity playerEntity = (ServerPlayerEntity) livingEntity;
-                        if (HelperMethods.checkFriendlyFire(le, playerEntity)) {
-                            le.timeUntilRegen = 0;
-                            le.damage(playerEntity.getWorld().getDamageSources().playerAttack(playerEntity),
-                                    (float) playerEntity.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) * 0.3f);
-                            le.timeUntilRegen = 0;
+                        ServerPlayer playerEntity = (ServerPlayer) livingEntity;
+                        if (HelperMethods.checkFriendlyFireAOE(le, playerEntity)) {
+                            le.invulnerableTime = 0;
+                            le.hurt(playerEntity.level().damageSources().playerAttack(playerEntity),
+                                    (float) playerEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.3f);
+                            le.invulnerableTime = 0;
 
                             if (playerEntity.getRandom().nextInt(100) < 3
                                     && HelperMethods.isUnlocked("simplyskills:rogue",
@@ -45,12 +45,13 @@ public class BladestormEffect extends StatusEffect {
                         }
                     });
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

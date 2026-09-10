@@ -1,9 +1,15 @@
 package net.sweenus.simplyskills.client.renderer.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.sweenus.simplyskills.entities.SpellTargetEntity;
 
 // Made with Blockbench 4.6.0
@@ -16,27 +22,27 @@ public class SpellTargetEntityModel extends EntityModel<SpellTargetEntity> {
 		this.supports = root.getChild("supports");
 		this.bb_main = root.getChild("bb_main");
 	}
-	public static TexturedModelData getTexturedModelData() {
-		ModelData modelData = new ModelData();
-		ModelPartData modelPartData = modelData.getRoot();
-		ModelPartData supports = modelPartData.addChild("supports", ModelPartBuilder.create().uv(0, 17).cuboid(0.0F, -30.0F, 0.0F, 1.0F, 21.0F, 1.0F, new Dilation(0.0F))
-				.uv(0, 17).cuboid(0.0F, -9.0F, 0.0F, 1.0F, 9.0F, 1.0F, new Dilation(0.0F))
-				.uv(14, 17).cuboid(-4.0F, -28.0F, 0.0F, 4.0F, 1.0F, 1.0F, new Dilation(0.0F))
-				.uv(18, 2).cuboid(-2.0F, -22.0F, 0.0F, 2.0F, 1.0F, 1.0F, new Dilation(0.0F))
-				.uv(18, 0).cuboid(1.0F, -22.0F, 0.0F, 2.0F, 1.0F, 1.0F, new Dilation(0.0F))
-				.uv(4, 17).cuboid(1.0F, -28.0F, 0.0F, 4.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
+	public static LayerDefinition getTexturedModelData() {
+		MeshDefinition modelData = new MeshDefinition();
+		PartDefinition modelPartData = modelData.getRoot();
+		PartDefinition supports = modelPartData.addOrReplaceChild("supports", CubeListBuilder.create().texOffs(0, 17).addBox(0.0F, -30.0F, 0.0F, 1.0F, 21.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 17).addBox(0.0F, -9.0F, 0.0F, 1.0F, 9.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(14, 17).addBox(-4.0F, -28.0F, 0.0F, 4.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(18, 2).addBox(-2.0F, -22.0F, 0.0F, 2.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(18, 0).addBox(1.0F, -22.0F, 0.0F, 2.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+				.texOffs(4, 17).addBox(1.0F, -28.0F, 0.0F, 4.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-		ModelPartData bb_main = modelPartData.addChild("bb_main", ModelPartBuilder.create().uv(0, 0).cuboid(-4.0F, -29.75F, -0.25F, 9.0F, 17.0F, 0.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
-		return TexturedModelData.of(modelData, 64, 64);
+		PartDefinition bb_main = modelPartData.addOrReplaceChild("bb_main", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -29.75F, -0.25F, 9.0F, 17.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+		return LayerDefinition.create(modelData, 64, 64);
 	}
 	@Override
-	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
-		supports.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
-		bb_main.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+	public void renderToBuffer(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int packedColor) {
+		supports.render(matrices, vertexConsumer, light, overlay, packedColor);
+		bb_main.render(matrices, vertexConsumer, light, overlay, packedColor);
 	}
 
 	@Override
-	public void setAngles(SpellTargetEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+	public void setupAnim(SpellTargetEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 
 	}
 }

@@ -1,24 +1,22 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellHelper;
-import net.spell_engine.internals.SpellRegistry;
-import net.spell_engine.internals.casting.SpellCast;
-import net.spell_engine.particle.Particles;
+import net.spell_engine.api.spell.registry.SpellRegistry;
+import net.spell_engine.fx.SpellEngineParticles;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchool;
 import net.spell_power.api.SpellSchools;
@@ -37,10 +35,10 @@ public class ClericAbilities {
 
     // Healing Ward
     //Chance when casting a healing spell to grant your target a stack of barrier
-    public static void passiveClericHealingWard(PlayerEntity player, List<Entity> targets, Identifier spellId) {
+    public static void passiveClericHealingWard(Player player, List<Entity> targets, ResourceLocation spellId) {
         int random = new Random().nextInt(100);
         int chance = 10;
-        Spell spell = SpellRegistry.getSpell(spellId);
+        Spell spell = SpellRegistry.from(player.level()).get(spellId);
         SpellSchool healingSchool = SpellSchools.HEALING;
         if (random < chance) {
             targets.forEach(target -> {
@@ -53,14 +51,14 @@ public class ClericAbilities {
 
     // Mutual Mending
     // Chance when casting a healing spell to also cast the spell on yourself
-    public static void passiveClericMutualMending(PlayerEntity player, Identifier spellId, List<Entity> targets) {
+    public static void passiveClericMutualMending(Player player, ResourceLocation spellId, List<Entity> targets) {
         int random = new Random().nextInt(100);
         int chance = 20;
         if (spellId.toString().contains("holy_beam"))
             chance = 10;
-        Spell spell = SpellRegistry.getSpell(spellId);
+        Spell spell = SpellRegistry.from(player.level()).get(spellId);
         SpellSchool healingSchool = SpellSchools.HEALING;
-        if (random < chance && !targets.contains(player) && spell.school == healingSchool) {
+        if (random < chance && !targets.contains(player) && spell != null && spell.school == healingSchool) {
             if (spellId.toString().contains("holy_beam"))
                 SignatureAbilities.castSpellEngineIndirectTarget(player, "paladins:heal", 10, player, null);
             else SignatureAbilities.castSpellEngineIndirectTarget(player, spellId.toString(), 10, player, null);
@@ -69,9 +67,9 @@ public class ClericAbilities {
 
     // Altruism
     // When wearing less than 10 points of armor, you periodically generate Spellforged stacks
-    public static void passiveClericAltruism(PlayerEntity player) {
+    public static void passiveClericAltruism(Player player) {
         int frequency = 600;
-        if (player.getArmor() <= 10 && player.age %frequency == 0) {
+        if (player.getArmorValue() <= 10 && player.tickCount %frequency == 0) {
             HelperMethods.incrementStatusEffect(player, EffectRegistry.SPELLFORGED, frequency+5, 1, 2);
         }
     }
@@ -81,30 +79,30 @@ public class ClericAbilities {
 
     // Divine Intervention
     //Call down celestial energy on a ally in the targeted area, granting them Undying for 12s
-    public static boolean signatureClericDivineIntervention(String clericSkillTree, PlayerEntity player) {
-        Vec3d blockpos = null;
+    public static boolean signatureClericDivineIntervention(String clericSkillTree, Player player) {
+        Vec3 blockpos = null;
         boolean success = false;
         int divineInterventionRange = 25;
         if (HelperMethods.getTargetedEntity(player, divineInterventionRange) != null)
-            blockpos = HelperMethods.getTargetedEntity(player, divineInterventionRange).getPos();
+            blockpos = HelperMethods.getTargetedEntity(player, divineInterventionRange).position();
 
         if (blockpos == null)
             blockpos = HelperMethods.getPositionLookingAt(player, divineInterventionRange);
 
         if (blockpos != null) {
-            int xpos = (int) blockpos.getX();
-            int ypos = (int) blockpos.getY();
-            int zpos = (int) blockpos.getZ();
+            int xpos = (int) blockpos.x();
+            int ypos = (int) blockpos.y();
+            int zpos = (int) blockpos.z();
             BlockPos searchArea = new BlockPos(xpos, ypos, zpos);
-            Box box = HelperMethods.createBoxAtBlock(searchArea, 3);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBoxAtBlock(searchArea, 3);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && !HelperMethods.checkFriendlyFire(le, player)) {
+                    if ((entities instanceof LivingEntity le) && !HelperMethods.checkFriendlyFireAOE(le, player)) {
                         success = true;
 
                         // Grants recipient Fire Resistance
                         if (HelperMethods.isUnlocked(clericSkillTree, SkillReferencePosition.clericSpecialisationDivineInterventionFireResistance, player))
-                            HelperMethods.incrementStatusEffect(le, StatusEffects.FIRE_RESISTANCE, 240, 1, 5);
+                            HelperMethods.incrementStatusEffect(le, MobEffects.FIRE_RESISTANCE, 240, 1, 5);
 
                         // Grants recipient Might
                         if (HelperMethods.isUnlocked(clericSkillTree, SkillReferencePosition.clericSpecialisationDivineInterventionMight, player))
@@ -125,101 +123,103 @@ public class ClericAbilities {
         return success;
     }
     // Sacred Orb
-    public static boolean signatureClericSacredOrb(String clericSkillTree, PlayerEntity player) {
+    public static boolean signatureClericSacredOrb(String clericSkillTree, Player player) {
         SignatureAbilities.castSpellEngineDumbFire(player, "simplyskills:sacred_orb");
         return true;
     }
-    public static void signatureClericSacredOrbHoming(SpellProjectile spellProjectile, Identifier spellId) {
-        if (spellProjectile.getSpell() != null && spellId != null && spellId.toString().equals("simplyskills:sacred_orb") && spellProjectile.age > 20 && spellProjectile.getFollowedTarget() == null) {
-            Box box = HelperMethods.createBox(spellProjectile, 6);
-            for (Entity entities : spellProjectile.getWorld().getOtherEntities(spellProjectile, box, EntityPredicates.VALID_LIVING_ENTITY)) {
-                if (entities instanceof LivingEntity le && spellProjectile.getOwner() instanceof PlayerEntity playerOwner && !HelperMethods.checkFriendlyFire(le, playerOwner)) {
+    public static void signatureClericSacredOrbHoming(SpellProjectile spellProjectile, ResourceLocation spellId) {
+        if (spellProjectile.getSpellEntry() != null && spellId != null && spellId.toString().equals("simplyskills:sacred_orb") && spellProjectile.tickCount > 20 && spellProjectile.getFollowedTarget() == null) {
+            AABB box = HelperMethods.createBox(spellProjectile, 6);
+            for (Entity entities : spellProjectile.level().getEntities(spellProjectile, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
+                if (entities instanceof LivingEntity le && spellProjectile.getOwner() instanceof Player playerOwner && !HelperMethods.checkFriendlyFireAOE(le, playerOwner)) {
                     spellProjectile.setFollowedTarget(le);
                     break;
                 }
             }
         }
     }
-    public static void signatureClericSacredOrbImpact(EntityHitResult entityHitResult, Identifier spellId, Entity ownerEntity, SpellProjectile spellProjectile) {
-        if (spellProjectile.getSpell() != null && spellId != null && spellId.toString().equals("simplyskills:sacred_orb") && entityHitResult.getEntity() != null
+    public static void signatureClericSacredOrbImpact(EntityHitResult entityHitResult, ResourceLocation spellId, Entity ownerEntity, SpellProjectile spellProjectile) {
+        if (spellProjectile.getSpellEntry() != null && spellId != null && spellId.toString().equals("simplyskills:sacred_orb") && entityHitResult.getEntity() != null
                 && entityHitResult.getEntity() instanceof LivingEntity livingEntity && ownerEntity instanceof LivingEntity livingOwner) {
 
             SimplyStatusEffectInstance vitalityBond = new SimplyStatusEffectInstance(EffectRegistry.VITALITYBOND, 500, 0, false, false, true);
             SimplyStatusEffectInstance vitalityBond2 = new SimplyStatusEffectInstance(EffectRegistry.VITALITYBOND, 500, 0, false, false, true);
             vitalityBond.setSourceEntity(livingOwner);
             vitalityBond2.setSourceEntity(livingOwner);
-            livingEntity.addStatusEffect(vitalityBond);
-            livingOwner.addStatusEffect(vitalityBond2);
+            livingEntity.addEffect(vitalityBond);
+            livingOwner.addEffect(vitalityBond2);
 
         }
     }
 
     // Anoint Weapon
-    public static boolean signatureClericAnointWeapon(PlayerEntity player) {
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.ANOINTED, 400, 0, false, false, true));
+    public static boolean signatureClericAnointWeapon(Player player) {
+        player.addEffect(new MobEffectInstance(EffectRegistry.ANOINTED, 400, 0, false, false, true));
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_healing_release");
         return true;
     }
     // Cleanse tick
-    public static void signatureClericAnointWeaponCleanse(PlayerEntity player) {
+    public static void signatureClericAnointWeaponCleanse(Player player) {
         int frequency = 20;
-        if (player.age %frequency == 0) {
+        if (player.tickCount %frequency == 0) {
             HelperMethods.buffSteal(player, player, true, true, true, true);
         }
     }
     // Undying on damaged
-    public static void signatureClericAnointWeaponUndying(PlayerEntity player) {
+    public static void signatureClericAnointWeaponUndying(Player player) {
         float playerHealthPercent = ((player.getHealth() / player.getMaxHealth()) * 100);
         int roll = player.getRandom().nextInt(100);
         int chance = 15;
 
         if (playerHealthPercent < 30 && roll < chance)
-            player.addStatusEffect(new StatusEffectInstance(EffectRegistry.UNDYING, 120, 0, false, false, true));
+            player.addEffect(new MobEffectInstance(EffectRegistry.UNDYING, 120, 0, false, false, true));
 
     }
 
-    public static void signatureClericAnointWeaponEffect(PlayerEntity player) {
+    public static void signatureClericAnointWeaponEffect(Player player) {
         int radius = 4;
         float damageMultiplier = 2.2f;
 
-        Box box = HelperMethods.createBox(player, radius);
+        AABB box = HelperMethods.createBox(player, radius);
         List<Entity> targets = new ArrayList<>();
         List<Entity> hostileTargets = new ArrayList<>();
-        for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+        for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
             if (entities instanceof LivingEntity le) {
-                if (!HelperMethods.checkFriendlyFire(le, player))
+                if (!HelperMethods.checkFriendlyFireAOE(le, player))
                     targets.add(le);
-                else if (HelperMethods.checkFriendlyFire(le, player))
+                else if (HelperMethods.checkFriendlyFireAOE(le, player))
                     hostileTargets.add(le);
             }
         }
-        Identifier spellId = new Identifier("simplyskills:paladins_flash_heal");
-        SpellCast.Action action = SpellCast.Action.CHANNEL;
-        DamageSource damageSource = player.getDamageSources().indirectMagic(player, player);
-        SpellHelper.performSpell(player.getWorld(), player, spellId, targets, action, 20);
-        float amount = (float) (SpellPower.getSpellPower(SpellSchools.HEALING, player).randomValue() * damageMultiplier) / hostileTargets.size();
+        ResourceLocation spellId = ResourceLocation.parse("simplyskills:paladins_flash_heal");
+        DamageSource damageSource = player.damageSources().indirectMagic(player, player);
+        SignatureAbilities.castSpellEngineIndirectTargets(player, spellId.toString(), targets);
 
+        if (!hostileTargets.isEmpty()) {
+            float amount = (float) (SpellPower.getSpellPower(SpellSchools.HEALING, player).randomValue() * damageMultiplier) / hostileTargets.size();
 
-        hostileTargets.forEach(entity -> {
-            entity.timeUntilRegen = 0;
-            entity.damage(damageSource, amount);
-            entity.timeUntilRegen = 0;
+            hostileTargets.forEach(entity -> {
+                entity.invulnerableTime = 0;
+                entity.hurt(damageSource, amount);
+                entity.invulnerableTime = 0;
 
-            if (entity instanceof MobEntity mobEntity && mobEntity.isUndead())
-                HelperMethods.incrementStatusEffect(mobEntity, StatusEffects.SLOWNESS, 40, 1, 4);
+                if (entity instanceof Mob mobEntity && mobEntity.isInvertedHealAndHarm())
+                    HelperMethods.incrementStatusEffect(mobEntity, MobEffects.MOVEMENT_SLOWDOWN, 40, 1, 4);
 
-            for (int i = 6; i > 0; i--) {
-                HelperMethods.spawnParticle(player.getWorld(), Particles.holy_spark_mini.particleType,
-                        entity.getX(), entity.getY(), entity.getZ(), 0.1, 0.1+i, 0.2);
-                HelperMethods.spawnParticle(player.getWorld(), Particles.holy_spark_mini.particleType,
-                        entity.getX(), entity.getY(), entity.getZ(), 0.2, 0.2+i, 0.1);
-                HelperMethods.spawnParticle(player.getWorld(), Particles.holy_hit.particleType,
-                        entity.getX(), entity.getY(), entity.getZ(), 0.1, 0.2*i, 0.2);
-            }
-        });
+                for (int i = 6; i > 0; i--) {
+                    HelperMethods.spawnParticle(player.level(), SpellEngineParticles.magic_holy.type(),
+                            entity.getX(), entity.getY(), entity.getZ(), 0.1, 0.1+i, 0.2);
+                    HelperMethods.spawnParticle(player.level(), SpellEngineParticles.magic_holy.type(),
+                            entity.getX(), entity.getY(), entity.getZ(), 0.2, 0.2+i, 0.1);
+                    HelperMethods.spawnParticle(player.level(), SpellEngineParticles.magic_holy.type(),
+                            entity.getX(), entity.getY(), entity.getZ(), 0.1, 0.2*i, 0.2);
+                }
+            });
+        }
 
         // Grants player Resistance
         if (HelperMethods.isUnlocked("simplyskills:cleric", SkillReferencePosition.clericSpecialisationAnointWeaponResistance, player))
-            HelperMethods.incrementStatusEffect(player, StatusEffects.RESISTANCE, 40, 1, 2);
+            HelperMethods.incrementStatusEffect(player, MobEffects.DAMAGE_RESISTANCE, 40, 1, 2);
 
     }
 

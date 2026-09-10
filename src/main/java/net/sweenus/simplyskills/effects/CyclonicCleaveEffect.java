@@ -1,40 +1,39 @@
 package net.sweenus.simplyskills.effects;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Box;
+import net.neoforged.fml.ModList;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.abilities.AscendancyAbilities;
 import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class CyclonicCleaveEffect extends StatusEffect {
-    public CyclonicCleaveEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class CyclonicCleaveEffect extends MobEffect {
+    public CyclonicCleaveEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity instanceof ServerPlayerEntity player && player.hasStatusEffect(EffectRegistry.CYCLONICCLEAVE)) {
-                StatusEffectInstance cyclonicCleave = player.getStatusEffect(EffectRegistry.CYCLONICCLEAVE);
+            if (livingEntity instanceof ServerPlayer player && player.hasEffect(EffectRegistry.CYCLONICCLEAVE)) {
+                MobEffectInstance cyclonicCleave = player.getEffect(EffectRegistry.CYCLONICCLEAVE);
                 if (cyclonicCleave == null)
-                    return;
+                    return true;
 
                 double bullrushVelocity = 0.05 * ( 39 - cyclonicCleave.getDuration());
                 int bullrushRadius = 2;
@@ -42,41 +41,35 @@ public class CyclonicCleaveEffect extends StatusEffect {
                 int bullrushHitFrequency = 5;
 
                 if (cyclonicCleave.getDuration() % 5 == 0 && cyclonicCleave.getDuration() < 25)
-                    player.getWorld().playSoundFromEntity(null, player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG,
-                            SoundCategory.PLAYERS, 1f, 1.1f);
+                    player.level().playSound(null, player, SoundEvents.PLAYER_ATTACK_STRONG,
+                            SoundSource.PLAYERS, 1f, 1.1f);
 
                 if (cyclonicCleave.getDuration() > 10) {
-                    player.setVelocity(livingEntity.getRotationVector().multiply(+bullrushVelocity));
-                    player.setVelocity(livingEntity.getVelocity().x, 0, livingEntity.getVelocity().z);
-                    player.velocityModified = true;
+                    player.setDeltaMovement(livingEntity.getLookAngle().scale(+bullrushVelocity));
+                    player.setDeltaMovement(livingEntity.getDeltaMovement().x, 0, livingEntity.getDeltaMovement().z);
+                    player.hurtMarked = true;
                 }
                 double damage;
-                if (FabricLoader.getInstance().isModLoaded("prominent"))
-                    damage = (player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
-                            + player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED))
-                            * damageModifier;
-                else
-                    damage = (HelperMethods.getHighestAttributeValue(player) * damageModifier);
+                damage = (HelperMethods.getHighestAttributeValue(player) * damageModifier);
 
-                Box box = HelperMethods.createBox(player, bullrushRadius);
-                for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                AABB box = HelperMethods.createBox(player, bullrushRadius);
+                for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                     if (entities != null && cyclonicCleave.getDuration() < 30) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                             if (AscendancyAbilities.getAscendancyPoints(player) > 29)
-                                le.setVelocity((player.getX() - le.getX()) /4,  (player.getY() - le.getY()) /4, (player.getZ() - le.getZ()) /4);
+                                le.setDeltaMovement((player.getX() - le.getX()) /4,  (player.getY() - le.getY()) /4, (player.getZ() - le.getZ()) /4);
                             if (cyclonicCleave.getDuration() % bullrushHitFrequency == 0) {
-                                le.timeUntilRegen = 0;
-                                le.damage(player.getDamageSources().playerAttack(player), (float) damage);
-                                le.timeUntilRegen = 0;
-                                ParticleEffect particleType = ParticleTypes.CLOUD;
-                                if (FabricLoader.getInstance().isModLoaded("prominent"))
-                                    particleType = ParticleTypes.PORTAL;
+                                le.invulnerableTime = 0;
+                                le.hurt(player.damageSources().playerAttack(player), (float) damage);
+                                le.invulnerableTime = 0;
+                                ParticleOptions particleType = ParticleTypes.CLOUD;
+
 
                                 HelperMethods.spawnParticlesPlane(
-                                        player.getWorld(),
+                                        player.level(),
                                         particleType,
-                                        player.getBlockPos(),
+                                        player.blockPosition(),
                                         bullrushRadius -1, 0, 1, 0 );
                             }
                         }
@@ -84,20 +77,17 @@ public class CyclonicCleaveEffect extends StatusEffect {
                 }
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
+        super.applyEffectTick(livingEntity, amplifier);
+            return true;
     }
-
-    @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        if (entity instanceof PlayerEntity player && FabricLoader.getInstance().isModLoaded("simplyswords"))
+    public void onEffectRemovedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        if (entity instanceof Player player && ModList.get().isLoaded("simplyswords"))
             SimplySwordsGemEffects.warStandard(player);
-
-        super.onRemoved(entity, attributes, amplifier);
     }
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

@@ -1,25 +1,25 @@
 package net.sweenus.simplyskills.client.renderer;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.util.Identifier;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.sweenus.simplyskills.entities.SpellTargetEntity;
 
-@Environment(value= EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class SpellTargetEntityRenderer extends EntityRenderer<SpellTargetEntity> {
 
 
-     private static final Identifier TEXTURE = new Identifier("simplyswords","textures/entity/battlestandard/battlestandard_texture.png");
+     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("simplyswords","textures/entity/battlestandard/battlestandard_texture.png");
 
-    public SpellTargetEntityRenderer(EntityRendererFactory.Context ctx) {
+    public SpellTargetEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
     }
 
 
     @Override
-    public Identifier getTexture(SpellTargetEntity entity) {
+    public ResourceLocation getTextureLocation(SpellTargetEntity entity) {
         return TEXTURE;
     }
 }

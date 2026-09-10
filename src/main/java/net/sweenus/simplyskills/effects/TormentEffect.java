@@ -1,47 +1,11 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.mob.MobEntity;
-import net.sweenus.simplyskills.effects.instance.SimplyStatusEffectInstance;
-import net.sweenus.simplyskills.registry.EffectRegistry;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 
-public class TormentEffect extends StatusEffect {
+public class TormentEffect extends MobEffect {
 
-    public LivingEntity target;
-
-    public TormentEffect(StatusEffectCategory statusEffectCategory, int color) {
+    public TormentEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
-
-    public void setTarget(LivingEntity livingEntity) {
-        target = livingEntity;
-    }
-
-
-    @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
-
-            if (livingEntity.getStatusEffect(EffectRegistry.TAUNTED) instanceof SimplyStatusEffectInstance statusEffect) {
-                target = statusEffect.getSourceEntity();
-            }
-
-
-            if (target != null && (livingEntity instanceof MobEntity mobEntity)) {
-                if (mobEntity.getTarget() != target)
-                    mobEntity.setTarget(target);
-            }
-
-        }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
-
-
-    @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
-        return true;
-    }
-
 }

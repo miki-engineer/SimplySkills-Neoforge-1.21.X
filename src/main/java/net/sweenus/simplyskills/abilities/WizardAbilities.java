@@ -1,20 +1,21 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellHelper;
+import net.spell_engine.api.spell.registry.SpellRegistry;
+import net.spell_engine.internals.SpellExecution;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.effects.StaticChargeEffect;
 import net.sweenus.simplyskills.registry.EffectRegistry;
@@ -26,7 +27,7 @@ import java.util.List;
 
 public class WizardAbilities {
 
-    public static void passiveWizardSpellEcho(PlayerEntity player, List<Entity> targets) {
+    public static void passiveWizardSpellEcho(Player player, List<Entity> targets) {
         //Can we get Spell Identifier from raw Spell in future? This would be better
         Entity target = null;
         //Choose random target from list
@@ -34,7 +35,8 @@ public class WizardAbilities {
             target = targets.get(player.getRandom().nextInt(targets.size()));
 
         int chance = SimplySkills.wizardConfig.passiveWizardSpellEchoChance;
-        if (AscendancyAbilities.magicCircleEffect(player))
+        if (AscendancyAbilities.magicCircleEffect(player)
+                && HelperMethods.isUnlocked("simplyskills:wizard", SkillReferencePosition.wizardSpellEcho, player))
             chance += 10;
         if (player.getRandom().nextInt(100) < chance) {
 
@@ -58,34 +60,34 @@ public class WizardAbilities {
 
 
     // Meteor Shower
-    public static boolean signatureWizardMeteorShower(String wizardSkillTree, PlayerEntity player) {
-        Vec3d blockpos = null;
+    public static boolean signatureWizardMeteorShower(String wizardSkillTree, Player player) {
+        Vec3 blockpos = null;
         boolean success = false;
         int meteoricWrathDuration = SimplySkills.wizardConfig.signatureWizardMeteoricWrathDuration;
         int meteoricWrathStacks = SimplySkills.wizardConfig.signatureWizardMeteoricWrathStacks - 1;
         int meteorShowerRange = SimplySkills.wizardConfig.signatureWizardMeteorShowerRange;
 
         if (HelperMethods.getTargetedEntity(player, meteorShowerRange) !=null)
-            blockpos = HelperMethods.getTargetedEntity(player, meteorShowerRange).getPos();
+            blockpos = HelperMethods.getTargetedEntity(player, meteorShowerRange).position();
 
         if (blockpos == null)
             blockpos = HelperMethods.getPositionLookingAt(player, meteorShowerRange);
 
         if (blockpos != null) {
-            int xpos = (int) blockpos.getX();
-            int ypos = (int) blockpos.getY();
-            int zpos = (int) blockpos.getZ();
+            int xpos = (int) blockpos.x();
+            int ypos = (int) blockpos.y();
+            int zpos = (int) blockpos.z();
             BlockPos searchArea = new BlockPos(xpos, ypos, zpos);
-            Box box = HelperMethods.createBoxAtBlock(searchArea, 8);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBoxAtBlock(searchArea, 8);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                         success = true;
 
                         if (HelperMethods.isUnlocked(wizardSkillTree,
                                 SkillReferencePosition.wizardSpecialisationMeteorShowerWrath, player))
-                            player.addStatusEffect(new StatusEffectInstance(EffectRegistry.METEORICWRATH,
+                            player.addEffect(new MobEffectInstance(EffectRegistry.METEORICWRATH,
                                     meteoricWrathDuration, meteoricWrathStacks, false, false, true));
 
                         if (HelperMethods.isUnlocked(wizardSkillTree,
@@ -108,31 +110,31 @@ public class WizardAbilities {
     }
 
     // Ice Comet
-    public static boolean signatureWizardIceComet(String wizardSkillTree, PlayerEntity player) {
-        Vec3d blockpos = null;
+    public static boolean signatureWizardIceComet(String wizardSkillTree, Player player) {
+        Vec3 blockpos = null;
         boolean success = false;
         LivingEntity target = null;
         int leapVelocity = SimplySkills.wizardConfig.signatureWizardIceCometLeapVelocity;
         double leapHeight = SimplySkills.wizardConfig.signatureWizardIceCometLeapHeight;
         int leapSlowfallDuration = SimplySkills.wizardConfig.signatureWizardIceCometLeapSlowfallDuration;
         int volleyDuration = SimplySkills.wizardConfig.signatureWizardIceCometVolleyDuration;
-        int volleyStacks = SimplySkills.wizardConfig.signatureWizardIceCometVolleyStacks;
+        int volleyStacks = SimplySkills.wizardConfig.signatureWizardIceCometVolleyStacks - 1;
         int iceCometRange = SimplySkills.wizardConfig.signatureWizardIceCometRange;
 
         if (HelperMethods.getTargetedEntity(player, iceCometRange) != null)
-            blockpos = HelperMethods.getTargetedEntity(player, iceCometRange).getPos();
+            blockpos = HelperMethods.getTargetedEntity(player, iceCometRange).position();
 
         if (blockpos == null)
             blockpos = HelperMethods.getPositionLookingAt(player, iceCometRange);
 
         if (blockpos != null) {
-            int xpos = (int) blockpos.getX();
-            int ypos = (int) blockpos.getY();
-            int zpos = (int) blockpos.getZ();
+            int xpos = (int) blockpos.x();
+            int ypos = (int) blockpos.y();
+            int zpos = (int) blockpos.z();
             BlockPos searchArea = new BlockPos(xpos, ypos, zpos);
-            Box box = HelperMethods.createBoxAtBlock(searchArea, 3);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
-                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+            AABB box = HelperMethods.createBoxAtBlock(searchArea, 3);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
+                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                     target = le;
                     break;
                 }
@@ -140,19 +142,19 @@ public class WizardAbilities {
 
             if (HelperMethods.isUnlocked(wizardSkillTree,
                     SkillReferencePosition.wizardSpecialisationIceCometLeap, player)) {
-                player.setVelocity(player.getRotationVector().negate().multiply(+leapVelocity));
-                player.setVelocity(player.getVelocity().x, leapHeight, player.getVelocity().z);
-                player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOW_FALLING, leapSlowfallDuration, 0, false, false, true));
-                player.velocityModified = true;
+                player.setDeltaMovement(player.getLookAngle().reverse().scale(+leapVelocity));
+                player.setDeltaMovement(player.getDeltaMovement().x, leapHeight, player.getDeltaMovement().z);
+                player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, leapSlowfallDuration, 0, false, false, true));
+                player.hurtMarked = true;
             }
             if (HelperMethods.isUnlocked(wizardSkillTree,
                     SkillReferencePosition.wizardSpecialisationIceCometVolley, player))
-                player.addStatusEffect(new StatusEffectInstance(EffectRegistry.FROSTVOLLEY,
+                player.addEffect(new MobEffectInstance(EffectRegistry.FROSTVOLLEY,
                         volleyDuration, volleyStacks, false, false, true));
             if (HelperMethods.isUnlocked(wizardSkillTree,
-                    SkillReferencePosition.wizardSpecialisationIceCometDamageOne, player))
+                    SkillReferencePosition.wizardSpecialisationIceCometDamageThree, player))
                 SignatureAbilities.castSpellEngineIndirectTarget(player,
-                        "simplyskills:ice_comet_large",
+                        "simplyskills:ice_comet_large_three",
                         3, target, searchArea);
             else if (HelperMethods.isUnlocked(wizardSkillTree,
                     SkillReferencePosition.wizardSpecialisationIceCometDamageTwo, player))
@@ -160,9 +162,9 @@ public class WizardAbilities {
                         "simplyskills:ice_comet_large_two",
                         3, target, searchArea);
             else if (HelperMethods.isUnlocked(wizardSkillTree,
-                    SkillReferencePosition.wizardSpecialisationIceCometDamageThree, player))
+                    SkillReferencePosition.wizardSpecialisationIceCometDamageOne, player))
                 SignatureAbilities.castSpellEngineIndirectTarget(player,
-                        "simplyskills:ice_comet_large_three",
+                        "simplyskills:ice_comet_large",
                         3, target, searchArea);
             else {
                 SignatureAbilities.castSpellEngineIndirectTarget(player,
@@ -176,23 +178,23 @@ public class WizardAbilities {
     }
 
     // Static Discharge
-    public static boolean signatureWizardStaticDischarge(String wizardSkillTree, PlayerEntity player) {
-        Vec3d blockpos = null;
+    public static boolean signatureWizardStaticDischarge(String wizardSkillTree, Player player) {
+        Vec3 blockpos = null;
         boolean success = false;
-        int amplifier = SimplySkills.wizardConfig.signatureWizardStaticDischargeBaseLeaps;
+        int amplifier = SimplySkills.wizardConfig.signatureWizardStaticDischargeBaseLeaps - 1;
         int leapsPerTier = SimplySkills.wizardConfig.signatureWizardStaticDischargeLeapsPerTier;
         int staticDischargeRange = SimplySkills.wizardConfig.signatureWizardStaticDischargeRange;
         int staticChargeDuration = SimplySkills.wizardConfig.signatureWizardStaticChargeDuration;
 
         if (HelperMethods.isUnlocked(wizardSkillTree,
-                SkillReferencePosition.wizardSpecialisationStaticDischargeLeapTwo, player))
-            amplifier = amplifier + leapsPerTier;
-        else if (HelperMethods.isUnlocked(wizardSkillTree,
                 SkillReferencePosition.wizardSpecialisationStaticDischargeLeapThree, player))
             amplifier = amplifier + (leapsPerTier * 2);
+        else if (HelperMethods.isUnlocked(wizardSkillTree,
+                SkillReferencePosition.wizardSpecialisationStaticDischargeLeapTwo, player))
+            amplifier = amplifier + leapsPerTier;
 
         if (HelperMethods.getTargetedEntity(player, staticDischargeRange) !=null)
-            blockpos = HelperMethods.getTargetedEntity(player, staticDischargeRange).getPos();
+            blockpos = HelperMethods.getTargetedEntity(player, staticDischargeRange).position();
 
         if (blockpos == null)
             blockpos = HelperMethods.getPositionLookingAt(player, staticDischargeRange);
@@ -206,21 +208,21 @@ public class WizardAbilities {
         } else {
 
             if (blockpos != null) {
-                int xpos = (int) blockpos.getX();
-                int ypos = (int) blockpos.getY();
-                int zpos = (int) blockpos.getZ();
+                int xpos = (int) blockpos.x();
+                int ypos = (int) blockpos.y();
+                int zpos = (int) blockpos.z();
                 BlockPos searchArea = new BlockPos(xpos, ypos, zpos);
-                Box box = HelperMethods.createBoxAtBlock(searchArea, 3);
-                for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                AABB box = HelperMethods.createBoxAtBlock(searchArea, 3);
+                for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                     if (entities != null) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
                             success = true;
                             SignatureAbilities.castSpellEngineIndirectTarget(player,
                                     "simplyskills:static_discharge",
                                     3, le, searchArea);
                             if (HelperMethods.isUnlocked(wizardSkillTree,
                                     SkillReferencePosition.wizardSpecialisationStaticDischargeLeap, player)) {
-                                le.addStatusEffect(new StatusEffectInstance(EffectRegistry.STATICCHARGE,
+                                le.addEffect(new MobEffectInstance(EffectRegistry.STATICCHARGE,
                                         staticChargeDuration, amplifier, false, false, true));
                             }
                             StaticChargeEffect.onHitEffects(player, StaticChargeEffect.calculateSpeedChance(player), le);
@@ -236,39 +238,39 @@ public class WizardAbilities {
     }
 
     // Static Discharge Lightning Ball
-    public static void signatureWizardStaticDischargeBall(ServerPlayerEntity player, SpellProjectile spellProjectile,
-                                                          Identifier spellId, SpellHelper.ImpactContext context,
+    public static void signatureWizardStaticDischargeBall(ServerPlayer player, SpellProjectile spellProjectile,
+                                                          ResourceLocation spellId, SpellExecution.ImpactContext context,
                                                           Spell.ProjectileData.Perks perks) {
 
-        if (player != null && spellProjectile.age % 5 == 0 && spellProjectile.age > 5) {
+        if (player != null && spellProjectile.tickCount % 5 == 0 && spellProjectile.tickCount > 5) {
             if (spellId.toString().contains("lightning_ball") || spellId.toString().contains("lightning_lesser")) {
 
                 if (HelperMethods.isUnlocked("simplyskills:wizard",
                         SkillReferencePosition.wizardSpecialisationStaticDischargeLightningBall, player)) {
 
-                    Vec3d position = spellProjectile.getPos();
+                    Vec3 position = spellProjectile.position();
                     if (!spellId.toString().contains("ball_homing")) {
                         perks.pierce = 132;
-                        SpellProjectile projectile = new SpellProjectile(spellProjectile.getWorld(),
-                                (LivingEntity) spellProjectile.getOwner(), position.getX(), position.getY(), position.getZ(),
-                                spellProjectile.behaviour(), new Identifier("simplyskills:lightning_lesser"), (Entity) null,
+                        SpellProjectile projectile = new SpellProjectile(spellProjectile.level(),
+                                (LivingEntity) spellProjectile.getOwner(), position.x(), position.y(), position.z(),
+                                spellProjectile.getBehaviour(), SpellRegistry.from(player.level()).getHolder(ResourceLocation.parse("simplyskills:lightning_lesser")).orElseThrow(),
                                 context, perks.copy());
 
-                        projectile.setVelocity(spellProjectile.getVelocity().multiply(5));
+                        projectile.setDeltaMovement(spellProjectile.getDeltaMovement().scale(5));
                         projectile.range = spellProjectile.range;
-                        ProjectileUtil.setRotationFromVelocity(projectile, 0.2F);
+                        ProjectileUtil.rotateTowardsMovement(projectile, 0.2F);
 
                         int radius = 5;
                         List<Entity> targets = new ArrayList<Entity>();
-                        Box box = new Box(spellProjectile.getX() + radius, spellProjectile.getY() + (float) radius / 2, spellProjectile.getZ() + radius,
+                        AABB box = new AABB(spellProjectile.getX() + radius, spellProjectile.getY() + (float) radius / 2, spellProjectile.getZ() + radius,
                                 spellProjectile.getX() - radius, spellProjectile.getY() - (float) radius / 2, spellProjectile.getZ() - radius);
 
-                        for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+                        for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                             if (entities != null && player.getRandom().nextInt(100) < 5) {
-                                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
                                     projectile.setFollowedTarget(le);
-                                    spellProjectile.getWorld().spawnEntity(projectile);
+                                    spellProjectile.level().addFreshEntity(projectile);
                                     targets.add(le);
                                     AbilityLogic.onSpellCastEffects(player, targets, spellId, null);
                                     StaticChargeEffect.onHitEffects(player, StaticChargeEffect.calculateSpeedChance(player), le);
@@ -287,35 +289,35 @@ public class WizardAbilities {
 
                     spellProjectile.setFollowedTarget(player);
                     spellProjectile.range = 512;
-                    spellProjectile.setPitch(90);
+                    spellProjectile.setXRot(90);
                 }
 
             }
         }
     }
 
-    public static void signatureWizardLightningOrb(SpellProjectile spellProjectile, Entity followedTarget, Identifier spellId) {
+    public static void signatureWizardLightningOrb(SpellProjectile spellProjectile, Entity followedTarget, ResourceLocation spellId) {
 
         if (spellId != null) {
-            if (spellId.toString().equals("simplyskills:lightning_ball_homing") && spellProjectile.age % 20 == 0 && followedTarget !=null) {
+            if (spellId.toString().equals("simplyskills:lightning_ball_homing") && spellProjectile.tickCount % 20 == 0 && followedTarget !=null) {
                 if (spellProjectile.distanceTo(followedTarget) > 10) {
-                    spellProjectile.teleport(followedTarget.getX(), followedTarget.getY(), followedTarget.getZ());
-                    spellProjectile.setPitch(90);
-                    spellProjectile.velocityModified = true;
+                    spellProjectile.teleportTo(followedTarget.getX(), followedTarget.getY(), followedTarget.getZ());
+                    spellProjectile.setXRot(90);
+                    spellProjectile.hurtMarked = true;
                 }
             }
         }
 
     }
 
-    public static void signatureWizardLightningOrbBuff(PlayerEntity player) {
+    public static void signatureWizardLightningOrbBuff(Player player) {
         int radius = SimplySkills.wizardConfig.signatureWizardLightningOrbBuffRadius;
         int frequency = SimplySkills.wizardConfig.signatureWizardLightningOrbBuffFrequency;
         int count = 0;
-        Box box = new Box(player.getX() + radius, player.getY() + (float) radius * 3, player.getZ() + radius,
+        AABB box = new AABB(player.getX() + radius, player.getY() + (float) radius * 3, player.getZ() + radius,
                 player.getX() - radius, player.getY() - (float) radius * 3, player.getZ() - radius);
-        if (player.age % frequency == 0) {
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_ENTITY)) {
+        if (player.tickCount % frequency == 0) {
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.ENTITY_STILL_ALIVE)) {
                 if (entities != null && player.getRandom().nextInt(100) < SimplySkills.wizardConfig.signatureWizardLightningOrbBuffChance) {
                     if ((entities instanceof SpellProjectile spe) && spe.getOwner() != null) {
                         if (spe.getOwner() == player)
@@ -331,7 +333,7 @@ public class WizardAbilities {
 
 
     // Arcane Bolt
-    public static boolean signatureWizardArcaneBolt(String wizardSkillTree, PlayerEntity player) {
+    public static boolean signatureWizardArcaneBolt(String wizardSkillTree, Player player) {
         boolean success = false;
         Entity target = null;
         int volleyDuration = SimplySkills.wizardConfig.signatureWizardArcaneBoltVolleyDuration;
@@ -350,7 +352,7 @@ public class WizardAbilities {
 
             if (HelperMethods.isUnlocked(wizardSkillTree,
                     SkillReferencePosition.wizardSpecialisationArcaneBoltVolley, player))
-                player.addStatusEffect(new StatusEffectInstance(EffectRegistry.ARCANEVOLLEY,
+                player.addEffect(new MobEffectInstance(EffectRegistry.ARCANEVOLLEY,
                         volleyDuration, volleyStacks, false, false, true));
 
             if (HelperMethods.isUnlocked(wizardSkillTree,

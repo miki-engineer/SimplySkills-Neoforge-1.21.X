@@ -1,41 +1,42 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import net.sweenus.simplyskills.util.HelperMethods;
 
 import static java.lang.Math.min;
 
-public class ImmobilizeEffect extends StatusEffect {
+public class ImmobilizeEffect extends MobEffect {
     private BlockPos blockPos;
-    public ImmobilizeEffect(StatusEffectCategory statusEffectCategory, int color) {
+    public ImmobilizeEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
             float damage = min((float)(livingEntity.getMaxHealth() * 0.1), 10);
-            if (!livingEntity.getBlockPos().equals(blockPos)) {
-                if (livingEntity.age % 5 == 0) {
-                    blockPos = livingEntity.getBlockPos();
-                    livingEntity.damage(livingEntity.getDamageSources().generic(), damage);
-                    HelperMethods.incrementStatusEffect(livingEntity, StatusEffects.SLOWNESS, 80, 1, 9);
+            if (!livingEntity.blockPosition().equals(blockPos)) {
+                if (livingEntity.tickCount % 5 == 0) {
+                    blockPos = livingEntity.blockPosition();
+                    livingEntity.hurt(livingEntity.damageSources().generic(), damage);
+                    HelperMethods.incrementStatusEffect(livingEntity, MobEffects.MOVEMENT_SLOWDOWN, 80, 1, 9);
                 }
             }
 
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

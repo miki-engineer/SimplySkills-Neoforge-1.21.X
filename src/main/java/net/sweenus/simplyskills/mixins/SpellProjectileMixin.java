@@ -1,18 +1,19 @@
 package net.sweenus.simplyskills.mixins;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
 import net.spell_engine.api.spell.Spell;
-import net.spell_engine.api.spell.SpellInfo;
 import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellHelper;
+import net.spell_engine.internals.SpellExecution;
+import net.spell_engine.internals.impact.SpellImpacts;
 import net.sweenus.simplyskills.abilities.*;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
@@ -22,73 +23,119 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Mixin(SpellProjectile.class)
-public abstract class SpellProjectileMixin extends ProjectileEntity {
-
-    @Shadow public abstract Spell getSpell();
+public abstract class SpellProjectileMixin extends Projectile {
 
     @Shadow private Spell.ProjectileData.Perks perks;
 
     @Shadow public float range;
 
-    @Shadow private Identifier spellId;
-
-    @Shadow private SpellHelper.ImpactContext context;
+    @Shadow private SpellExecution.ImpactContext context;
 
     @Shadow private Entity followedTarget;
 
+    @Shadow private boolean skipTravel;
+
+    @Shadow protected Set<Integer> impactHistory;
+
     @Shadow public abstract void setVelocity(double x, double y, double z, float speed, float spread, float divergence);
 
-    @Shadow public abstract SpellInfo getSpellInfo();
+    @Shadow public abstract Holder<Spell> getSpellEntry();
 
-    public SpellProjectileMixin(EntityType<? extends ProjectileEntity> entityType, World world) {
+    private ResourceLocation simplyskills$getSpellId() {
+        return this.getSpellEntry().unwrapKey().orElseThrow().location();
+    }
+
+    public SpellProjectileMixin(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
     }
 
-    @Inject(at = @At("HEAD"), method = "tick")
-    public void simplyskills$tick(CallbackInfo ci) {
+    @Override
+    protected boolean canHitEntity(Entity entity) {
+        if (this.getSpellEntry() != null) {
+            ResourceLocation spellId = simplyskills$getSpellId();
+            if (spellId.getNamespace().equals("simplyskills")
+                    && (spellId.getPath().equals("righteous_shield_projectile")
+                    || spellId.getPath().equals("righteous_shield_projectile_2"))
+                    && this.impactHistory.contains(entity.getId())) {
+                // An already-hit enemy must not hide the next target from the collision ray.
+                return false;
+            }
+        }
+        return super.canHitEntity(entity);
+    }
 
-        if (!this.getWorld().isClient) {
-            if ( this.getSpell() != null && this.getOwner() instanceof ServerPlayerEntity player) {
-                SpellProjectile spellProjectile = (SpellProjectile) (Object)this;
-
-                // Ranger Elemental Artillery
-                RangerAbilities.signatureRangerElementalArtillery(player, spellProjectile, this.spellId, this.context, this.perks);
-
-                //Wizard Lightning Ball
-                WizardAbilities.signatureWizardStaticDischargeBall(player, spellProjectile, this.spellId, this.context, this.perks);
-                //Wizard Lightning Orb
-                WizardAbilities.signatureWizardLightningOrb(spellProjectile, this.followedTarget, this.spellId);
-                //Cleric Sacred Orb
-                ClericAbilities.signatureClericSacredOrbHoming(spellProjectile, this.spellId);
+    @Inject(method = "ricochetFrom", at = @At("RETURN"))
+    private void simplyskills$deferShieldRicochetTravel(Entity target, LivingEntity caster,
+                                                       CallbackInfoReturnable<Boolean> cir) {
+        if (!this.level().isClientSide && cir.getReturnValueZ() && this.getSpellEntry() != null) {
+            ResourceLocation spellId = simplyskills$getSpellId();
+            if (spellId.getNamespace().equals("simplyskills")
+                    && (spellId.getPath().equals("righteous_shield_projectile")
+                    || spellId.getPath().equals("righteous_shield_projectile_2"))) {
+                // Check the redirected path for collisions next tick before moving along it.
+                // Otherwise a full-speed step can skip over a nearby ricochet target.
+                this.skipTravel = true;
             }
         }
     }
-    @Inject(at = @At("HEAD"), method = "onBlockHit", cancellable = true)
+
+    @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
+    public void simplyskills$tick(CallbackInfo ci) {
+
+        if (!this.level().isClientSide) {
+            if ( this.getSpellEntry() != null && this.getOwner() instanceof ServerPlayer player) {
+                SpellProjectile spellProjectile = (SpellProjectile) (Object)this;
+                ResourceLocation spellId = simplyskills$getSpellId();
+
+                if ((spellId.toString().endsWith("_arrow_rain") || spellId.toString().endsWith("_arrow_homing"))
+                        && this.followedTarget != null
+                        && (!this.followedTarget.isAlive() || this.followedTarget.isRemoved())) {
+                    spellProjectile.discard();
+                    ci.cancel();
+                    return;
+                }
+
+                // Ranger Elemental Artillery
+                RangerAbilities.signatureRangerElementalArtillery(player, spellProjectile, spellId, this.context, this.perks);
+
+                //Wizard Lightning Ball
+                WizardAbilities.signatureWizardStaticDischargeBall(player, spellProjectile, spellId, this.context, this.perks);
+                //Wizard Lightning Orb
+                WizardAbilities.signatureWizardLightningOrb(spellProjectile, this.followedTarget, spellId);
+                //Cleric Sacred Orb
+                ClericAbilities.signatureClericSacredOrbHoming(spellProjectile, spellId);
+            }
+        }
+    }
+    @Inject(at = @At("HEAD"), method = "onHitBlock", cancellable = true)
     protected void simplyskills$onBlockHit(CallbackInfo ci) {
-        if (!this.getWorld().isClient) {
-            if (this.spellId != null && this.getSpell() != null) {
+        if (!this.level().isClientSide) {
+            if (this.getSpellEntry() != null) {
+                ResourceLocation spellId = simplyskills$getSpellId();
                 String[] spellList =  new String[] {
                         "simplyskills:lightning_ball_homing",
                         "simplyskills:physical_dagger_homing",
                         "simplyskills:sacred_orb_lesser"};
-                if (HelperMethods.stringContainsAny(this.spellId.toString(), spellList))
+                if (HelperMethods.stringContainsAny(spellId.toString(), spellList))
                     ci.cancel();
             }
         }
     }
-    @Inject(at = @At("HEAD"), method = "onEntityHit", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "onHitEntity", cancellable = true)
     protected void simplyskills$onEntityHit(EntityHitResult entityHitResult, CallbackInfo ci) {
-        if (!this.getWorld().isClient) {
-            if (this.spellId != null && this.getSpell() != null) {
+        if (!this.level().isClientSide) {
+            if (this.getSpellEntry() != null) {
+                ResourceLocation spellId = simplyskills$getSpellId();
 
                 if (entityHitResult.getEntity() != null && entityHitResult.getEntity() instanceof LivingEntity livingEntity && getOwner() != null) {
-                    if (livingEntity.hasStatusEffect(EffectRegistry.AGONY) && getOwner() instanceof PlayerEntity playerAttacker) {
+                    if (livingEntity.hasEffect(EffectRegistry.AGONY) && getOwner() instanceof Player playerAttacker) {
                         AscendancyAbilities.agonyEffect(playerAttacker, livingEntity);
                     }
                 }
@@ -98,16 +145,16 @@ public abstract class SpellProjectileMixin extends ProjectileEntity {
                     ClericAbilities.signatureClericSacredOrbImpact(entityHitResult, spellId, getOwner(), spellProjectile);
 
                     String[] spellList = new String[]{"simplyskills:lightning_ball_homing", "simplyskills:physical_dagger_homing"};
-                    if (HelperMethods.stringContainsAny(this.spellId.toString(), spellList) && this.getOwner() instanceof ServerPlayerEntity player) {
+                    if (HelperMethods.stringContainsAny(spellId.toString(), spellList) && this.getOwner() instanceof ServerPlayer player) {
 
-                        SpellHelper.projectileImpact(player, this, entityHitResult.getEntity(), this.getSpellInfo(), context.position(entityHitResult.getPos()));
+                        SpellImpacts.projectileImpact(player, this, entityHitResult.getEntity(), this.getSpellEntry(), context.position(entityHitResult.getLocation()));
 
                         if (HelperMethods.isUnlocked("simplyskills:wizard",
                                 SkillReferencePosition.wizardSpecialisationStaticDischargeLightningOrbOnHit, player)) {
                             List<Entity> targets = new ArrayList<Entity>();
                             if (entityHitResult.getEntity() != null) {
                                 targets.add(entityHitResult.getEntity());
-                                AbilityLogic.onSpellCastEffects(player, targets, this.spellId, null);
+                                AbilityLogic.onSpellCastEffects(player, targets, spellId, null);
                             }
                         }
 

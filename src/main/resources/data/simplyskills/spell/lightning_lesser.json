@@ -1,0 +1,134 @@
+{
+  "school": "spell_power:lightning",
+  "range": 96,
+  "tier": 1,
+  "learn": {},
+  "active": {
+    "cast": {
+      "duration": 0.75,
+      "animation": {
+        "id": "spell_engine:one_handed_projectile_charge"
+      },
+      "sound": {
+        "id": "spell_engine:generic_fire_casting",
+        "randomness": 0
+      },
+      "particles": [
+        {
+          "id": "spell_engine:magic_holy",
+          "appearance": {},
+          "batch": {
+            "count": 9,
+            "shape": "CONE",
+            "anchor": "LAUNCH_POINT",
+            "vertical_origin": 0.5,
+            "alignment": "LOOK",
+            "min_speed": 1,
+            "max_speed": 1,
+            "angle": 40
+          }
+        }
+      ]
+    }
+  },
+  "release": {
+    "animation": {
+      "id": "spell_engine:one_handed_projectile_release"
+    },
+    "sound": {
+      "id": "simplyskills:soundeffect_35",
+      "volume": 0.2,
+      "pitch": 1.1
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {}
+  },
+  "deliver": {
+    "type": "PROJECTILE",
+    "projectile": {
+      "launch_properties": {
+        "velocity": 8.8
+      },
+      "projectile": {
+        "homing_angle": 10.1,
+        "client_data": {
+          "travel_particles": [
+            {
+              "id": "spell_engine:magic_holy",
+              "appearance": {},
+              "batch": {
+                "count": 0,
+                "shape": "CIRCLE",
+                "anchor": "ENTITY",
+                "vertical_origin": 0.5,
+                "alignment": "LOOK",
+                "min_speed": 0.01,
+                "max_speed": 0.05
+              }
+            }
+          ],
+          "composite_model": {
+            "models": [
+              {
+                "orientation": "TOWARDS_MOTION",
+                "fx": {
+                  "model_id": "simplyskills:spell_projectile/sea_lantern",
+                  "light_emission": "NONE",
+                  "scale": 0
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "knockback": 0.5,
+          "spell_power_coefficient": 0.8
+        }
+      },
+      "sound": {
+        "id": "simplyskills:soundeffect_35",
+        "volume": 0.2
+      },
+      "visuals": {
+        "particles": [
+          {
+            "id": "spell_engine:magic_holy",
+            "appearance": {},
+            "batch": {
+              "count": 10,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.5,
+              "min_speed": 0.02,
+              "max_speed": 0.07
+            }
+          },
+          {
+            "id": "minecraft:cloud",
+            "appearance": {},
+            "batch": {
+              "count": 3,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.5,
+              "min_speed": 0.01,
+              "max_speed": 0.02
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "cost": {
+    "durability": 0
+  }
+}

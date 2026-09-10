@@ -1,33 +1,28 @@
 package net.sweenus.simplyskills.mixins;
 
-import net.minecraft.entity.ai.goal.FollowOwnerGoal;
-import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.sweenus.simplyskills.entities.DreadglareEntity;
 import net.sweenus.simplyskills.entities.GreaterDreadglareEntity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(FollowOwnerGoal.class)
 public abstract class FollowOwnerGoalMixin {
 
-    @Shadow @Nullable private TameableEntity tameable;
+    @Shadow @Final private TamableAnimal tamable;
 
-    protected FollowOwnerGoalMixin(@Nullable TameableEntity tameable) {
-        this.tameable = tameable;
-    }
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/TamableAnimal;shouldTryTeleportToOwner()Z"))
+    public boolean simplyskills$canTarget(TamableAnimal tamable) {
+        if (!tamable.level().isClientSide()
+                && (tamable instanceof DreadglareEntity || tamable instanceof GreaterDreadglareEntity)
+                && tamable.getOwner() != null && tamable.distanceToSqr(tamable.getOwner()) < 576)
+            return false;
 
-    @Inject(at = @At("HEAD"), method = "tryTeleport", cancellable = true)
-    public void simplyskills$canTarget(CallbackInfo ci) {
-        FollowOwnerGoal followOwnerGoal = (FollowOwnerGoal) (Object)this;
-        if (!tameable.getWorld().isClient()) {
-            if (tameable instanceof DreadglareEntity || tameable instanceof GreaterDreadglareEntity) {
-                if (tameable.getOwner() !=null && tameable.squaredDistanceTo(tameable.getOwner()) < 576)
-                    ci.cancel();
-            }
-        }
+        return tamable.shouldTryTeleportToOwner();
     }
 }

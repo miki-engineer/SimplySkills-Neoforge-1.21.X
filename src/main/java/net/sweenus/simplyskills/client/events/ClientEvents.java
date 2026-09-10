@@ -1,19 +1,18 @@
 package net.sweenus.simplyskills.client.events;
 
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.sweenus.simplyskills.client.gui.CustomHud;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.sweenus.simplyskills.SimplySkills;
 
 public class ClientEvents {
 
     private static final CustomHud customHud = new CustomHud();
 
-    public static void registerClientEvents() {
-        HudRenderCallback.EVENT.register((DrawContext context, float tickDelta) -> {
-            double mouseX = MinecraftClient.getInstance().mouse.getX();
-            double mouseY = MinecraftClient.getInstance().mouse.getY();
-            customHud.render(context, (int)mouseX, (int)mouseY, tickDelta);
-        });
+    public static void registerClientEvents(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "signature_abilities"),
+                (context, deltaTracker) -> customHud.render(context, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(false)));
     }
 }

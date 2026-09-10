@@ -1,9 +1,9 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.abilities.SignatureAbilities;
 import net.sweenus.simplyskills.util.HelperMethods;
@@ -13,18 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ElementalSurgeEffect extends StatusEffect {
-    public ElementalSurgeEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class ElementalSurgeEffect extends MobEffect {
+    public ElementalSurgeEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
             int frequency = SimplySkills.spellbladeConfig.signatureSpellbladeElementalSurgeFrequency;
 
-            if (livingEntity.age % frequency == 0 && (livingEntity instanceof PlayerEntity player)) {
+            if (livingEntity.tickCount % frequency == 0 && (livingEntity instanceof Player player)) {
                 List<String> list = new ArrayList<>();
                 list.add("simplyskills:frost_nova");
                 list.add("simplyskills:fire_nova");
@@ -50,12 +50,13 @@ public class ElementalSurgeEffect extends StatusEffect {
                 SignatureAbilities.castSpellEngineAOE(player, randomSpell, radius, chance, false, false);
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

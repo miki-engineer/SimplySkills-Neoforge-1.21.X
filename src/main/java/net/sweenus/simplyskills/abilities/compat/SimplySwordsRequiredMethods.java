@@ -1,11 +1,12 @@
 package net.sweenus.simplyskills.abilities.compat;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.util.math.Box;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyswords.SimplySwords;
+import net.sweenus.simplyswords.config.Config;
 import net.sweenus.simplyswords.api.SimplySwordsAPI;
 import net.sweenus.simplyswords.entity.BattleStandardEntity;
 
@@ -13,12 +14,12 @@ public class SimplySwordsRequiredMethods {
 
     // Config fetching
 
-    public static int preciseChance = SimplySwords.gemEffectsConfig.preciseChance;
-    public static int mightyChance = SimplySwords.gemEffectsConfig.mightyChance;
-    public static int renewedChance = SimplySwords.gemEffectsConfig.renewedChance;
-    public static int stealthyChance = SimplySwords.gemEffectsConfig.stealthyChance;
-    public static int spellshieldChance = SimplySwords.gemEffectsConfig.spellshieldChance;
-    public static int leapingChance = SimplySwords.gemEffectsConfig.leapingChance;
+    public static int preciseChance = Config.gemPowers.simplySkills.preciseChance.get();
+    public static int mightyChance = Config.gemPowers.simplySkills.mightyChance.get();
+    public static int renewedChance = Config.gemPowers.simplySkills.renewedChance.get();
+    public static int stealthyChance = Config.gemPowers.simplySkills.stealthyChance.get();
+    public static int spellshieldChance = Config.gemPowers.simplySkills.spellshieldChance.get();
+    public static int leapingChance = Config.gemPowers.simplySkills.leapingChance.get();
 
     public static int spellStandardChance = 10;
     public static int deceptionChance = 50;
@@ -28,11 +29,11 @@ public class SimplySwordsRequiredMethods {
 
     // API Reliant
 
-    public static void spawnSpellStandard(PlayerEntity user) {
-        Box box = HelperMethods.createBox(user, 20);
+    public static void spawnSpellStandard(Player user) {
+        AABB box = HelperMethods.createBox(user, 20);
         int chance = SimplySwordsRequiredMethods.spellStandardChance;
 
-        for (Entity entities : user.getWorld().getOtherEntities(user, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+        for (Entity entities : user.level().getEntities(user, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
             if (entities != null) {
                 if (entities instanceof BattleStandardEntity bse) {
 
@@ -52,7 +53,7 @@ public class SimplySwordsRequiredMethods {
         }
     }
 
-    public static void spawnWarStandard(PlayerEntity user) {
+    public static void spawnWarStandard(Player user) {
         SimplySwordsAPI.spawnBattleStandard(user, 3, "api", 3, 3,
                 "simplyskills:might", null, 4,
                 "simplyskills:revealed", null, 0,

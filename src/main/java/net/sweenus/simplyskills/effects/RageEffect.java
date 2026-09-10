@@ -1,33 +1,34 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class RageEffect extends StatusEffect {
-    public RageEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class RageEffect extends MobEffect {
+    public RageEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
-            if (livingEntity.hasStatusEffect(EffectRegistry.EXHAUSTION)
-                    && livingEntity.age % 10 == 0) {
-                if (livingEntity.getStatusEffect(EffectRegistry.RAGE).getAmplifier() > 25)
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
+            if (livingEntity.hasEffect(EffectRegistry.EXHAUSTION)
+                    && livingEntity.tickCount % 10 == 0) {
+                if (livingEntity.getEffect(EffectRegistry.RAGE).getAmplifier() > 25)
                     HelperMethods.decrementStatusEffects(livingEntity, EffectRegistry.EXHAUSTION, 1);
             }
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

@@ -1,43 +1,43 @@
 package net.sweenus.simplyskills.client.effects;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.spell_engine.api.effect.CustomModelStatusEffect;
 import net.spell_engine.api.render.CustomModels;
 import net.sweenus.simplyskills.SimplySkills;
 
 
 public class BarrierRenderer implements CustomModelStatusEffect.Renderer {
-    public static final Identifier modelId_base = new Identifier(SimplySkills.MOD_ID, "effect/barrier");
+    public static final ResourceLocation modelId_base = ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spell_effect/barrier");
 
-    private static final RenderLayer BASE_RENDER_LAYER =
-            RenderLayer.getEntityTranslucent(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
+    private static final RenderType BASE_RENDER_LAYER =
+            RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS);
 
 
     @Override
-    public void renderEffect(int amplifier, LivingEntity livingEntity, float delta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, int light) {
+    public void renderEffect(long time, int amplifier, LivingEntity livingEntity, float delta, PoseStack matrixStack, MultiBufferSource vertexConsumers, int light) {
         float yOffset = 0.68F;
         float proneOffset = 0.30F; // Things get weird when prone, and render code hurts my head
-        boolean prone = livingEntity.isFallFlying() || livingEntity.isCrawling() || livingEntity.isInSwimmingPose();
-        matrixStack.push();
+        boolean prone = livingEntity.isFallFlying() || livingEntity.isVisuallyCrawling() || livingEntity.isVisuallySwimming();
+        matrixStack.pushPose();
 
         matrixStack.translate(0, yOffset, 0);
         if (prone)
             matrixStack.translate(0, -proneOffset, 0);
 
         // Apply rotation to match the entity's orientation
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-livingEntity.bodyYaw));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(-livingEntity.yBodyRot));
         if (prone)
-            matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(livingEntity.getPitch() + 90));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(livingEntity.getXRot() + 90));
 
-        CustomModels.render(BASE_RENDER_LAYER, MinecraftClient.getInstance().getItemRenderer(), modelId_base,
+        CustomModels.render(BASE_RENDER_LAYER, Minecraft.getInstance().getItemRenderer(), modelId_base,
                 matrixStack, vertexConsumers, light, livingEntity.getId());
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 }

@@ -1,47 +1,52 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Tameable;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.item.BowItem;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellHelper;
+import net.spell_engine.api.spell.registry.SpellRegistry;
+import net.spell_engine.internals.SpellExecution;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
 public class RangerAbilities {
 
-    public static void passiveRangerReveal(PlayerEntity player) {
+    private static final List<ResourceLocation> arrowRainElements = List.of(
+            ResourceLocation.parse("simplyskills:frost_arrow_homing"),
+            ResourceLocation.parse("simplyskills:fire_arrow_homing"),
+            ResourceLocation.parse("simplyskills:lightning_arrow_homing"));
+
+    public static void passiveRangerReveal(Player player) {
         int frequency = SimplySkills.rangerConfig.passiveRangerRevealFrequency;
-        if (player.age % frequency == 0) {
+        if (player.tickCount % frequency == 0) {
             int radius = SimplySkills.rangerConfig.passiveRangerRevealRadius;
 
-            Box box = HelperMethods.createBox(player, radius);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBox(player, radius);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
                 if (entities != null) {
-                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
-                        for (StatusEffectInstance statusEffect : le.getStatusEffects()) {
-                            if (statusEffect != null && statusEffect.getEffectType().equals(EffectRegistry.STEALTH)) {
-                                le.removeStatusEffect(statusEffect.getEffectType());
-                                le.addStatusEffect(new StatusEffectInstance(EffectRegistry.REVEALED, 180, 1, false, false, true));
+                    if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
+                        for (MobEffectInstance statusEffect : le.getActiveEffects()) {
+                            if (statusEffect != null && statusEffect.getEffect().equals(EffectRegistry.STEALTH)) {
+                                le.removeEffect(statusEffect.getEffect());
+                                le.addEffect(new MobEffectInstance(EffectRegistry.REVEALED, 180, 1, false, false, true));
                                 break;
                             }
                         }
@@ -51,44 +56,44 @@ public class RangerAbilities {
         }
     }
 
-    public static boolean isOwnPet(Entity entity, PlayerEntity player) {
-        if ((entity instanceof Tameable te)) {
+    public static boolean isOwnPet(Entity entity, Player player) {
+        if ((entity instanceof OwnableEntity te)) {
             if (te.getOwner() != null) {
-                return Objects.equals(te.getOwnerUuid(), player.getUuid());
+                return Objects.equals(te.getOwnerUUID(), player.getUUID());
             }
         }
         return false;
     }
 
-    public static void passiveRangerTamer(PlayerEntity player) {
+    public static void passiveRangerTamer(Player player) {
         int frequency = SimplySkills.rangerConfig.passiveRangerTamerFrequency;
-        if (player.age % frequency == 0) {
+        if (player.tickCount % frequency == 0) {
             int radius = SimplySkills.rangerConfig.passiveRangerTamerRadius;
             int resistanceAmplifier = SimplySkills.rangerConfig.passiveRangerTamerResistanceAmplifier;
             int regenerationAmplifier = SimplySkills.rangerConfig.passiveRangerTamerRegenerationAmplifier;
 
-            Box box = HelperMethods.createBox(player, radius);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBox(player, radius);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null && entities instanceof  LivingEntity le) {
                     if (isOwnPet(entities, player)) {
-                        le.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION,
+                        le.addEffect(new MobEffectInstance(MobEffects.REGENERATION,
                                  frequency + 5, regenerationAmplifier, false, false, true));
-                        le.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE,
+                        le.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,
                                  frequency + 5, resistanceAmplifier, false, false, true));
                     }
                 }
             }
         }
     }
-    public static void passiveRangerBonded(PlayerEntity player) {
+    public static void passiveRangerBonded(Player player) {
         int frequency = SimplySkills.rangerConfig.passiveRangerBondedFrequency;
-        if (player.age % frequency == 0) {
+        if (player.tickCount % frequency == 0) {
             int radius = SimplySkills.rangerConfig.passiveRangerBondedRadius;
             int petMinimumHealthPercent = SimplySkills.rangerConfig.passiveRangerBondedPetMinimumHealthPercent;
             int healthTransferAmount = SimplySkills.rangerConfig.passiveRangerBondedHealthTransferAmount;
 
-            Box box = HelperMethods.createBox(player, radius);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBox(player, radius);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null && entities instanceof  LivingEntity le) {
                     if (isOwnPet(entities, player)) {
                         float teHealthPercent = ((le.getHealth() / le.getMaxHealth()) * 100);
@@ -102,23 +107,23 @@ public class RangerAbilities {
             }
         }
     }
-    public static void passiveRangerTrained(PlayerEntity player) {
+    public static void passiveRangerTrained(Player player) {
         int frequency = SimplySkills.rangerConfig.passiveRangerTrainedFrequency;
-        if (player.age % frequency == 0) {
+        if (player.tickCount % frequency == 0) {
             int radius = SimplySkills.rangerConfig.passiveRangerTrainedRadius;
             int strengthAmplifier = SimplySkills.rangerConfig.passiveRangerTrainedStrengthAmplifier;
             int speedAmplifier = SimplySkills.rangerConfig.passiveRangerTrainedSpeedAmplifier;
             int minimumHealthPercent = SimplySkills.rangerConfig.passiveRangerTrainedMinimumHealthPercent;
 
-            Box box = HelperMethods.createBox(player, radius);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBox(player, radius);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null && entities instanceof  LivingEntity le) {
                     if (isOwnPet(entities, player)) {
                         float teHealthPercent = ((le.getHealth() / le.getMaxHealth()) * 100);
                         if (teHealthPercent > minimumHealthPercent) {
-                            le.addStatusEffect(new StatusEffectInstance(StatusEffects.STRENGTH,
+                            le.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
                                     frequency + 5, strengthAmplifier, false, false, true));
-                            le.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED,
+                            le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
                                     frequency + 5, speedAmplifier, false, false, true));
                         }
                     }
@@ -127,17 +132,17 @@ public class RangerAbilities {
         }
     }
 
-    public static void passiveRangerIncognito(PlayerEntity player) {
+    public static void passiveRangerIncognito(Player player) {
         int frequency = SimplySkills.rangerConfig.passiveRangerIncognitoFrequency;
-        if (player.age % frequency == 0) {
+        if (player.tickCount % frequency == 0) {
             int radius = SimplySkills.rangerConfig.passiveRangerIncognitoRadius;
 
-            Box box = HelperMethods.createBox(player, radius);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBox(player, radius);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null && entities instanceof  LivingEntity le) {
                     if (isOwnPet(entities, player)) {
-                        if (player.hasStatusEffect(EffectRegistry.STEALTH)) {
-                            le.addStatusEffect(new StatusEffectInstance(StatusEffects.INVISIBILITY,
+                        if (player.hasEffect(EffectRegistry.STEALTH)) {
+                            le.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
                                     frequency + 5,0, false, false, true));
 
                         }
@@ -147,7 +152,7 @@ public class RangerAbilities {
         }
     }
 
-    public static void passiveRangerElementalArrowsRenewal(PlayerEntity player) {
+    public static void passiveRangerElementalArrowsRenewal(Player player) {
         int random = new Random().nextInt(100);
         int renewalChance = SimplySkills.rangerConfig.passiveRangerElementalArrowsRenewalChance;
         int renewalDuration = SimplySkills.rangerConfig.passiveRangerElementalArrowsRenewalDuration;
@@ -163,7 +168,7 @@ public class RangerAbilities {
 
 
     // Disengage
-    public static boolean signatureRangerDisengage(String rangerSkillTree, PlayerEntity player) {
+    public static boolean signatureRangerDisengage(String rangerSkillTree, Player player) {
 
         int radius = SimplySkills.rangerConfig.signatureRangerDisengageRadius;
         int velocity = SimplySkills.rangerConfig.signatureRangerDisengageVelocity;
@@ -173,23 +178,23 @@ public class RangerAbilities {
         int slowFallDuration = SimplySkills.rangerConfig.signatureRangerDisengageSlowFallDuration;
         int slowFallAmplifier = SimplySkills.rangerConfig.signatureRangerDisengageSlowFallAmplifier;
 
-        Box box = HelperMethods.createBox(player, radius);
-        for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+        AABB box = HelperMethods.createBox(player, radius);
+        for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
             if (entities != null) {
-                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
+                if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFireAOE(le, player)) {
 
-                    le.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS,
+                    le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,
                             slownessDuration, slownessAmplifier, false, false, true));
 
                 }
             }
         }
 
-        player.setVelocity(player.getRotationVector().negate().multiply(+velocity));
-        player.setVelocity(player.getVelocity().x, height, player.getVelocity().z);
-        player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOW_FALLING,
+        player.setDeltaMovement(player.getLookAngle().reverse().scale(+velocity));
+        player.setDeltaMovement(player.getDeltaMovement().x, height, player.getDeltaMovement().z);
+        player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,
                 slowFallDuration, slowFallAmplifier, false, false, true));
-        player.velocityModified = true;
+        player.hurtMarked = true;
 
         if (HelperMethods.isUnlocked(rangerSkillTree,
                 SkillReferencePosition.rangerSpecialisationDisengageRecuperate, player))
@@ -203,7 +208,7 @@ public class RangerAbilities {
                 SkillReferencePosition.rangerSpecialisationDisengageMarksman, player)) {
             int marksmanDuration = SimplySkills.rangerConfig.signatureRangerDisengageMarksmanDuration;
             int marksmanStacks = SimplySkills.rangerConfig.signatureRangerDisengageMarksmanStacks;
-            if (player.getMainHandStack().getItem() instanceof BowItem)
+            if (player.getMainHandItem().getItem() instanceof BowItem)
                 HelperMethods.incrementStatusEffect(player, EffectRegistry.MARKSMAN, marksmanDuration, marksmanStacks, 99);
             else
                 HelperMethods.incrementStatusEffect(player, EffectRegistry.BARRIER, marksmanDuration, marksmanStacks, 6);
@@ -212,11 +217,11 @@ public class RangerAbilities {
     }
 
     // Disengage Recuperate
-    public static void signatureRangerDisengageRecuperate(PlayerEntity player) {
+    public static void signatureRangerDisengageRecuperate(Player player) {
         int radius = SimplySkills.rangerConfig.signatureRangerDisengageRecuperateRadius;
 
-        Box box = HelperMethods.createBox(player, radius);
-        for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+        AABB box = HelperMethods.createBox(player, radius);
+        for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
             if (entities != null && entities instanceof  LivingEntity le) {
                 if (isOwnPet(entities, player)) {
@@ -227,23 +232,23 @@ public class RangerAbilities {
     }
 
     // Disengage Exploitation
-    public static void signatureRangerDisengageExploitation(PlayerEntity player) {
+    public static void signatureRangerDisengageExploitation(Player player) {
         int radius = SimplySkills.rangerConfig.signatureRangerDisengageExploitationRadius;
         int effectDuration = SimplySkills.rangerConfig.signatureRangerDisengageExploitationDuration;
 
-        Box box = HelperMethods.createBox(player, radius);
-        for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+        AABB box = HelperMethods.createBox(player, radius);
+        for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
 
             if (entities != null && entities instanceof LivingEntity le) {
                 if (isOwnPet(entities, player)) {
-                    le.addStatusEffect(new StatusEffectInstance(EffectRegistry.IMMOBILIZINGAURA, effectDuration, 0, false, false, true));
+                    le.addEffect(new MobEffectInstance(EffectRegistry.IMMOBILIZINGAURA, effectDuration, 0, false, false, true));
                 }
             }
         }
     }
 
     // Elemental Arrows
-    public static boolean signatureRangerElementalArrows(String rangerSkillTree, PlayerEntity player) {
+    public static boolean signatureRangerElementalArrows(String rangerSkillTree, Player player) {
         int elementalArrowsDuration = SimplySkills.rangerConfig.effectRangerElementalArrowsDuration;
         int elementalArrowsStacks = SimplySkills.rangerConfig.effectRangerElementalArrowsStacks;
         int elementalArrowsStacksIncreasePerTier = SimplySkills.rangerConfig.effectRangerElementalArrowsStacksIncreasePerTier;
@@ -251,65 +256,62 @@ public class RangerAbilities {
         int amplifier =elementalArrowsStacks;
 
         if (HelperMethods.isUnlocked(rangerSkillTree,
-                SkillReferencePosition.rangerSpecialisationElementalArrowsStacksOne, player))
-            amplifier = amplifier + elementalArrowsStacksIncreasePerTier;
-        if (HelperMethods.isUnlocked(rangerSkillTree,
-                SkillReferencePosition.rangerSpecialisationElementalArrowsStacksTwo, player))
-            amplifier = amplifier + (elementalArrowsStacksIncreasePerTier * 2);
-        if (HelperMethods.isUnlocked(rangerSkillTree,
                 SkillReferencePosition.rangerSpecialisationElementalArrowsStacksThree, player))
             amplifier = amplifier + (elementalArrowsStacksIncreasePerTier * 3);
+        else if (HelperMethods.isUnlocked(rangerSkillTree,
+                SkillReferencePosition.rangerSpecialisationElementalArrowsStacksTwo, player))
+            amplifier = amplifier + (elementalArrowsStacksIncreasePerTier * 2);
+        else if (HelperMethods.isUnlocked(rangerSkillTree,
+                SkillReferencePosition.rangerSpecialisationElementalArrowsStacksOne, player))
+            amplifier = amplifier + elementalArrowsStacksIncreasePerTier;
 
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.ELEMENTALARROWS,
+        player.addEffect(new MobEffectInstance(EffectRegistry.ELEMENTALARROWS,
                 elementalArrowsDuration, amplifier, false, false, true));
 
+        SignatureAbilities.playCastingGesture(player, "spell_engine:one_handed_healing_release");
         return true;
     }
 
     // Elemental Arrows
-    public static boolean signatureRangerArrowRain(String rangerSkillTree, PlayerEntity player) {
+    public static boolean signatureRangerArrowRain(String rangerSkillTree, Player player) {
         int arrowRainDuration = SimplySkills.rangerConfig.effectRangerArrowRainDuration;
-        player.addStatusEffect(new StatusEffectInstance(EffectRegistry.ARROWRAIN, arrowRainDuration, 0, false, false, true));
+        player.addEffect(new MobEffectInstance(EffectRegistry.ARROWRAIN, arrowRainDuration, 0, false, false, true));
+        SignatureAbilities.playCastingGesture(player, "spell_engine:archery_upwards_release");
         return true;
     }
 
     // Arrow Rain Elemental Artillery
-    public static void signatureRangerElementalArtillery(ServerPlayerEntity player, SpellProjectile spellProjectile, Identifier spellId, SpellHelper.ImpactContext context, Spell .ProjectileData.Perks perks) {
-        if (player != null && spellProjectile.age % 12 == 0 && spellProjectile.age > 30) {
+    public static void signatureRangerElementalArtillery(ServerPlayer player, SpellProjectile spellProjectile, ResourceLocation spellId, SpellExecution.ImpactContext context, Spell .ProjectileData.Perks perks) {
+        if (player != null && spellProjectile.tickCount % 12 == 0 && spellProjectile.tickCount > 30) {
             if (HelperMethods.isUnlocked("simplyskills:ranger", SkillReferencePosition.rangerSpecialisationArrowRainElementalArtillery, player)
                     && spellId.toString().contains("arrow_rain")) {
 
-                Vec3d position = spellProjectile.getPos();
-                List<String> list = new ArrayList<>();
-                list.add("simplyskills:frost_arrow_homing");
-                list.add("simplyskills:fire_arrow_homing");
-                list.add("simplyskills:lightning_arrow_homing");
-
-                Random rand = new Random();
-                Identifier randomSpell = new Identifier(list.get(rand.nextInt(list.size())));
-
-                SpellProjectile projectile = new SpellProjectile(spellProjectile.getWorld(),
-                        (LivingEntity) spellProjectile.getOwner(), position.getX(), position.getY(), position.getZ(),
-                        spellProjectile.behaviour(), randomSpell, (Entity) null,
-                        context, perks.copy());
-
-                projectile.setVelocity(spellProjectile.getVelocity());
-                projectile.range = spellProjectile.range;
-                ProjectileUtil.setRotationFromVelocity(projectile, 0.2F);
-
                 int radius = 20;
-                Box box = new Box(spellProjectile.getX() + radius, spellProjectile.getY() + (float) radius * 3, spellProjectile.getZ() + radius,
-                        spellProjectile.getX() - radius, spellProjectile.getY() - (float) radius * 3, spellProjectile.getZ() - radius);
-                for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
-                    if (entities != null && player.getRandom().nextInt(100) < 35) {
-                        if ((entities instanceof LivingEntity le) && HelperMethods.checkFriendlyFire(le, player)) {
-                            projectile.setFollowedTarget(le);
+                LivingEntity target = null;
+                AABB box = spellProjectile.getBoundingBox().inflate(radius, radius * 3, radius);
+                for (Entity entity : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
+                    if (player.getRandom().nextInt(100) < 35) {
+                        if (entity instanceof LivingEntity livingEntity && HelperMethods.checkFriendlyFireAOE(livingEntity, player)) {
+                            target = livingEntity;
                             break;
                         }
                     }
                 }
 
-                spellProjectile.getWorld().spawnEntity(projectile);
+                if (target != null) {
+                    Vec3 position = spellProjectile.position();
+                    ResourceLocation randomSpell = arrowRainElements.get(player.getRandom().nextInt(arrowRainElements.size()));
+                    SpellProjectile projectile = new SpellProjectile(spellProjectile.level(),
+                            (LivingEntity) spellProjectile.getOwner(), position.x(), position.y(), position.z(),
+                            spellProjectile.getBehaviour(), SpellRegistry.from(player.level()).getHolder(randomSpell).orElseThrow(),
+                            context, perks.copy());
+
+                    projectile.setDeltaMovement(spellProjectile.getDeltaMovement());
+                    projectile.range = spellProjectile.range;
+                    projectile.setFollowedTarget(target);
+                    ProjectileUtil.rotateTowardsMovement(projectile, 0.2F);
+                    spellProjectile.level().addFreshEntity(projectile);
+                }
             }
         }
     }

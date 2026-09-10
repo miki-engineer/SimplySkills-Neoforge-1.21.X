@@ -1,19 +1,29 @@
 package net.sweenus.simplyskills.abilities;
 
-import net.minecraft.entity.*;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Box;
+import net.spell_engine.Platform;
+import net.spell_engine.api.spell.fx.PlayerAnimation;
+import net.spell_engine.internals.casting.SpellCast;
+import net.spell_engine.utils.AnimationHelper;
+
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.*;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchools;
 import net.sweenus.simplyskills.entities.GreaterDreadglareEntity;
@@ -29,71 +39,74 @@ import java.util.Objects;
 import java.util.Random;
 
 public class NecromancerAbilities {
+    private static final String SHADOW_COMBUST_IN_PROGRESS = "simplyskills_shadow_combust_in_progress";
 
-    public static void effectNecromancerWinterborn(PlayerEntity player) {
+    public static void effectNecromancerWinterborn(Player player) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationWinterborn, player)) {
             double frostSpellPower = SpellPower.getSpellPower(SpellSchools.FROST, player).baseValue();
-            player.addStatusEffect(new StatusEffectInstance(EffectRegistry.SOULSHOCK, 220, (int) frostSpellPower, false ,false, false));
+            int soulShockStacks = (int) frostSpellPower;
+            if (soulShockStacks > 0)
+                player.addEffect(new MobEffectInstance(EffectRegistry.SOULSHOCK, 220, soulShockStacks - 1, false ,false, false));
         }
     }
 
-    public static void effectNecromancerEnrage(LivingEntity livingEntity,PlayerEntity player) {
+    public static void effectNecromancerEnrage(LivingEntity livingEntity,Player player) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationEnrage, player)) {
-            Box box = HelperMethods.createBoxHeight(livingEntity, 15);
-            for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBoxHeight(livingEntity, 15);
+            for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null) {
-                    if ((entities instanceof Tameable te) && !HelperMethods.checkFriendlyFire((LivingEntity) te, player)) {
-                        HelperMethods.incrementStatusEffect((LivingEntity) te, StatusEffects.STRENGTH, 200, 1, 3);
-                        HelperMethods.incrementStatusEffect((LivingEntity) te, StatusEffects.RESISTANCE, 200, 1, 3);
+                    if ((entities instanceof OwnableEntity te) && !HelperMethods.checkFriendlyFire((LivingEntity) te, player)) {
+                        HelperMethods.incrementStatusEffect((LivingEntity) te, MobEffects.DAMAGE_BOOST, 200, 1, 3);
+                        HelperMethods.incrementStatusEffect((LivingEntity) te, MobEffects.DAMAGE_RESISTANCE, 200, 1, 3);
                     }
                 }
             }
-            player.getWorld().playSoundFromEntity(null, player, SoundRegistry.MAGIC_SHAMANIC_VOICE_20,
-                    SoundCategory.PLAYERS, 0.2f, 1.2f);
+            player.level().playSound(null, player, SoundRegistry.MAGIC_SHAMANIC_VOICE_20,
+                    SoundSource.PLAYERS, 0.2f, 1.2f);
         }
     }
 
-    public static void effectNecromancerDeathEssence(PlayerEntity player) {
+    public static void effectNecromancerDeathEssence(Player player) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationDeathEssence, player)) {
             HelperMethods.incrementStatusEffect(player, EffectRegistry.BONEARMOR, 400, 1, 25);
         }
     }
 
-    public static void effectDeathWarden(PlayerEntity player) {
+    public static void effectDeathWarden(Player player) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationDeathWarden, player)) {
             boolean success = false;
-            Box box = HelperMethods.createBoxHeight(player, 15);
-            for (Entity entities : player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)) {
+            AABB box = HelperMethods.createBoxHeight(player, 15);
+            for (Entity entities : player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)) {
                 if (entities != null) {
-                    if ((entities instanceof Tameable te) && te.getOwner() != null && te.getOwner().equals(player)) {
+                    if ((entities instanceof OwnableEntity te) && te.getOwner() != null && te.getOwner().equals(player)) {
                         float healAmount = (float) (player.getMaxHealth() * 0.15);
                         player.heal(healAmount);
-                        entities.damage(player.getDamageSources().generic(), healAmount);
-                        HelperMethods.spawnWaistHeightParticles((ServerWorld) player.getWorld(), ParticleTypes.POOF, player, entities, 20);
+                        entities.hurt(player.damageSources().generic(), healAmount);
+                        HelperMethods.spawnWaistHeightParticles((ServerLevel) player.level(), ParticleTypes.POOF, player, entities, 20);
                         success = true;
                     }
                 }
             }
             if (success)
-                player.getWorld().playSoundFromEntity(null, player, SoundRegistry.MAGIC_SHAMANIC_VOICE_20,
-                        SoundCategory.PLAYERS, 0.2f, 1.3f);
+                player.level().playSound(null, player, SoundRegistry.MAGIC_SHAMANIC_VOICE_20,
+                        SoundSource.PLAYERS, 0.2f, 1.3f);
         }
     }
 
-    public static void effectPlague(PlayerEntity player) {
+    public static void effectPlague(Player player) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
-                SkillReferencePosition.necromancerSpecialisationPlague, player) && player.age % 20 == 0
-                && player.getStatusEffects() != null && HelperMethods.hasHarmfulStatusEffect(player)) {
-            Box box = HelperMethods.createBoxHeight(player, 15);
-            List<Entity> validEntities = player.getWorld().getOtherEntities(player, box, EntityPredicates.VALID_LIVING_ENTITY)
+                SkillReferencePosition.necromancerSpecialisationPlague, player) && player.tickCount % 20 == 0
+                && player.getActiveEffects() != null && HelperMethods.hasHarmfulStatusEffect(player)) {
+            AABB box = HelperMethods.createBoxHeight(player, 15);
+            List<Entity> validEntities = player.level().getEntities(player, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE)
                     .stream()
-                    .filter(entities -> entities instanceof TameableEntity)
+                    .filter(entities -> entities instanceof TamableAnimal)
                     .filter(entities -> {
-                        TameableEntity te = (TameableEntity) entities;
+                        TamableAnimal te = (TamableAnimal) entities;
                         return te.getOwner() != null && te.getOwner().equals(player);
                     })
                     .toList();
@@ -102,95 +115,105 @@ public class NecromancerAbilities {
                 // Choose a random entity from the list
                 Entity randomEntity = validEntities.get(new Random().nextInt(validEntities.size()));
                 HelperMethods.buffSteal((LivingEntity) randomEntity, player, true, true, true, false);
-                HelperMethods.spawnWaistHeightParticles((ServerWorld) player.getWorld(), ParticleTypes.EFFECT, player, randomEntity, 12);
-                player.getWorld().playSoundFromEntity(null, player, SoundRegistry.MAGIC_SHAMANIC_SPELL_03,
-                        SoundCategory.PLAYERS, 0.1f, 1.5f);
+                HelperMethods.spawnWaistHeightParticles((ServerLevel) player.level(), ParticleTypes.EFFECT, player, randomEntity, 12);
+                player.level().playSound(null, player, SoundRegistry.MAGIC_SHAMANIC_SPELL_03,
+                        SoundSource.PLAYERS, 0.1f, 1.5f);
             }
         }
     }
 
-    public static void effectPestilence(PlayerEntity player, LivingEntity minion, LivingEntity target) {
+    public static void effectPestilence(Player player, LivingEntity minion, LivingEntity target) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationPestilence, player)) {
             HelperMethods.buffSteal(target, minion, true, true, true, false);
         }
     }
 
-    public static void effectDelightfulSuffering(PlayerEntity player) {
+    public static void effectDelightfulSuffering(Player player) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationDelightfulSuffering, player)) {
 
             int duration = 800;
-            List<StatusEffectInstance> list = new ArrayList<>();
-            list.add(0, new StatusEffectInstance(StatusEffects.HUNGER, duration, 0, false, false, true));
-            list.add(1, new StatusEffectInstance(StatusEffects.SLOWNESS, duration, 0, false, false, true));
-            list.add(2, new StatusEffectInstance(StatusEffects.WITHER, duration, 0, false, false, true));
-            list.add(3, new StatusEffectInstance(StatusEffects.MINING_FATIGUE, duration, 0, false, false, true));
-            list.add(4, new StatusEffectInstance(StatusEffects.MINING_FATIGUE, duration, 0, false, false, true));
+            List<MobEffectInstance> list = new ArrayList<>();
+            list.add(0, new MobEffectInstance(MobEffects.HUNGER, duration, 0, false, false, true));
+            list.add(1, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, 0, false, false, true));
+            list.add(2, new MobEffectInstance(MobEffects.WITHER, duration, 0, false, false, true));
+            list.add(3, new MobEffectInstance(MobEffects.DIG_SLOWDOWN, duration, 0, false, false, true));
+            list.add(4, new MobEffectInstance(MobEffects.DIG_SLOWDOWN, duration, 0, false, false, true));
             if (!list.isEmpty()) {
-                StatusEffect chosenEffect = list.get(player.getRandom().nextInt(4)).getEffectType();
+                var chosenEffect = list.get(player.getRandom().nextInt(4)).getEffect();
                 HelperMethods.incrementStatusEffect(player, chosenEffect, duration, 1, 2);
             }
         }
     }
 
-    public static void effectEndlessServitude(PlayerEntity player, TameableEntity minion) {
+    public static void effectEndlessServitude(Player player, TamableAnimal minion) {
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationEndlessServitude, player)) {
-            int chanceThreshold = Math.min(21 + HelperMethods.countHarmfulStatusEffects(minion) * 5, 60);
+            int chanceThreshold = Math.min(20 + HelperMethods.countHarmfulStatusEffects(minion) * 5, 60);
 
             int chance = minion.getRandom().nextInt(100);
             if (chance < chanceThreshold) {
                 EntityType<?> entityType = minion.getType();
                 summonMinion((EntityType<? extends LivingEntity>) entityType, player);
-                player.getWorld().playSoundFromEntity(null, player, SoundRegistry.MAGIC_SHAMANIC_SPELL_02,
-                        SoundCategory.PLAYERS, 0.2f, 1.0f);
+                player.level().playSound(null, player, SoundRegistry.MAGIC_SHAMANIC_SPELL_02,
+                        SoundSource.PLAYERS, 0.2f, 1.0f);
             }
         }
     }
 
-    public static void effectShadowCombust(PlayerEntity player, TameableEntity minion) {
+    public static void effectShadowCombust(Player player, TamableAnimal minion) {
+        if (minion.getPersistentData().getBoolean(SHADOW_COMBUST_IN_PROGRESS))
+            return;
+
         if (HelperMethods.isUnlocked("simplyskills:necromancer",
                 SkillReferencePosition.necromancerSpecialisationShadowCombust, player)) {
 
             int radius = 4;
             if (minion instanceof GreaterDreadglareEntity)
                 radius = 7;
-            Box box = HelperMethods.createBox(minion, radius);
+            AABB box = HelperMethods.createBox(minion, radius);
 
-            minion.getWorld().getOtherEntities(minion, box, EntityPredicates.VALID_LIVING_ENTITY).stream()
+            minion.level().getEntities(minion, box, EntitySelector.LIVING_ENTITY_STILL_ALIVE).stream()
                     .filter(Objects::nonNull)
                     .filter(entity -> entity instanceof LivingEntity)
                     .forEach(entity -> {
                         LivingEntity le = (LivingEntity) entity;
-                        if (player != null && HelperMethods.checkFriendlyFire(le, player)) {
-                            le.timeUntilRegen = 0;
+                        if (player != null && HelperMethods.checkFriendlyFireAOE(le, player)) {
+                            le.invulnerableTime = 0;
                             float damageMulti = 3.2f;
                             if (minion instanceof GreaterDreadglareEntity)
                                 damageMulti = 6.4f;
-                            le.damage(player.getWorld().getDamageSources().indirectMagic(player, player),
+                            le.hurt(player.level().damageSources().indirectMagic(player, player),
                                     (float) SpellPower.getSpellPower(SpellSchools.SOUL, player).baseValue() * damageMulti);
-                            HelperMethods.spawnWaistHeightParticles((ServerWorld) minion.getWorld(), ParticleTypes.SMOKE, minion, le, 8);
-                            le.timeUntilRegen = 0;
+                            HelperMethods.spawnWaistHeightParticles((ServerLevel) minion.level(), ParticleTypes.SMOKE, minion, le, 8);
+                            le.invulnerableTime = 0;
                         }
                     });
             if (player != null) {
-                player.getWorld().playSoundFromEntity(null, player, SoundRegistry.MAGIC_SHAMANIC_SPELL_03,
-                        SoundCategory.PLAYERS, 0.1f, 1.0f);
-                player.getWorld().playSoundFromEntity(null, player, SoundEvents.ENTITY_GENERIC_EXPLODE,
-                        SoundCategory.PLAYERS, 0.1f, 1.0f);
+                player.level().playSound(null, player, SoundRegistry.MAGIC_SHAMANIC_SPELL_03,
+                        SoundSource.PLAYERS, 0.1f, 1.0f);
+                player.level().playSound(null, player, SoundEvents.GENERIC_EXPLODE.value(),
+                        SoundSource.PLAYERS, 0.1f, 1.0f);
             }
-            HelperMethods.spawnOrbitParticles((ServerWorld) minion.getWorld(), minion.getPos(), ParticleTypes.EXPLOSION, 1, 2);
-            HelperMethods.spawnOrbitParticles((ServerWorld) minion.getWorld(), minion.getPos(), ParticleTypes.SOUL, 2, 20);
-            HelperMethods.spawnOrbitParticles((ServerWorld) minion.getWorld(), minion.getPos(), ParticleTypes.SMOKE, radius, 20);
-            if (minion.isAlive())
-                minion.damage(minion.getWorld().getDamageSources().indirectMagic(minion, minion), minion.getMaxHealth());
+            HelperMethods.spawnOrbitParticles((ServerLevel) minion.level(), minion.position(), ParticleTypes.EXPLOSION, 1, 2);
+            HelperMethods.spawnOrbitParticles((ServerLevel) minion.level(), minion.position(), ParticleTypes.SOUL, 2, 20);
+            HelperMethods.spawnOrbitParticles((ServerLevel) minion.level(), minion.position(), ParticleTypes.SMOKE, radius, 20);
+            if (minion.isAlive()) {
+                // Lethal self-damage calls die(), which invokes this ability again.
+                minion.getPersistentData().putBoolean(SHADOW_COMBUST_IN_PROGRESS, true);
+                try {
+                    minion.hurt(minion.level().damageSources().indirectMagic(minion, minion), minion.getMaxHealth());
+                } finally {
+                    minion.getPersistentData().remove(SHADOW_COMBUST_IN_PROGRESS);
+                }
+            }
         }
     }
 
     //------- SIGNATURE ABILITIES --------
 
-    public static int getMinionLimit(String necromancerTree, PlayerEntity player) {
+    public static int getMinionLimit(String necromancerTree, Player player) {
         int count = 0;
         for (String skillRef : SkillReferencePosition.undeadLegionSkills) {
             if (HelperMethods.isUnlocked(necromancerTree, skillRef, player)) {
@@ -201,7 +224,12 @@ public class NecromancerAbilities {
     }
 
     // Summoning Ritual
-    public static boolean signatureNecromancerSummoningRitual(String necromancerTree, PlayerEntity player) {
+    public static boolean signatureNecromancerSummoningRitual(String necromancerTree, Player player) {
+        if (!player.level().isClientSide()) {
+            // Animate the ritual once, rather than replaying for every summoned minion.
+            AnimationHelper.sendAnimation(player, Platform.tracking(player), SpellCast.Animation.RELEASE,
+                    PlayerAnimation.of("spell_engine:dual_handed_ground_release"), 1.0F);
+        }
         for (int i = 0; i < getMinionLimit(necromancerTree, player); i ++) {
 
             if (HelperMethods.isUnlocked(necromancerTree, SkillReferencePosition.necromancerSpecialisationGreaterDreadglare, player)) {
@@ -223,27 +251,27 @@ public class NecromancerAbilities {
                 summonMinion(EntityRegistry.DREADGLARE, player);
             }
         }
-        player.getWorld().playSoundFromEntity(null, player, SoundRegistry.MAGIC_SHAMANIC_VOICE_20,
-                SoundCategory.PLAYERS, 0.3f, 1.0f);
+        player.level().playSound(null, player, SoundRegistry.MAGIC_SHAMANIC_VOICE_20,
+                SoundSource.PLAYERS, 0.3f, 1.0f);
         return true;
     }
 
-    public static void summonMinion(EntityType<? extends LivingEntity> livingEntity, PlayerEntity player) {
-        LivingEntity minion = livingEntity.spawn((ServerWorld) player.getWorld(),
-                player.getBlockPos().up(4).offset(player.getMovementDirection(), 3),
-                SpawnReason.MOB_SUMMONED);
+    public static void summonMinion(EntityType<? extends LivingEntity> livingEntity, Player player) {
+        LivingEntity minion = livingEntity.spawn((ServerLevel) player.level(),
+                player.blockPosition().above(4).relative(player.getMotionDirection(), 3),
+                MobSpawnType.MOB_SUMMONED);
 
         if (minion != null) {
-            if (minion instanceof TameableEntity tameableMinion) {
-                tameableMinion.setOwner(player);
-                tameableMinion.setTamed(true);
-                tameableMinion.setPositionTarget(player.getBlockPos().up(3), 32);
+            if (minion instanceof TamableAnimal tameableMinion) {
+                tameableMinion.tame(player);
+                tameableMinion.setTame(true, true);
+                tameableMinion.restrictTo(player.blockPosition().above(3), 32);
                 if (HelperMethods.isUnlocked("simplyskills:necromancer",
                         SkillReferencePosition.necromancerSpecialisationShadowAura, player)) {
-                    int amplifier = 0;
+                    int amplifier = 1;
                     if (tameableMinion instanceof GreaterDreadglareEntity)
                         amplifier = 3;
-                    minion.addStatusEffect(new StatusEffectInstance(EffectRegistry.SHADOWAURA, 2400, amplifier, false, false, false));
+                    minion.addEffect(new MobEffectInstance(EffectRegistry.SHADOWAURA, 2400, amplifier, false, false, false));
                 }
             }
 
@@ -266,15 +294,15 @@ public class NecromancerAbilities {
         return 1.0;
     }
 
-    private static void setMinionAttributes(PlayerEntity player, LivingEntity minion, double attackDamageMultiplier, double healthMultiplier) {
+    private static void setMinionAttributes(Player player, LivingEntity minion, double attackDamageMultiplier, double healthMultiplier) {
         double attackDamage = 3 + (attackDamageMultiplier * SpellPower.getSpellPower(SpellSchools.SOUL, player).baseValue());
-        EntityAttributeInstance attackAttribute = minion.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        AttributeInstance attackAttribute = minion.getAttribute(Attributes.ATTACK_DAMAGE);
         if (attackAttribute != null) {
             attackAttribute.setBaseValue(attackDamage);
         }
 
-        double maxHealth = 1 + (healthMultiplier * player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH));
-        EntityAttributeInstance healthAttribute = minion.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
+        double maxHealth = 1 + (healthMultiplier * player.getAttributeValue(Attributes.MAX_HEALTH));
+        AttributeInstance healthAttribute = minion.getAttribute(Attributes.MAX_HEALTH);
         if (healthAttribute != null) {
             healthAttribute.setBaseValue(maxHealth);
             minion.heal((float)maxHealth);
@@ -286,10 +314,10 @@ public class NecromancerAbilities {
             double multiplier = 0.5;
             if (minion instanceof GreaterDreadglareEntity)
                 multiplier = 1.0;
-            double maxArmor = 1 + (multiplier * player.getAttributeValue(EntityAttributes.GENERIC_ARMOR));
-            double maxArmorToughness = 1 + (multiplier * player.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS));
-            EntityAttributeInstance armorAttribute = minion.getAttributeInstance(EntityAttributes.GENERIC_ARMOR);
-            EntityAttributeInstance armorToughnessAttribute = minion.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS);
+            double maxArmor = multiplier * player.getAttributeValue(Attributes.ARMOR);
+            double maxArmorToughness = multiplier * player.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
+            AttributeInstance armorAttribute = minion.getAttribute(Attributes.ARMOR);
+            AttributeInstance armorToughnessAttribute = minion.getAttribute(Attributes.ARMOR_TOUGHNESS);
             if (armorAttribute != null) {
                 armorAttribute.setBaseValue(maxArmor);
             }

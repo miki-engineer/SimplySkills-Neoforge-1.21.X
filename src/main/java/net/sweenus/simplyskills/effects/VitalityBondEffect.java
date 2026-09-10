@@ -1,23 +1,23 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.sound.SoundCategory;
-import net.spell_engine.particle.Particles;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.spell_engine.fx.SpellEngineParticles;
 import net.sweenus.simplyskills.effects.instance.SimplyStatusEffectInstance;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.registry.SoundRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
-public class VitalityBondEffect extends StatusEffect {
+public class VitalityBondEffect extends MobEffect {
 
     public LivingEntity target;
 
-    public VitalityBondEffect(StatusEffectCategory statusEffectCategory, int color) {
+    public VitalityBondEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
@@ -27,17 +27,17 @@ public class VitalityBondEffect extends StatusEffect {
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity.getStatusEffect(EffectRegistry.VITALITYBOND) instanceof SimplyStatusEffectInstance statusEffect) {
+            if (livingEntity.getEffect(EffectRegistry.VITALITYBOND) instanceof SimplyStatusEffectInstance statusEffect) {
                 target = statusEffect.getSourceEntity();
             }
 
 
             //Target isn't null & isn't us
             float incrementFrequency = 10;
-            if (target != null && target != livingEntity && livingEntity.age %incrementFrequency == 0) {
+            if (target != null && target != livingEntity && livingEntity.tickCount %incrementFrequency == 0) {
                 LivingEntity healingEntity = null;
                 LivingEntity sacrificeEntity = null;
                 float incrementAmount = 1;
@@ -49,9 +49,9 @@ public class VitalityBondEffect extends StatusEffect {
 
                 //Sacrifice attack speed to grant recipient attack & movespeed
                 if (HelperMethods.isUnlocked("simplyskills:cleric", SkillReferencePosition.clericSpecialisationSacredOrbSpeed, target)) {
-                    HelperMethods.incrementStatusEffect(livingEntity, StatusEffects.HASTE, (int) incrementFrequency+5, 1, 6);
-                    HelperMethods.incrementStatusEffect(livingEntity, StatusEffects.SPEED, (int) incrementFrequency+5, 1, 2);
-                    HelperMethods.incrementStatusEffect(target, StatusEffects.MINING_FATIGUE, (int) incrementFrequency+5, 1, 3);
+                    HelperMethods.incrementStatusEffect(livingEntity, MobEffects.DIG_SPEED, (int) incrementFrequency+5, 1, 6);
+                    HelperMethods.incrementStatusEffect(livingEntity, MobEffects.MOVEMENT_SPEED, (int) incrementFrequency+5, 1, 2);
+                    HelperMethods.incrementStatusEffect(target, MobEffects.DIG_SLOWDOWN, (int) incrementFrequency+5, 1, 3);
                 }
 
                 // Take debuffs from recipient
@@ -73,15 +73,15 @@ public class VitalityBondEffect extends StatusEffect {
                         sacrificeEntity = target;
                     }
 
-                    HelperMethods.spawnParticlesPlane(livingEntity.getWorld(), Particles.healing_ascend.particleType,
-                            healingEntity.getBlockPos(), 1, 0.01, 0.9, 0.03);
-                    HelperMethods.spawnParticlesPlane(livingEntity.getWorld(), Particles.holy_hit.particleType,
-                            sacrificeEntity.getBlockPos(), 1, 0.01, 0.9, 0.03);
+                    HelperMethods.spawnParticlesPlane(livingEntity.level(), SpellEngineParticles.magic_heal.type(),
+                            healingEntity.blockPosition(), 1, 0.01, 0.9, 0.03);
+                    HelperMethods.spawnParticlesPlane(livingEntity.level(), SpellEngineParticles.magic_holy.type(),
+                            sacrificeEntity.blockPosition(), 1, 0.01, 0.9, 0.03);
 
-                    sacrificeEntity.getWorld().playSoundFromEntity(null, sacrificeEntity, SoundRegistry.SOUNDEFFECT28,
-                            SoundCategory.PLAYERS, 0.1f, 1.1f);
-                    healingEntity.getWorld().playSoundFromEntity(null, healingEntity, SoundRegistry.SOUNDEFFECT25,
-                            SoundCategory.PLAYERS, 0.1f, 1.0f);
+                    sacrificeEntity.level().playSound(null, sacrificeEntity, SoundRegistry.SOUNDEFFECT28,
+                            SoundSource.PLAYERS, 0.1f, 1.1f);
+                    healingEntity.level().playSound(null, healingEntity, SoundRegistry.SOUNDEFFECT25,
+                            SoundSource.PLAYERS, 0.1f, 1.0f);
 
                     if (sacrificeEntity != null && healingEntity != null && sacrificeEntity.getHealth() > 4 + incrementAmount) {
                         sacrificeEntity.setHealth(sacrificeEntity.getHealth() - incrementAmount);
@@ -93,27 +93,22 @@ public class VitalityBondEffect extends StatusEffect {
             }
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
-
-    @Override
-    public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        entity.getWorld().playSoundFromEntity(null, entity, SoundRegistry.SPELL_RADIANT_HIT,
-                SoundCategory.PLAYERS, 0.1f, 1.5f);
-        super.onApplied(entity, attributes, amplifier);
+    public void onEffectAddedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        entity.level().playSound(null, entity, SoundRegistry.SPELL_RADIANT_HIT,
+                SoundSource.PLAYERS, 0.1f, 1.5f);
     }
-
-    @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        entity.getWorld().playSoundFromEntity(null, entity, SoundRegistry.SPELL_RADIANT_EXPIRE,
-                SoundCategory.PLAYERS, 0.4f, 1);
-        super.onRemoved(entity, attributes, amplifier);
+    public void onEffectRemovedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        entity.level().playSound(null, entity, SoundRegistry.SPELL_RADIANT_EXPIRE,
+                SoundSource.PLAYERS, 0.4f, 1);
     }
 
 }

@@ -1,6 +1,6 @@
 package net.sweenus.simplyskills.registry;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.spell_engine.api.render.CustomModels;
 
 import java.util.List;
@@ -13,19 +13,18 @@ public class ModelRegistry {
         // For projectiles '(N) North' in blockbench is 'down' in-game with default rotations
         // For projectiles 'Up' in blockbench is 'forward' in-game with default rotations
         CustomModels.registerModelIds(List.of(
-                new Identifier(MOD_ID, "projectile/swordfall"),
-                new Identifier(MOD_ID, "projectile/sword"),
-                new Identifier(MOD_ID, "projectile/ice_projectile"),
-                new Identifier(MOD_ID, "projectile/fire_projectile"),
-                new Identifier(MOD_ID, "projectile/lightning_projectile"),
-                new Identifier(MOD_ID, "projectile/arcane_projectile"),
-                new Identifier(MOD_ID, "projectile/meteor_projectile"),
-                new Identifier(MOD_ID, "projectile/comet_projectile"),
-                new Identifier(MOD_ID, "projectile/arcane_slash"),
-                new Identifier(MOD_ID, "projectile/arrow"),
-                new Identifier(MOD_ID, "projectile/righteous_shield"),
-                new Identifier(MOD_ID, "projectile/righteous_hammers"),
-                new Identifier(MOD_ID, "projectile/eldritch_hammers")
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/swordfall"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/sword"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/ice_projectile"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/fire_projectile"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/lightning_projectile"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/arcane_projectile"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/meteor_projectile"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/comet_projectile"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/arcane_slash"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/arrow"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/righteous_shield"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "spell_projectile/righteous_hammers")
         ));
     }
 

@@ -44,7 +44,5 @@ public class ConfigWrapper extends PartitioningSerializer.GlobalData {
     @ConfigEntry.Category("necromancer")
     @ConfigEntry.Gui.TransitiveObject
     public NecromancerConfig necromancer = new NecromancerConfig();
-    @ConfigEntry.Category("misc")
-    @ConfigEntry.Gui.TransitiveObject
-    public MiscConfig misc = new MiscConfig();
+
 }

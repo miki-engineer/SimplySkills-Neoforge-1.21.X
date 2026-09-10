@@ -1,59 +1,54 @@
 package net.sweenus.simplyskills.effects;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
+import net.neoforged.fml.ModList;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.sweenus.simplyskills.abilities.ClericAbilities;
 import net.sweenus.simplyskills.registry.SoundRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 import net.sweenus.simplyskills.util.SkillReferencePosition;
 
-public class AnointedEffect extends StatusEffect {
-    public AnointedEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class AnointedEffect extends MobEffect {
+    public AnointedEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        super.applyUpdateEffect(livingEntity, amplifier);
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        super.applyEffectTick(livingEntity, amplifier);
 
-        if (!livingEntity.getWorld().isClient()) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity instanceof ServerPlayerEntity player) {
+            if (livingEntity instanceof ServerPlayer player) {
 
                 //Cleric Signature Anoint Weapon Cleanse
                 if (HelperMethods.isUnlocked("simplyskills:cleric",
                         SkillReferencePosition.clericSpecialisationAnointWeaponCleanse, player)
-                        && FabricLoader.getInstance().isModLoaded("paladins")) {
+                        && ModList.get().isLoaded("paladins")) {
                     ClericAbilities.signatureClericAnointWeaponCleanse(player);
                 }
 
             }
         }
-    }
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
-
-    @Override
-    public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        entity.getWorld().playSoundFromEntity(null, entity, SoundRegistry.SPELL_CELESTIAL_HIT,
-                SoundCategory.PLAYERS, 0.1f, 1.4f);
-        super.onApplied(entity, attributes, amplifier);
+    public void onEffectAddedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        entity.level().playSound(null, entity, SoundRegistry.SPELL_CELESTIAL_HIT,
+                SoundSource.PLAYERS, 0.1f, 1.4f);
     }
-
-    @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        entity.getWorld().playSoundFromEntity(null, entity, SoundRegistry.SPELL_RADIANT_EXPIRE,
-                SoundCategory.PLAYERS, 0.4f, 1);
-        super.onRemoved(entity, attributes, amplifier);
+    public void onEffectRemovedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        entity.level().playSound(null, entity, SoundRegistry.SPELL_RADIANT_EXPIRE,
+                SoundSource.PLAYERS, 0.4f, 1);
     }
 
 }

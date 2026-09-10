@@ -1,38 +1,38 @@
 package net.sweenus.simplyskills.effects;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
+import net.neoforged.fml.ModList;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.player.Player;
 import net.sweenus.simplyskills.abilities.AscendancyAbilities;
 import net.sweenus.simplyskills.abilities.SignatureAbilities;
 import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 
-public class ArcaneSlashEffect extends StatusEffect {
-    public ArcaneSlashEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class ArcaneSlashEffect extends MobEffect {
+    public ArcaneSlashEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
 
-            if (livingEntity instanceof ServerPlayerEntity player && player.hasStatusEffect(EffectRegistry.ARCANESLASH)) {
-                StatusEffectInstance arcaneSlash = player.getStatusEffect(EffectRegistry.ARCANESLASH);
+            if (livingEntity instanceof ServerPlayer player && player.hasEffect(EffectRegistry.ARCANESLASH)) {
+                MobEffectInstance arcaneSlash = player.getEffect(EffectRegistry.ARCANESLASH);
                 if (arcaneSlash == null)
-                    return;
+                    return true;
 
                 if (arcaneSlash.getDuration() == 10 && AscendancyAbilities.getAscendancyPoints(player) < 30) {
-                    player.getWorld().playSoundFromEntity(null, player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG,
-                            SoundCategory.PLAYERS, 1f, 1.1f);
+                    player.level().playSound(null, player, SoundEvents.PLAYER_ATTACK_STRONG,
+                            SoundSource.PLAYERS, 1f, 1.1f);
                     SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:arcane_slash_projectile", 3, player, null);
                 }
                 else if (arcaneSlash.getDuration() == 15 && AscendancyAbilities.getAscendancyPoints(player) > 29) {
@@ -43,25 +43,22 @@ public class ArcaneSlashEffect extends StatusEffect {
 
             }
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
+        super.applyEffectTick(livingEntity, amplifier);
+            return true;
     }
-
-    @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        if (entity instanceof PlayerEntity player && FabricLoader.getInstance().isModLoaded("simplyswords"))
+    public void onEffectRemovedCustom(LivingEntity entity, AttributeMap attributes, int amplifier) {
+        if (entity instanceof Player player && ModList.get().isLoaded("simplyswords"))
             SimplySwordsGemEffects.warStandard(player);
-        if (entity instanceof PlayerEntity player) {
+        if (entity instanceof Player player) {
             int chance = entity.getRandom().nextInt(100);
             if (chance < 80)
                 AscendancyAbilities.arcaneSlash(player);
         }
-
-        super.onRemoved(entity, attributes, amplifier);
     }
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

@@ -1,42 +1,50 @@
 package net.sweenus.simplyskills.effects;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.World;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.spell_engine.entity.SpellProjectile;
 import net.sweenus.simplyskills.SimplySkills;
 import net.sweenus.simplyskills.util.HelperMethods;
 
-public class SpellbreakingEffect extends StatusEffect {
-    public SpellbreakingEffect(StatusEffectCategory statusEffectCategory, int color) {
+public class SpellbreakingEffect extends MobEffect {
+    public SpellbreakingEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        if (!livingEntity.level().isClientSide()) {
             int frequency = SimplySkills.warriorConfig.passiveWarriorSpellbreakerFrequency;
-            if (livingEntity.age % frequency == 0) {
+            if (livingEntity.tickCount % frequency == 0) {
                 int radius = SimplySkills.warriorConfig.passiveWarriorSpellbreakerRadius;
 
-                Box box = HelperMethods.createBox(livingEntity, radius);
-                for (Entity entities : livingEntity.getWorld().getOtherEntities(livingEntity, box, EntityPredicates.VALID_ENTITY)) {
+                AABB box = HelperMethods.createBox(livingEntity, radius);
+                for (Entity entities : livingEntity.level().getEntities(livingEntity, box, EntitySelector.ENTITY_STILL_ALIVE)) {
 
                     if (entities != null) {
                         if (entities instanceof SpellProjectile pe) {
                             if (pe.getOwner() instanceof LivingEntity livingOwner) {
-                                if (livingEntity instanceof PlayerEntity player) {
-                                    if (!HelperMethods.checkFriendlyFire(livingOwner, player))
-                                        break;
+                                if (livingEntity instanceof Player player) {
+                                    if (!HelperMethods.checkFriendlyFireAOE(livingOwner, player))
+                                        continue;
                                 }
                             }
-                            pe.getWorld().createExplosion(pe, pe.getX(), pe.getY(), pe.getZ(), 0.2f, false, World.ExplosionSourceType.NONE);
+                            if (livingEntity instanceof Player player) {
+                                pe.level().explode(
+                                        pe,
+                                        pe.level().damageSources().explosion(pe, player),
+                                        HelperMethods.getFriendlyFireExplosionDamageCalculator(player),
+                                        pe.getX(), pe.getY(), pe.getZ(),
+                                        0.2f, false, Level.ExplosionInteraction.NONE);
+                            }
+                            else pe.level().explode(pe, pe.getX(), pe.getY(), pe.getZ(), 0.2f, false, Level.ExplosionInteraction.NONE);
                             pe.discard();
                         }
                     }
@@ -44,12 +52,13 @@ public class SpellbreakingEffect extends StatusEffect {
             }
 
         }
-        super.applyUpdateEffect(livingEntity, amplifier);
-    }
+        super.applyEffectTick(livingEntity, amplifier);
+        return true;
+}
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 

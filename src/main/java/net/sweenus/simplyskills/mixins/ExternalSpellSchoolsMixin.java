@@ -1,8 +1,9 @@
 package net.sweenus.simplyskills.mixins;
 
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.puffish.attributesmod.AttributesMod;
 import net.spell_engine.api.spell.ExternalSpellSchools;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,13 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ExternalSpellSchools.class)
 public abstract class ExternalSpellSchoolsMixin {
 
-    @Inject(method = "rangedDamageAttribute()Lnet/minecraft/entity/attribute/EntityAttribute;", at = @At("HEAD"), cancellable = true)
-    private static void changeRangedDamageAttribute(CallbackInfoReturnable<EntityAttribute> cir) {
-        boolean isModLoaded = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("ranged_weapon_api");
+    @Inject(method = "rangedDamageAttribute", at = @At("HEAD"), cancellable = true)
+    private static void changeRangedDamageAttribute(CallbackInfoReturnable<Holder<Attribute>> cir) {
+        boolean isModLoaded = net.neoforged.fml.ModList.get().isLoaded("ranged_weapon_api");
         if (isModLoaded) {
-            EntityAttribute rangedDamage = null;
-            if (Registries.ATTRIBUTE.get(new Identifier("ranged_weapon:damage")) != null)
-                rangedDamage = Registries.ATTRIBUTE.get(new Identifier("ranged_weapon:damage"));
+            Holder<Attribute> rangedDamage = BuiltInRegistries.ATTRIBUTE
+                    .getHolder(ResourceLocation.parse("ranged_weapon:damage")).orElse(null);
             cir.setReturnValue(rangedDamage);
         } else {
             // Attribute used when Ranged Weapon API is not loaded

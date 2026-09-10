@@ -1,27 +1,27 @@
 package net.sweenus.simplyskills.client.renderer;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.util.Identifier;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.sweenus.simplyskills.client.SimplySkillsClient;
 import net.sweenus.simplyskills.client.renderer.model.WraithModel;
 import net.sweenus.simplyskills.entities.WraithEntity;
 
 
-@Environment(value= EnvType.CLIENT)
-public class WraithRenderer extends MobEntityRenderer<WraithEntity, WraithModel> {
+@OnlyIn(Dist.CLIENT)
+public class WraithRenderer extends MobRenderer<WraithEntity, WraithModel> {
 
 
-     private static final Identifier TEXTURE = new Identifier("simplyskills","textures/entity/wraith.png");
+     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("simplyskills","textures/entity/wraith.png");
 
-    public WraithRenderer(EntityRendererFactory.Context ctx) {
-        super(ctx, new WraithModel(ctx.getPart(SimplySkillsClient.WRAITH_MODEL)), 1.0f);
+    public WraithRenderer(EntityRendererProvider.Context ctx) {
+        super(ctx, new WraithModel(ctx.bakeLayer(SimplySkillsClient.WRAITH_MODEL)), 1.0f);
     }
 
     @Override
-    public Identifier getTexture(WraithEntity entity) {
+    public ResourceLocation getTextureLocation(WraithEntity entity) {
         return TEXTURE;
     }
 

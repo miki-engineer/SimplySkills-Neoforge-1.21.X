@@ -1,14 +1,15 @@
 package net.sweenus.simplyskills.registry;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.neoforged.fml.ModList;
+import net.minecraft.core.Registry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.puffish.attributesmod.AttributesMod;
 import net.spell_engine.api.effect.ActionImpairing;
 import net.spell_engine.api.effect.EntityActionsAllowed;
@@ -16,9 +17,8 @@ import net.spell_engine.api.effect.Synchronized;
 import net.spell_power.api.SpellPowerMechanics;
 import net.spell_power.api.SpellSchools;
 import net.sweenus.simplyskills.SimplySkills;
-import net.sweenus.simplyskills.config.MiscConfig;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import net.sweenus.simplyskills.effects.*;
-import net.sweenus.simplyskills.util.HelperMethods;
 
 public class EffectRegistry {
     public static double mightIncrease = 0.10;
@@ -26,322 +26,289 @@ public class EffectRegistry {
     public static double spellforgedIncrease = 0.25;
     public static double soulshockIncrease = 1.0;
 
-    public static StatusEffect BERSERKING = new BerserkingEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect BLOODTHIRSTY= new BloodthirstyEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect RAMPAGE= new RampageEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect EVASION= new EvasionEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect SIPHONINGSTRIKES= new SiphoningStrikesEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect ELEMENTALARROWS= new ElementalArrowsEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect ARROWRAIN= new ArrowRainEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect FROSTVOLLEY= new FrostVolleyEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect ARCANEVOLLEY= new ArcaneVolleyEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect METEORICWRATH= new MeteoricWrathEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect STATICCHARGE= new StaticChargeEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect ELEMENTALIMPACT= new ElementalImpactEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect ELEMENTALSURGE= new ElementalSurgeEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect SPELLWEAVER= new SpellweaverEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect FANOFBLADES= new FanOfBladesEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect DISENCHANTMENT= new DisenchantmentEffect(StatusEffectCategory.HARMFUL, 3124687);
-    public static StatusEffect BULLRUSH= new BullrushEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect IMMOBILIZE= new ImmobilizeEffect(StatusEffectCategory.HARMFUL, 3124687);
-    public static StatusEffect LEAPSLAM= new LeapSlamEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect IMMOBILIZINGAURA= new ImmobilizingAuraEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect SPELLBREAKING= new SpellbreakingEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect EARTHSHAKER= new EarthshakerEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect ARCANEATTUNEMENT= new ArcaneAttunementEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.ARCANE.attribute,
-                    "8b724548-dbd9-4dbf-8ad5-9c0b7757dec5",
+    public static Holder<MobEffect> BERSERKING = Holder.direct(new BerserkingEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> BLOODTHIRSTY = Holder.direct(new BloodthirstyEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> RAMPAGE = Holder.direct(new RampageEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> EVASION = Holder.direct(new EvasionEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> SIPHONINGSTRIKES = Holder.direct(new SiphoningStrikesEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> ELEMENTALARROWS = Holder.direct(new ElementalArrowsEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> ARROWRAIN = Holder.direct(new ArrowRainEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> FROSTVOLLEY = Holder.direct(new FrostVolleyEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> ARCANEVOLLEY = Holder.direct(new ArcaneVolleyEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> METEORICWRATH = Holder.direct(new MeteoricWrathEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> STATICCHARGE = Holder.direct(new StaticChargeEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> ELEMENTALIMPACT = Holder.direct(new ElementalImpactEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> ELEMENTALSURGE = Holder.direct(new ElementalSurgeEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> SPELLWEAVER = Holder.direct(new SpellweaverEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> FANOFBLADES = Holder.direct(new FanOfBladesEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> DISENCHANTMENT = Holder.direct(new DisenchantmentEffect(MobEffectCategory.HARMFUL, 3124687));
+    public static Holder<MobEffect> BULLRUSH = Holder.direct(new BullrushEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> IMMOBILIZE = Holder.direct(new ImmobilizeEffect(MobEffectCategory.HARMFUL, 3124687));
+    public static Holder<MobEffect> LEAPSLAM = Holder.direct(new LeapSlamEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> IMMOBILIZINGAURA = Holder.direct(new ImmobilizingAuraEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> SPELLBREAKING = Holder.direct(new SpellbreakingEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> EARTHSHAKER = Holder.direct(new EarthshakerEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> ARCANEATTUNEMENT = Holder.direct(new ArcaneAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.ARCANE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "arcane_attunement_spell_power"),
                     0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect FIREATTUNEMENT= new FireAttunementEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.FIRE.attribute,
-                    "5835e9c2-4182-4098-b9ef-23670c46cb4d",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> FIREATTUNEMENT = Holder.direct(new FireAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.FIRE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "fire_attunement_spell_power"),
                     0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect FROSTATTUNEMENT= new FrostAttunementEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.FROST.attribute,
-                    "caa82c97-9874-4f5e-84e4-37380bf756ec",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> FROSTATTUNEMENT = Holder.direct(new FrostAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.FROST.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "frost_attunement_spell_power"),
                     0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect LIGHTNINGATTUNEMENT= new LightningAttunementEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.LIGHTNING.attribute,
-                    "7edc1ac1-c6c5-4a46-92e1-baf28abea256",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> LIGHTNINGATTUNEMENT = Holder.direct(new LightningAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.LIGHTNING.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "lightning_attunement_spell_power"),
                     0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect SOULATTUNEMENT= new SoulAttunementEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.SOUL.attribute,
-                    "45da701e-e40a-4041-bd54-f06e283ad7cb",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> SOULATTUNEMENT = Holder.direct(new SoulAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.SOUL.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "soul_attunement_spell_power"),
                     0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect HOLYATTUNEMENT= new HolyAttunementEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.HEALING.attribute,
-                    "60125c3e-4980-4cc8-b54e-037b47185e2b",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> HOLYATTUNEMENT = Holder.direct(new HolyAttunementEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.HEALING.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "holy_attunement_spell_power"),
                     0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect PRECISION= new PrecisionEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellPowerMechanics.CRITICAL_CHANCE.attribute,
-                    "32a5a129-51a6-4a38-b78e-e7afb69f9e17",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> PRECISION = Holder.direct(new PrecisionEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellPowerMechanics.CRITICAL_CHANCE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "precision_critical_chance"),
                     0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellPowerMechanics.CRITICAL_DAMAGE.attribute,
-                    "bb6233b1-4759-47d0-9044-d509b4bc6695",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellPowerMechanics.CRITICAL_DAMAGE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "precision_critical_damage"),
                     0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect DEATHMARK= new DeathMarkEffect(StatusEffectCategory.HARMFUL, 3124687)
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> DEATHMARK = Holder.direct(new DeathMarkEffect(MobEffectCategory.HARMFUL, 3124687)
             .addAttributeModifier(AttributesMod.RESISTANCE,
-                    "325dbaa9-84c5-4cea-aca1-88b8dc585c3e",
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "death_mark_resistance"),
                     -0.25,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
             .addAttributeModifier(AttributesMod.HEALING,
-                    "5e2ff54c-9698-4ba0-8320-9ba6e9f2b394",
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "death_mark_healing"),
                     -0.25,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect MARKSMAN= new MarksmanEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect STEALTH= new StealthEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                    "0e7a848f-46db-4e12-9d4a-40a5f24683c3",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> MARKSMAN = Holder.direct(new MarksmanEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> STEALTH = Holder.direct(new StealthEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(Attributes.MOVEMENT_SPEED,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "stealth_movement_speed"),
                     -0.40,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect MIGHT= new MightEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                    "4a4233a0-3299-4755-8213-9f10cfb7e795",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> MIGHT = Holder.direct(new MightEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(Attributes.ATTACK_DAMAGE,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "might_attack_damage"),
                     mightIncrease,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect MARKSMANSHIP= new MarksmanshipEffect(StatusEffectCategory.BENEFICIAL, 3124687)
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> MARKSMANSHIP = Holder.direct(new MarksmanshipEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(AttributesMod.RANGED_DAMAGE,
-                    "d6702be1-2e6e-44ba-b325-41a7da2ca6b3",
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "marksmanship_ranged_damage"),
                     marksmanshipIncrease,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect EXHAUSTION= new ExhaustionEffect(StatusEffectCategory.HARMFUL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                    "1ce35aec-6a41-44ff-a537-f03b76f01664",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> EXHAUSTION = Holder.direct(new ExhaustionEffect(MobEffectCategory.HARMFUL, 3124687)
+            .addAttributeModifier(Attributes.ATTACK_DAMAGE,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "exhaustion_attack_damage"),
                     -0.01,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-                .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_SPEED,
-                    "9410035d-5838-4f51-a48e-c896e7a7570f",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+                .addAttributeModifier(Attributes.ATTACK_SPEED,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "exhaustion_attack_speed"),
                             -0.01,
-                        EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                    "1d715996-97d0-41d7-ab3c-96c5302c9d98",
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(Attributes.MOVEMENT_SPEED,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "exhaustion_movement_speed"),
                     -0.01,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect REVEALED= new RevealedEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect BARRIER= new BarrierEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect SOULSHOCK= new SoulshockEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.SOUL.attribute,
-                    "f4f57190-f82f-4283-a4b9-a898382bcea7",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> REVEALED = Holder.direct(new RevealedEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> BARRIER = Holder.direct(new BarrierEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> SOULSHOCK = Holder.direct(new SoulshockEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.SOUL.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "soulshock_soul_spell_power"),
                     soulshockIncrease,
-                    EntityAttributeModifier.Operation.ADDITION)
-            .addAttributeModifier(SpellSchools.LIGHTNING.attribute,
-                    "f811acad-2542-4e5a-837f-a869251162ee",
+                    AttributeModifier.Operation.ADD_VALUE)
+            .addAttributeModifier(SpellSchools.LIGHTNING.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "soulshock_lightning_spell_power"),
                     soulshockIncrease,
-                    EntityAttributeModifier.Operation.ADDITION);
-    public static StatusEffect SPELLFORGED= new SoulshockEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.SOUL.attribute,
-                    "5d6e7b01-e11b-46ac-8a97-0ec497616982",
+                    AttributeModifier.Operation.ADD_VALUE));
+    public static Holder<MobEffect> SPELLFORGED = Holder.direct(new SoulshockEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.SOUL.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_soul_spell_power"),
                     spellforgedIncrease,
-                    EntityAttributeModifier.Operation.ADDITION)
-            .addAttributeModifier(SpellSchools.LIGHTNING.attribute,
-                    "dc0cea79-ffa6-4209-b851-952f60147b2c",
+                    AttributeModifier.Operation.ADD_VALUE)
+            .addAttributeModifier(SpellSchools.LIGHTNING.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_lightning_spell_power"),
                     spellforgedIncrease,
-                    EntityAttributeModifier.Operation.ADDITION)
-            .addAttributeModifier(SpellSchools.HEALING.attribute,
-                    "fa5f66cd-ca9b-4da6-a4a8-3444a77156b7",
+                    AttributeModifier.Operation.ADD_VALUE)
+            .addAttributeModifier(SpellSchools.HEALING.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_healing_spell_power"),
                     spellforgedIncrease,
-                    EntityAttributeModifier.Operation.ADDITION)
-            .addAttributeModifier(SpellSchools.ARCANE.attribute,
-                    "d7b58e45-df85-40d9-a78b-943dc8765f2a",
+                    AttributeModifier.Operation.ADD_VALUE)
+            .addAttributeModifier(SpellSchools.ARCANE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_arcane_spell_power"),
                     spellforgedIncrease,
-                    EntityAttributeModifier.Operation.ADDITION)
-            .addAttributeModifier(SpellSchools.FIRE.attribute,
-                    "3d183b4b-9bfb-4d4e-b7f0-bd8cf65a34fc",
+                    AttributeModifier.Operation.ADD_VALUE)
+            .addAttributeModifier(SpellSchools.FIRE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_fire_spell_power"),
                     spellforgedIncrease,
-                    EntityAttributeModifier.Operation.ADDITION)
-            .addAttributeModifier(SpellSchools.FROST.attribute,
-                    "5951bed4-b058-4320-8512-75c1be44bc33",
+                    AttributeModifier.Operation.ADD_VALUE)
+            .addAttributeModifier(SpellSchools.FROST.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "spellforged_frost_spell_power"),
                     spellforgedIncrease,
-                    EntityAttributeModifier.Operation.ADDITION);
-    public static StatusEffect DIVINEADJUDICATION= new DivineAdjudicationEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect SACREDONSLAUGHT= new SacredOnslaughtEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect CONSECRATION= new ConsecrateEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect TAUNTED= new TauntedEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect UNDYING= new UndyingEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect RAGE= new RageEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                    "2489075c-b5ce-40b5-8a1d-3787ad4f4d8b",
+                    AttributeModifier.Operation.ADD_VALUE));
+    public static Holder<MobEffect> DIVINEADJUDICATION = Holder.direct(new DivineAdjudicationEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> SACREDONSLAUGHT = Holder.direct(new SacredOnslaughtEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> CONSECRATION = Holder.direct(new ConsecrateEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> TAUNTED = Holder.direct(new TauntedEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> UNDYING = Holder.direct(new UndyingEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> RAGE = Holder.direct(new RageEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(Attributes.ATTACK_DAMAGE,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "rage_attack_damage"),
                     +0.005,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_SPEED,
-                    "29d236f5-e3e1-4612-898b-39b916fd771c",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(Attributes.ATTACK_SPEED,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "rage_attack_speed"),
                     +0.005,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
-    public static StatusEffect OVERLOAD= new OverloadEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellPowerMechanics.CRITICAL_DAMAGE.attribute,
-                    "c937f985-c571-46e5-8339-b4ccf4c15442",
+    public static Holder<MobEffect> OVERLOAD = Holder.direct(new OverloadEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellPowerMechanics.CRITICAL_DAMAGE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "overload_critical_damage"),
                     0.45,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellPowerMechanics.CRITICAL_CHANCE.attribute,
-                    "ad26be8b-db35-4d04-98db-d8943e4ac8be",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellPowerMechanics.CRITICAL_CHANCE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "overload_critical_chance"),
                     0.10,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect BLADESTORM= new BladestormEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect VITALITYBOND= new VitalityBondEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect ANOINTED= new AnointedEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect AGILE= new AgileEffect(StatusEffectCategory.BENEFICIAL, 3124687)
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> BLADESTORM = Holder.direct(new BladestormEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> VITALITYBOND = Holder.direct(new VitalityBondEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> ANOINTED = Holder.direct(new AnointedEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> AGILE = Holder.direct(new AgileEffect(MobEffectCategory.BENEFICIAL, 3124687)
             .addAttributeModifier(AttributesMod.RANGED_DAMAGE,
-                    "6fa231ce-882a-4163-b941-452ec1e80f39",
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "agile_ranged_damage"),
                     0.05,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_SPEED,
-                    "24e81380-108e-488b-9d48-995f852d8fba",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(Attributes.ATTACK_SPEED,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "agile_attack_speed"),
                     0.05,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellPowerMechanics.HASTE.attribute,
-                    "812e38a7-9608-4a82-a8d7-6f6c8db2f4d8",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellPowerMechanics.HASTE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "agile_spell_haste"),
                     0.05,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                    "af3a4ed4-331b-4a51-b9a7-8bad6f6015f0",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(Attributes.MOVEMENT_SPEED,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "agile_movement_speed"),
                     0.05,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
-    public static StatusEffect RIGHTEOUSHAMMERS= new RighteousHammersEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                    "36c6315a-1c25-48a7-98f6-f1cfc15b9851",
+    public static Holder<MobEffect> RIGHTEOUSHAMMERS = Holder.direct(new RighteousHammersEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(Attributes.ATTACK_DAMAGE,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "righteous_hammers_attack_damage"),
                     +0.02,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
-    public static StatusEffect BONEARMOR= new BoneArmorEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(getPromBloodMagic(),
-                    "30ac8be8-c2cc-46a5-9311-334b0cd88b7d",
+    public static Holder<MobEffect> BONEARMOR = Holder.direct(new BoneArmorEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(Attributes.ARMOR,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "bone_armor_blood_spell_power"),
                     +1,
-                    EntityAttributeModifier.Operation.ADDITION)
-            .addAttributeModifier(EntityAttributes.GENERIC_ARMOR_TOUGHNESS,
-                    "a8c16e8b-9d82-4fe5-a0f2-2b9fe688b4da",
+                    AttributeModifier.Operation.ADD_VALUE)
+            .addAttributeModifier(Attributes.ARMOR_TOUGHNESS,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "bone_armor_toughness"),
                     +0.1,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
-    public static StatusEffect MAGICCIRCLE= new MagicCircleEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(SpellSchools.SOUL.attribute,
-                    "962352c0-8bbb-4e09-b9b2-ce2570558368",
+    public static Holder<MobEffect> MAGICCIRCLE = Holder.direct(new MagicCircleEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(SpellSchools.SOUL.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_soul_spell_power"),
                     0.3,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellSchools.LIGHTNING.attribute,
-                    "c1366245-81fd-4848-988e-83f7903f80aa",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellSchools.LIGHTNING.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_lightning_spell_power"),
                     0.3,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellSchools.HEALING.attribute,
-                    "c9efc316-50de-470f-8d11-1800066e106e",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellSchools.HEALING.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_healing_spell_power"),
                     0.3,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellSchools.ARCANE.attribute,
-                    "525f0dd6-5d1f-4961-9a82-57ecd7fc4682",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellSchools.ARCANE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_arcane_spell_power"),
                     0.3,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellSchools.FIRE.attribute,
-                    "4de16daa-e56c-4414-83a5-9f957ce0566d",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellSchools.FIRE.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_fire_spell_power"),
                     0.3,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellSchools.FROST.attribute,
-                    "ba74d1cf-3d6f-4904-9d51-5e070ae0bd7c",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellSchools.FROST.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "magic_circle_frost_spell_power"),
                     0.3,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
-    public static StatusEffect CYCLONICCLEAVE= new CyclonicCleaveEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect ARCANESLASH= new ArcaneSlashEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect AGONY= new AgonyEffect(StatusEffectCategory.HARMFUL, 3124687);
-    public static StatusEffect TORMENT= new TormentEffect(StatusEffectCategory.HARMFUL, 3124687);
-    public static StatusEffect RAPIDFIRE= new RapidFireEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect CATACLYSM= new CataclysmEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect GHOSTWALK= new GhostwalkEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect SKYWARDSUNDER= new SkywardSunderEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect RIGHTEOUSSHIELD= new RighteousShieldEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect SHADOWAURA= new ShadowAuraEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect GOLDENAEGIS= new GoldenAegisEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_ARMOR,
-                    "c3bf99d1-ee9c-4307-92b0-660581bfa28a",
+    public static Holder<MobEffect> CYCLONICCLEAVE = Holder.direct(new CyclonicCleaveEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> ARCANESLASH = Holder.direct(new ArcaneSlashEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> AGONY = Holder.direct(new AgonyEffect(MobEffectCategory.HARMFUL, 3124687));
+    public static Holder<MobEffect> TORMENT = Holder.direct(new TormentEffect(MobEffectCategory.HARMFUL, 3124687));
+    public static Holder<MobEffect> RAPIDFIRE = Holder.direct(new RapidFireEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> CATACLYSM = Holder.direct(new CataclysmEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> GHOSTWALK = Holder.direct(new GhostwalkEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> SKYWARDSUNDER = Holder.direct(new SkywardSunderEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> RIGHTEOUSSHIELD = Holder.direct(new RighteousShieldEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> SHADOWAURA = Holder.direct(new ShadowAuraEffect(MobEffectCategory.BENEFICIAL, 3124687));
+    public static Holder<MobEffect> GOLDENAEGIS = Holder.direct(new GoldenAegisEffect(MobEffectCategory.BENEFICIAL, 3124687)
+            .addAttributeModifier(Attributes.ARMOR,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "golden_aegis_armor"),
                     0.01,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(EntityAttributes.GENERIC_ARMOR_TOUGHNESS,
-                    "9836b739-fb7b-404e-9927-9bdf74de1dae",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(Attributes.ARMOR_TOUGHNESS,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "golden_aegis_armor_toughness"),
                     0.01,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(SpellSchools.HEALING.attribute,
-                    "1ebefacf-9a1e-4a81-9387-56dd4207a47f",
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            .addAttributeModifier(SpellSchools.HEALING.attributeEntry,
+                    ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, "golden_aegis_healing_spell_power"),
                     0.01,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect FOCUS= new FocusEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(AttributesMod.RANGED_DAMAGE,
-                    "127a2308-5cd7-4b28-b52d-71cde1d2a9da",
-                    0.2,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect TITANSGRIP= new TitansGripEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                    "53044215-cfb0-4a01-a33e-3bda11fab913",
-                    SimplySkills.miscConfig.promWarriorsDevotionAttackMulti,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_SPEED,
-                    "10d42842-3eb5-44c7-ba5f-a663ba984e66",
-                    -SimplySkills.miscConfig.promWarriorsDevotionAttackSpeedMulti,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    public static Holder<MobEffect> RAGINGJAVELIN = Holder.direct(new RagingJavelinEffect(MobEffectCategory.BENEFICIAL, 3124687));
 
-    public static StatusEffect MELODYOFWAR = new MelodyOfWarEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect MELODYOFSWIFTNESS = new MelodyOfSwiftnessEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                    "606c3744-d1f4-431f-860b-0092f1d9c32e",
-                    0.30,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect MELODYOFPROTECTION = new MelodyOfProtectionEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect MELODYOFSAFETY = new MelodyOfSafetyEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-    public static StatusEffect MELODYOFCONCENTRATION = new MelodyOfConcentrationEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_SPEED,
-                    "bddd1a50-7de3-4e21-bb32-1b562c138927",
-                    0.20,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL)
-            .addAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                    "6b9d312d-3451-4852-95be-3f7d8c6ec188",
-                    0.10,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect MELODYOFBLOODLUST = new MelodyOfBloodlustEffect(StatusEffectCategory.BENEFICIAL, 3124687)
-            .addAttributeModifier(EntityAttributes.GENERIC_ATTACK_SPEED,
-                    "c717c9f2-3b18-4ceb-af35-455063b25e2a",
-                    0.20,
-                    EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static StatusEffect RAGINGJAVELIN = new RagingJavelinEffect(StatusEffectCategory.BENEFICIAL, 3124687);
-
-    public static StatusEffect registerStatusEffect(String name, StatusEffect statusEffect) {
-        return Registry.register(Registries.STATUS_EFFECT, new Identifier(SimplySkills.MOD_ID, name), statusEffect);
+    public static Holder<MobEffect> registerStatusEffect(String name, Holder<MobEffect> statusEffect) {
+        MobEffect registeredEffect = Registry.register(BuiltInRegistries.MOB_EFFECT,
+                ResourceLocation.fromNamespaceAndPath(SimplySkills.MOD_ID, name), statusEffect.value());
+        return BuiltInRegistries.MOB_EFFECT.wrapAsHolder(registeredEffect);
     }
-    
-    public static void registerEffects() {
 
-        Synchronized.configure(STEALTH, true);
-        Synchronized.configure(BLADESTORM, true);
-        Synchronized.configure(VITALITYBOND, true);
-        Synchronized.configure(UNDYING, true);
-        Synchronized.configure(ARCANEVOLLEY, true);
-        Synchronized.configure(FROSTVOLLEY, true);
-        Synchronized.configure(BARRIER, true);
-        Synchronized.configure(RAGE, true);
-        Synchronized.configure(EVASION, true);
-        Synchronized.configure(IMMOBILIZE, true);
-        Synchronized.configure(DEATHMARK, true);
-        Synchronized.configure(TAUNTED, true);
-        Synchronized.configure(MARKSMANSHIP, true);
-        Synchronized.configure(RIGHTEOUSHAMMERS, true);
-        Synchronized.configure(BONEARMOR, true);
-        Synchronized.configure(MAGICCIRCLE, true);
-        Synchronized.configure(AGONY, true);
-        Synchronized.configure(TORMENT, true);
+    public static void registerEffects(RegisterEvent event) {
+        if (!event.getRegistryKey().equals(Registries.MOB_EFFECT))
+            return;
 
-        ActionImpairing.configure(CYCLONICCLEAVE, EntityActionsAllowed.STUN);
-        ActionImpairing.configure(ARCANESLASH, EntityActionsAllowed.INCAPACITATE);
-        ActionImpairing.configure(RAPIDFIRE, EntityActionsAllowed.INCAPACITATE);
-        ActionImpairing.configure(CATACLYSM, EntityActionsAllowed.STUN);
-        ActionImpairing.configure(GHOSTWALK, EntityActionsAllowed.STUN);
-        ActionImpairing.configure(SKYWARDSUNDER, EntityActionsAllowed.STUN);
-        ActionImpairing.configure(RIGHTEOUSSHIELD, EntityActionsAllowed.INCAPACITATE);
+        Synchronized.configure(STEALTH.value(), true);
+        Synchronized.configure(BLADESTORM.value(), true);
+        Synchronized.configure(VITALITYBOND.value(), true);
+        Synchronized.configure(UNDYING.value(), true);
+        Synchronized.configure(ARCANEVOLLEY.value(), true);
+        Synchronized.configure(FROSTVOLLEY.value(), true);
+        Synchronized.configure(BARRIER.value(), true);
+        Synchronized.configure(RAGE.value(), true);
+        Synchronized.configure(EVASION.value(), true);
+        Synchronized.configure(IMMOBILIZE.value(), true);
+        Synchronized.configure(DEATHMARK.value(), true);
+        Synchronized.configure(TAUNTED.value(), true);
+        Synchronized.configure(MARKSMANSHIP.value(), true);
+        Synchronized.configure(RIGHTEOUSHAMMERS.value(), true);
+        Synchronized.configure(BONEARMOR.value(), true);
+        Synchronized.configure(MAGICCIRCLE.value(), true);
+        Synchronized.configure(AGONY.value(), true);
+        Synchronized.configure(TORMENT.value(), true);
+
+        ActionImpairing.configure(CYCLONICCLEAVE.value(), EntityActionsAllowed.STUN);
+        ActionImpairing.configure(ARCANESLASH.value(), EntityActionsAllowed.INCAPACITATE);
+        ActionImpairing.configure(RAPIDFIRE.value(), EntityActionsAllowed.INCAPACITATE);
+        ActionImpairing.configure(CATACLYSM.value(), EntityActionsAllowed.STUN);
+        ActionImpairing.configure(GHOSTWALK.value(), EntityActionsAllowed.STUN);
+        ActionImpairing.configure(SKYWARDSUNDER.value(), EntityActionsAllowed.STUN);
+        ActionImpairing.configure(RIGHTEOUSSHIELD.value(), EntityActionsAllowed.INCAPACITATE);
 
         BERSERKING = registerStatusEffect("berserking", BERSERKING);
         BLOODTHIRSTY = registerStatusEffect("bloodthirsty", BLOODTHIRSTY);
@@ -405,32 +372,13 @@ public class EffectRegistry {
         RIGHTEOUSSHIELD = registerStatusEffect("righteous_shield", RIGHTEOUSSHIELD);
         GOLDENAEGIS = registerStatusEffect("golden_aegis", GOLDENAEGIS);
         SHADOWAURA = registerStatusEffect("shadow_aura", SHADOWAURA);
-        FOCUS = registerStatusEffect("focus", FOCUS);
-        TITANSGRIP = registerStatusEffect("titans_grip", TITANSGRIP);
-        MELODYOFWAR = registerStatusEffect("melody_of_war", MELODYOFWAR);
-        MELODYOFSWIFTNESS = registerStatusEffect("melody_of_swiftness", MELODYOFSWIFTNESS);
-        MELODYOFPROTECTION = registerStatusEffect("melody_of_protection", MELODYOFPROTECTION);
-        MELODYOFSAFETY = registerStatusEffect("melody_of_safety", MELODYOFSAFETY);
-        MELODYOFCONCENTRATION = registerStatusEffect("melody_of_concentration", MELODYOFCONCENTRATION);
-        MELODYOFBLOODLUST = registerStatusEffect("melody_of_bloodlust", MELODYOFBLOODLUST);
         RAGINGJAVELIN = registerStatusEffect("raging_javelin", RAGINGJAVELIN);
 
-        if (FabricLoader.getInstance().isModLoaded("paladins")) {
+        if (ModList.get().isLoaded("paladins")) {
             CONSECRATION = registerStatusEffect("consecration", CONSECRATION);
             SACREDONSLAUGHT = registerStatusEffect("sacred_onslaught", SACREDONSLAUGHT);
         }
 
-    }
-
-    public static EntityAttribute getPromBloodMagic() {
-        EntityAttribute returnAttribute = EntityAttributes.GENERIC_ARMOR;
-        if (FabricLoader.getInstance().isModLoaded("prominent")) {
-            if (Registries.ATTRIBUTE.get(new Identifier("death_knights:blood")) != null) {
-                returnAttribute = Registries.ATTRIBUTE.get(new Identifier("death_knights:blood"));
-            }
-        }
-
-        return returnAttribute;
     }
 
 

@@ -31,6 +31,8 @@ public class WarriorConfig implements ConfigData {
 
     public float passiveWarriorGoliathFallDistance = 3.0f;
     public float passiveWarriorHeavyWeightDamageIncreasePerTick = 0.3f;
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 200)
+    public int passiveWarriorRagingJavelinFrequency = 20;
 
     public int passiveWarriorDeathDefyFrequency = 20;
     public int passiveWarriorDeathDefyHealthThreshold = 30;
