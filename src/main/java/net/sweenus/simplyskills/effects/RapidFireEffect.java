@@ -18,12 +18,16 @@ import net.sweenus.simplyskills.abilities.compat.SimplySwordsGemEffects;
 import net.sweenus.simplyskills.registry.EffectRegistry;
 import net.sweenus.simplyskills.util.HelperMethods;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 public class RapidFireEffect extends MobEffect {
     public RapidFireEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
-    private int arrowCount = 0;
+    // Effects are shared singletons; retain progress across casts per live player.
+    private final Map<Player, Integer> arrowCounts = new WeakHashMap<>();
 
     @Override
     public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
@@ -36,6 +40,7 @@ public class RapidFireEffect extends MobEffect {
                     if (rapidFire == null)
                         return true;
 
+                    int arrowCount = arrowCounts.getOrDefault(player, 0);
                     if (rapidFire.getDuration() % 4 == 0) {
                         player.level().playSound(null, player, SoundEvents.PLAYER_ATTACK_WEAK,
                                 SoundSource.PLAYERS, 0.6f, 1.4f);
@@ -45,10 +50,11 @@ public class RapidFireEffect extends MobEffect {
                             SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:rapidfire_crossbow", 3, player, null);
                     } else if (rapidFire.getDuration() % 5 == 0) {
                         arrowCount++;
+                        arrowCounts.put(player, arrowCount);
                         SignatureAbilities.castSpellEngineIndirectTarget(player, "simplyskills:rapidfire_projectile", 3, player, null);
                     }
                     if (arrowCount > 2 && AscendancyAbilities.getAscendancyPoints(player) > 29) {
-                        arrowCount = 0;
+                        arrowCounts.put(player, 0);
                         HelperMethods.incrementStatusEffect(player, EffectRegistry.MARKSMANSHIP, 60, 1, 12);
                     }
 

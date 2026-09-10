@@ -24,6 +24,6 @@ Original code and assets are credited to Sweenus and Timefall Development. See [
 
 ## Review and testing
 
-The port has been submitted for review. See the [review documentation](review/README.md), [AI usage disclosure](AI_USAGE.md), [recorded testing evidence](review/verification.md) and [remaining release checks](review/release-review.md). Progression limits, post-removal ability smoke checks, build storage/restoration and focused curse isolation checks passed. Projectile visual smoke checks are user-confirmed. Second-player interactions and packaged dedicated-server startup have not been run.
+The port has been submitted for review. See the [review documentation](review/README.md), [AI usage disclosure](AI_USAGE.md), [recorded testing evidence](review/verification.md) and [remaining release checks](review/release-review.md). Progression limits, post-removal ability smoke checks, build storage/restoration and focused curse isolation checks passed. Projectile visual smoke checks are user-confirmed. Standalone packaged-server startup and focused two-player checks passed. Multiplayer testing found and fixed a shared Rapidfire shot counter; post-restart traces confirmed independent counters.
 
 Core/class summaries and detailed Ascendancy, shared-mechanic, visual and server testing are consolidated in the verification document. The latest development-server checks used Java 21, NeoForge 21.1.248 and Spell Engine 1.10.5; the Gradle build passed. Local worlds, configs and debugger state do not transfer through Git.
