@@ -26,4 +26,4 @@ Original code and assets are credited to Sweenus and Timefall Development. See [
 
 The port has been submitted for review. See the [review documentation](review/README.md), [AI usage disclosure](AI_USAGE.md), [recorded testing evidence](review/verification.md) and [remaining release checks](review/release-review.md). Packaged dedicated-server startup, second-player interactions and specific progression, compatibility-removal and visual regression checks remain pending.
 
-Documentation navigation has been checked against the tracked repository files. Recorded gameplay results retain their original scope; syncing this checkout does not provide new runtime validation.
+Core/class summaries and detailed Ascendancy, shared-mechanic, visual and server testing are consolidated in the verification document. Documentation links and preservation of the existing evidence have been checked. Recorded gameplay results retain their original scope; this reorganization adds no runtime validation.

@@ -5,7 +5,7 @@ This directory restores the development, porting, verification and release-revie
 - [AI usage disclosure](../AI_USAGE.md): implementation involvement, review locations, original credits and authorship limits.
 - [Development guide](development.md): code navigation, build command and implementation conventions.
 - [Porting notes](porting-notes.md): platform changes, balance changes and corrections to inherited behavior.
-- [Verification evidence](verification.md): recorded debugger measurements, user observations and unverified cases.
+- [Verification evidence](verification.md): the central testing record, covering core/class summaries, Ascendancy, shared mechanics, visuals, server/packaged checks and unverified cases.
 - [Remaining code review](release-review.md): unresolved concerns and release checks.
 
 The verification notes describe prior observations, not a fresh test of every path in the current revision. Later changes and pending retests are identified explicitly. Raw debugger state, local worlds and runtime configs are not included. The private `docs/handoff.md` is not required to review the code.

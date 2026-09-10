@@ -90,29 +90,7 @@ Review and testing support:
 
 ## In-game verification
 
-- Restored skill visibility and icons in the Puffish Skills interface.
-- Fixed Raging Javelin targeting and throwing behavior, then reduced its repeated throw interval.
-- Restored Swordfall, Havensmith, Judgment, and related overhead projectile/model behavior.
-- Verified the main-tree passive statistics and combat triggers in-game.
-- Corrected Berserker Challenge so one nearby enemy is sufficient.
-- Restored Regeneration and Resistance granted by Rampage's Charge upgrade.
-- Corrected Weapon Expert's inverted Spellforged roll so its `chance = 5` value acts as 5%.
-- Corrected Elemental Surge Renewal to match its original description: a 15% roll that adds 3 seconds.
-- Verified Cleric healing, sharing, cleansing, resistance, barrier, aura, and Undying interactions.
-- Verified Crusader defensive, taunt, mark, hammer, consecration, and related upgrade behavior.
-- Verified the complete Berserker and Spellblade trees, including their signature upgrades.
-- Verified Ranger Reveal, Tamer, Bonded, Trained, Incognito, and the complete Disengage branch.
-- Verified the complete Arrow Rain branch, including its Elemental enhancement, five-wave rain, Minefield, and Elemental Artillery.
-- Verified the complete Elemental Arrows branch, including all attunements, quantity and radius tiers, isolated and grouped targeting, and Renewal.
-- Confirmed the staggered Arrow Rain removes the observed launch lag while keeping the original arrow count, elemental chances, and player-to-rain projectile path.
-- Verified the complete Rogue tree, including Stealth requirements, rear-angle detection, Smoke Bomb, Shadow Veil, Evasion, Fan of Blades, Bladestorm, Siphoning Strikes, and their upgrades.
-- Confirmed successful Evasion rolls cancel damage without starting the hurt animation, while failed rolls still behave as normal hits.
-- Verified Fan of Blades and Siphoning Strikes start with the displayed stack counts, Bladestorm gains one stack per enemy hit, and Fan of Blades Renewal adds two stacks per kill.
-- Rechecked the repaired kill callbacks: Bloodthirsty restores 25% maximum health, Elemental Arrows Renewal follows its 35% roll and adds one stack, and Fan of Blades Renewal adds two stacks up to 20.
-- Verified the complete Wizard tree with Wizards RPG Series installed, including spell-power scaling, every signature branch, isolated and combined upgrades, projectile behavior, effect counts, renewal chances, and ability cooldown pausing.
-- Confirmed the corrected combined Wizard tiers select Greater ++, 52 Static Discharge leaps, a 15% Speed chance, and exactly six Frost Volley shots.
-- Verified the complete Necromancer tree, including minion attributes and limits, Wraith effects, harmful-effect transfers, defensive effects, death triggers, auras, life siphoning, resurrection chances, and Greater Dreadglare traits.
-- Retested the Necromancer corrections: Winterborn stacks, Fortification armor/toughness, normal Shadow Aura damage, Endless Servitude's 20% base chance, and Greater Dreadglare Might levels. Combustion regression confirmed one explosion for both aura-triggered and direct deaths after fixing recursive death-handler calls.
+Testing records are consolidated in [verification.md](verification.md), including [core-tree checks](verification.md#core-tree), [class-tree summaries](verification.md#class-trees), [Ascendancy evidence](verification.md#ascendancy) and [server/packaged checks](verification.md#server-and-packaged-checks). See that document for observed results and their limits, and [release review](release-review.md) for remaining work.
 
 ## Known review notes
 
